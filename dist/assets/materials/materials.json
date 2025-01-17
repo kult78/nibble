@@ -1,0 +1,37 @@
+
+{
+    "materials" : [
+
+        {
+            "id" : "blitter",
+            "vs" : "assets/materials/basic2d.vs",
+            "fs" : "assets/materials/basic2d.fs",
+            "ztest" : false,
+            "zwrite" : false,
+            "fbop" : "put",   
+            "filter": true
+        },
+
+        {
+            "id" : "basic2d",
+            "vs" : "assets/materials/basic2d.vs",
+            "fs" : "assets/materials/basic2d.fs",
+            "ztest" : false,
+            "zwrite" : false,
+            "fbop" : "alpha",
+            "filter": true      
+        },
+
+        {
+            "id" : "basic2d_add",
+            "vs" : "assets/materials/basic2d.vs",
+            "fs" : "assets/materials/basic2d.fs",
+            "ztest" : false,
+            "zwrite" : false,
+            "fbop" : "add",
+            "filter": false
+        }
+        
+    ]
+}
+

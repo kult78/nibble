@@ -1,0 +1,165 @@
+
+import * as log from "./Logging.js";
+import * as env from "./WebEnv.js";
+import { Material, getMaterial } from "./Material.js"
+import { Box } from "./Geometry.js"
+import { FatalError, UvRect } from "./Common.js";
+
+export class RenderTarget {
+    constructor(width: number, height: number) {
+        this.width = width;
+        this.height = height;
+        this.construct();
+    }
+
+    private construct() {
+        let gl = env.gl;
+
+        this.framebuffer = gl.createFramebuffer();
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
+
+        this.texture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, this.texture);
+
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+        gl.texImage2D(
+            gl.TEXTURE_2D, 
+            0, 
+            gl.RGBA, 
+            this.width, 
+            this.height, 
+            0, 
+            gl.RGBA, 
+            gl.UNSIGNED_BYTE, 
+            null
+        );
+
+        gl.framebufferTexture2D(
+            gl.FRAMEBUFFER,
+            gl.COLOR_ATTACHMENT0,
+            gl.TEXTURE_2D,
+            this.texture,
+            0 // Mipmap level
+        );
+
+        this.renderbuffer = gl.createRenderbuffer();
+        gl.bindRenderbuffer(gl.RENDERBUFFER, this.renderbuffer);
+        gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, this.width, this.height);
+        gl.framebufferRenderbuffer(
+            gl.FRAMEBUFFER,
+            gl.DEPTH_ATTACHMENT,
+            gl.RENDERBUFFER,
+            this.renderbuffer
+        );
+
+        if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
+            throw new FatalError(`Failed to create ${this.width}x${this.height} Framebuffer`);
+        } else {
+            log.info(`Framebuffer ${this.width}x${this.height} is ready to use`, "tech");
+        }
+
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.bindTexture(gl.TEXTURE_2D, null);
+        gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+    }
+ 
+    public dispose() {
+
+        let gl = env.gl;
+         
+        if(this.framebuffer) {
+            gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
+
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, null, 0);
+            gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, null);
+        
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        
+            if (this.texture) {
+                gl.deleteTexture(this.texture);
+            }
+            if (this.renderbuffer) {
+                gl.deleteRenderbuffer(this.renderbuffer);
+            }
+        
+            if (this.framebuffer) {
+                gl.deleteFramebuffer(this.framebuffer);
+            }
+        }
+
+        this.framebuffer = null;
+        this.renderbuffer = null;
+        this.texture = null;
+    }
+
+    public useAsRenderTarget() {
+        env.gl.bindFramebuffer(env.gl.FRAMEBUFFER, this.framebuffer);
+        env.gl.viewport(0, 0, this.width, this.height);
+    }
+
+    public getApiTexture(): WebGLTexture { 
+        if(this.texture == null) throw new FatalError(`No gl texture in texture framebuffer to use`);       
+        return this.texture; 
+    }
+
+    public width: number;
+    public height: number;
+
+    private renderbuffer : WebGLRenderbuffer | null = null;
+    private texture: WebGLTexture | null = null;
+    private framebuffer: WebGLFramebuffer | null = null;
+}
+
+// ----------
+
+export class Blitter {
+    public blit(source: RenderTarget, destination: RenderTarget | null) {                     
+        if(this.materialId == "") throw new FatalError("No material is set to blit with Blitter");
+
+        if(this.material == null) {
+            this.material = getMaterial(this.materialId);
+        }
+
+        if(this.targetBox == null) {
+            this.targetBox = new Box(
+                0.0, 0.0, 1.0, 1.0,
+                0.0, 0.0, 1.0, 1.0,
+                1.0, 1.0 ,1.0, 1.0
+            );            
+        }
+ 
+        if(destination == null) { 
+            env.gl.bindFramebuffer(env.gl.FRAMEBUFFER, null);
+            env.gl.viewport(0, 0, env.oglWidth, env.oglHeight)
+        } else {
+            destination.useAsRenderTarget();
+        }
+
+        this.targetBox.renderWith(this.material, source.getApiTexture());
+    }
+
+    public blitToScreen(source: RenderTarget) {
+        this.blit(source, null);
+    }
+
+    public dispose() {
+        if(this.targetBox != null) {
+            this.targetBox.dispose();
+            this.targetBox = null;
+        }
+    }
+
+    public setMaterial(id: string) {
+        this.materialId = id;
+        this.material = null;
+    }
+
+    private material: Material | null = null;
+    private materialId: string = "";
+    private targetBox: Box | null = null;
+}
+

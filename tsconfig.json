@@ -1,0 +1,22 @@
+
+
+{
+    "compilerOptions": {
+      "target": "es6",
+      "module": "esnext",
+      "moduleResolution": "node",
+      "strict": true,
+      "outDir": "./dist/src",
+      "rootDir": "./src",
+      "allowJs": true,
+      "types": ["node"]
+    },
+    "include": 
+    [
+      "src/**/*.ts",
+      "src/**/*.js"
+    ],
+    "exclude": ["node_modules"]
+  }
+
+  
