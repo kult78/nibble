@@ -96,9 +96,9 @@ export class RenderTarget {
         this.texture = null;
     }
 
-    public useAsRenderTarget() {
-        env.gl.bindFramebuffer(env.gl.FRAMEBUFFER, this.framebuffer);
-        env.gl.viewport(0, 0, this.width, this.height);
+    public getApiFramebuffer() {
+        if(this.texture == null) throw new FatalError(`No framebuffer in framebuffer to use`);       
+        return this.framebuffer; 
     }
 
     public getApiTexture(): WebGLTexture { 
@@ -133,10 +133,12 @@ export class Blitter {
         }
  
         if(destination == null) { 
-            env.gl.bindFramebuffer(env.gl.FRAMEBUFFER, null);
-            env.gl.viewport(0, 0, env.oglWidth, env.oglHeight)
+            env.setRenderTarget(null);
+            //env.gl.bindFramebuffer(env.gl.FRAMEBUFFER, null);
+            //env.gl.viewport(0, 0, env.oglCanvasWidth, env.oglHeight)
         } else {
-            destination.useAsRenderTarget();
+            env.setRenderTarget(destination);
+            //destination.useAsRenderTarget();
         }
 
         this.targetBox.renderWith(this.material, source.getApiTexture());

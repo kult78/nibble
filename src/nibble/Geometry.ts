@@ -2,8 +2,7 @@
 import * as mt from "./Material.js"
 import * as tex from "./Texture.js"
 import * as env from "./WebEnv.js"
-
-/*
+import * as c from "./Common.js";
 
 export enum Format {
     xyUvRgba,
@@ -12,8 +11,8 @@ export enum Format {
 
 function getVertexFloatSize(format: Format): number {
     if(format == Format.xyUvRgba) return 8;
-    if(format == Format.xyzNxnynzUvRgba) return 15;
-    throw new FatalError(`Unknown vertex format: ${format}`);
+    if(format == Format.xyzNxnynzUvRgba) return 12;
+    throw new c.FatalError(`Unknown vertex format: ${format}`);
 }
 
 export class Geometry {
@@ -29,7 +28,7 @@ export class Builder {
         this.format = format;
     }
 
-    public current(): u.MetaVertex { return this.vertex; }
+    public current(): c.Vertex { return this.vertex; }
 
     public commitVertex() {
         if(this.format == Format.xyUvRgba) {
@@ -52,11 +51,11 @@ export class Builder {
             this.data.push(this.vertex.u);
             this.data.push(this.vertex.v);
             this.data.push(this.vertex.r);
-            this.data.push(this.vertex.g);
+            this.data.push(this.vertex.g); 
             this.data.push(this.vertex.b);
             this.data.push(this.vertex.a);
         }
-        throw new FatalError(`Unknown vertex format in builder: ${this.format}`);
+        throw new c.FatalError(`Unknown vertex format in builder: ${this.format}`);
     }
 
     public clear() { this.data = []; }
@@ -66,11 +65,11 @@ export class Builder {
         return geometry;
     }
 
-    private vertex = new u.MetaVertex();   
+    private vertex = new c.Vertex();   
     private format: Format;
     private data: number[] = [];
 }
-*/
+
 // -----------------------------------------------------------------------------
 
 export class Box {

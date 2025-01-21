@@ -6,7 +6,7 @@
     "main": "main.js",
     "scripts": {
         "watch": "concurrently \"tsc --watch\" \"npm run open-on-recompile\"",
-        "open-on-recompile": "nodemon --watch ./src --exec \"npm run localpub\"",
+        "open-on-recompile": "nodemon --watch ./dist/src --exec \"npm run localpub\"",
         "localpub": "lite-server"
     },
     "author": "kult78",

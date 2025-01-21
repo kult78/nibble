@@ -114,7 +114,6 @@ export class FatalError extends Error {
         const error = new Error();
         this.callStack = error.stack || "No stack trace available";
     }
-
     public callStack = "";
 }
 
@@ -135,6 +134,18 @@ export class Color {
         public b: number,
         public a: number = 1.0
     ) {}
+
+    public clone(): Color {
+        return new Color(this.r, this.g, this.b, this.a);
+    }
+
+    public multiple(other: Color): Color {
+        return new Color(this.r * other.r,
+            this.g * other.g,
+            this.b * other.b,
+            this.a * other.a
+        );
+    }
 }
 
 export function randomColor(): Color { return new Color(Math.random(), Math.random(), Math.random()); }

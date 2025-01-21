@@ -13,8 +13,8 @@ export class TileProps {
     public tilePixelSizeX: number;
     public tilePixelSizeY: number;
 
-    public pixelSizeX: number;
-    public pixelSizeY: number;
+    public pixelWidth: number;
+    public pixelHeight: number;
 
     constructor(texture: string,
         tileCountX: number, tileCountY: number,
@@ -25,8 +25,8 @@ export class TileProps {
             this.tileCountY = tileCountY;
             this.tilePixelSizeX = Math.floor(this.texture.width / this.tileCountX);
             this.tilePixelSizeY = Math.floor(this.texture.height / this.tileCountY);
-            this.pixelSizeX = 1.0 / (this.texture.width);
-            this.pixelSizeY = 1.0 / (this.texture.height);
+            this.pixelWidth = 1.0 / (this.texture.width);
+            this.pixelHeight = 1.0 / (this.texture.height);
         } else {
             throw new c.FatalError(`No texture for tilemap [${texture}]`);
         }
@@ -35,7 +35,7 @@ export class TileProps {
             this.tileList.set(k, this.GetTileUv(v.x, v.y))
         });
     }
-
+ 
     public GetNamedTileUv(name: string): c.UvRect {
         let ret = new c.UvRect(0, 0, 1, 1);
         if(this.tileList.has(name)) {
@@ -47,15 +47,15 @@ export class TileProps {
     public GetTileUv(x: number, y: number): c.UvRect {
         let ret = new c.UvRect(0, 0, 1, 1);
 
-        ret.u0 = (x * this.tilePixelSizeX * this.pixelSizeX);
-        ret.v0 = (y * this.tilePixelSizeY * this.pixelSizeY);
-        ret.u0 += this.pixelSizeX / 2;
-        ret.v0 += this.pixelSizeY / 2;
+        ret.u0 = (x * this.tilePixelSizeX * this.pixelWidth);
+        ret.v0 = (y * this.tilePixelSizeY * this.pixelHeight);
+        ret.u0 += this.pixelWidth / 2;
+        ret.v0 += this.pixelHeight / 2;
 
-        ret.u1 = ret.u0 + (this.tilePixelSizeX - 1) * this.pixelSizeX;
-        ret.v1 = ret.v0 + (this.tilePixelSizeY - 1) * this.pixelSizeY;
-        ret.u1 -= this.pixelSizeX / 2;
-        ret.v1 -= this.pixelSizeY / 2;
+        ret.u1 = ret.u0 + (this.tilePixelSizeX - 1) * this.pixelWidth;
+        ret.v1 = ret.v0 + (this.tilePixelSizeY - 1) * this.pixelHeight;
+        //ret.u1 -= this.pixelWidth / 2;
+        //ret.v1 -= this.pixelHeight / 2;
 
         ret.v0 = 1.0 - ret.v0;
         ret.v1 = 1.0 - ret.v1;

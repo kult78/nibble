@@ -1,5 +1,7 @@
 
 import * as log from "./Logging.js";
+import * as fbo from "./Fbo.js"
+import { FatalError } from "./Common.js";
 
 // ---------- event types
 
@@ -95,8 +97,9 @@ function timeStep(currentTime : number)
     if(renderRequested){
         renderRequested = false;
          
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-        gl.viewport(0, 0, oglWidth, oglHeight)
+        setRenderTarget(null);
+        //gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        //gl.viewport(0, 0, oglWidth, oglHeight)
         
         eventRenderOgl();      
     }
@@ -149,19 +152,19 @@ export function setOglCanvas(id: string): boolean {
   
     log.info(`OpenGL context is set up for canvas [${id}]`, "tech");
 
-    oglWidth = Math.round(oglCanvas.width);
-    oglHeight = Math.round(oglCanvas.height);
-    gl.viewport(0, 0, oglWidth, oglHeight);
-    log.info(`Rendertarget resolution: ${oglWidth}x${oglHeight}`, "tech"); 
+    oglCanvasWidth = Math.round(oglCanvas.width);
+    oglCanvasHeight = Math.round(oglCanvas.height);
+    gl.viewport(0, 0, oglCanvasWidth, oglCanvasHeight);
+    log.info(`Rendertarget resolution: ${oglCanvasWidth}x${oglCanvasHeight}`, "tech"); 
 
     const resizeObserver = new ResizeObserver((entries) => {
         for (let entry of entries) {
-            oglWidth = Math.round(entry.contentRect.width);
-            oglHeight = Math.round(entry.contentRect.height);
-            oglCanvas!.width = oglWidth;
-            oglCanvas!.height = oglHeight; 
-            gl.viewport(0, 0, oglWidth, oglHeight);
-            log.info(`Rendertarget resolution: ${oglWidth}x${oglHeight}`, "tech");
+            oglCanvasWidth = Math.round(entry.contentRect.width);
+            oglCanvasHeight = Math.round(entry.contentRect.height);
+            oglCanvas!.width = oglCanvasWidth;
+            oglCanvas!.height = oglCanvasHeight; 
+            gl.viewport(0, 0, oglCanvasWidth, oglCanvasHeight); 
+            log.info(`Rendertarget resolution: ${oglCanvasWidth}x${oglCanvasHeight}`, "tech");
         }
     });
     resizeObserver.observe(oglCanvas);
@@ -202,7 +205,32 @@ function handleMouseUp(event: MouseEvent) {
   
 // ----------
 
-export let oglWidth = -1;
-export let oglHeight = -1;
+export let oglCanvasWidth = -1;
+export let oglCanvasHeight = -1;
+
+// ----------
+
+export let renderWidth: number = 0;
+export let renderHeight: number = 0;
+export let renderAspect: number = 1;
+
+export function setRenderTarget(target: fbo.RenderTarget | null) {
+    if(target) {
+        gl.bindFramebuffer(gl.FRAMEBUFFER, target.getApiFramebuffer());
+        gl.viewport(0, 0, target.width, target.height);
+        renderWidth = target.width;
+        renderHeight = target.height;
+    } else {
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.viewport(0, 0, oglCanvasWidth, oglCanvasHeight);
+        renderWidth = oglCanvasWidth;
+        renderHeight = oglCanvasHeight;
+    }
+
+    if(renderWidth == 0 || renderHeight == 0)
+        throw new FatalError("Zero render size error");
+
+    renderAspect = renderWidth / renderHeight;
+}
 
 

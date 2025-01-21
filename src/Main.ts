@@ -13,18 +13,18 @@ async function main() {
 
     // ----------
 
-    function panic(x: any) { 
+    function panic(x: any) {  
         console.log(x);
         if(x instanceof Error)
-            n.error("PANICKED with error: " + x.message);
+            n.error("PANICKED with error:" + x.message);
         else  
-            n.error("PANICKED with unkown: " + x.toString());
+            n.error("PANICKED with unkown:" + x.toString());
 
         let errorText = document.getElementById("errorText");
         if (errorText) {
             errorText.textContent += x.message;
             errorText.textContent += x.toString() ;
-        
+     
             if(x instanceof n.FatalError) {               
                 errorText.textContent += (x as n.FatalError).callStack; 
             }       
@@ -50,7 +50,7 @@ async function main() {
  
         if(leftDown == false)
             //for(let i = 0; i < 100; i++)
-                application.addPenguin(x / n.oglWidth, 1.0 - y / n.oglHeight);
+                application.addPenguin(x / n.oglCanvasWidth, 1.0 - y / n.oglCanvasHeight);
 
     });
 

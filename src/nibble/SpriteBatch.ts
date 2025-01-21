@@ -21,7 +21,7 @@ export class SpriteBatch {
     }
 
     public begin() { this.clear(); }
-    public end() { this.render(); }
+    public end(texture: Texture | null) { this.render(texture); }
     
     public sprite(
         x: number, y: number, w: number, h: number, 
@@ -70,7 +70,7 @@ export class SpriteBatch {
         let v1: number = uv.v1;
 
         if(flipX) { const temp = u1; u1 = u0; u0 = temp; }
-        if(flipY) { const temp = v1; v1 = v0; v0 = temp; }
+        if(flipY == false) { const temp = v1; v1 = v0; v0 = temp; }
 
         const vx0 = c.Vertex.from2d(x0, y0, u0, v0, color);
         const vx1 = c.Vertex.from2d(x1, y1, u1, v0, color);
@@ -114,7 +114,10 @@ export class SpriteBatch {
             return;
 
         if(this.material == null) throw new FatalError("No material in SpriteBatch to render with");
-        if(this.texture == null) throw new FatalError("No texture in SpriteBatch to render with");
+        if(texture == null && this.texture == null) throw new FatalError("No texture in SpriteBatch to render with");
+
+        let useTexture = this.texture;
+        if(texture) useTexture = texture;
         
         let gl = env.gl;
 
@@ -142,7 +145,7 @@ export class SpriteBatch {
         if(texture)
             this.material!.use(texture.getApiTexture());
         else
-            this.material!.use(this.texture.getApiTexture());
+            this.material!.use(useTexture!.getApiTexture());
 
         gl.drawArrays(gl.TRIANGLES, 0, this.data.length / 8);        
        

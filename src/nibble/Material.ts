@@ -29,10 +29,18 @@ export class Material {
 
         this.program.use();
 
-        gl.uniform1i(this.program.getSetup().u_tex0, 0);
-        gl.activeTexture(gl.TEXTURE0 + 0);
-        gl.bindTexture(gl.TEXTURE_2D, tex0);
+        // --- setup uniforms
+
+        if(this.program.getSetup().u_tex0) {
+            gl.uniform1i(this.program.getSetup().u_tex0, 0);
+            gl.activeTexture(gl.TEXTURE0 + 0);
+            gl.bindTexture(gl.TEXTURE_2D, tex0);
+        }
+
+        this.program.getSetup().set_u_fbres(env.renderWidth, env.renderHeight);
     
+        // --- setup render states
+
         if(this.zTest)
             gl.enable(gl.DEPTH_TEST);
         else

@@ -2,33 +2,26 @@
 
 import * as n from "./nibble/index.js";
 import * as global from "./Global.js"
-import { renderAspect, setRenderTarget } from "./Helpers.js";
 
-class Penguin {
-    constructor(public x: number, public y: number, public color: n.Color, uv: n.UvRect) {
-        this.size = Math.random() / 3 + 0.2;
-        this.rotation = 0.0;
-
-        if(this.color.a < 0.2) this.color.a = 0.2;
-
-        this.uv = uv;
-
+class Stuff {
+    constructor(public x: number, public y: number, public w: number, public h: number,
+        public color: n.Color, public uv: n.UvRect, public size: number, public rotation: number) {
     }
 
-    public size: number;
-    public rotation: number;
     public flipX = false;
     public flipY = false; 
-    public uv;
-}
+} 
 
 export class Application {
 
     private tileProps : n.TileProps | null = null;
 
-    public penguins : Penguin[] = [];
+    public stuffList : Stuff[] = [];
 
     public addPenguin(x: number, y: number) {
+
+        x = x * 640;
+        y = y * 360;
 
         let t = "knigh";
         const rt = Math.floor(Math.random() * 7);
@@ -37,14 +30,26 @@ export class Application {
         if(rt == 2) t = "leech";
         if(rt == 3) t = "magister";
         if(rt == 4) t = "wizard";
-        if(rt == 5) t = "guard";
+        if(rt == 5) t = "guard"; 
         if(rt == 6) t = "baron";
 
-        let p = new Penguin(x, y, n.randomColor4(), this.tileProps!.GetNamedTileUv(t));
+        let color = n.Colors.white;
+        color.r -= Math.random() / 10;
+        color.g -= Math.random() / 10;
+        color.b -= Math.random() / 10;
+
+        let s: number = 1;
+
+        let p = new Stuff(x, y, this.tileProps!.tilePixelSizeX, this.tileProps!.tilePixelSizeY,
+            color.clone(), this.tileProps!.GetNamedTileUv(t), s, 0);
         
         p.flipX = Math.random() < 0.5;
-        p.flipY = Math.random() < 0.5;
-        this.penguins.push(p);
+        p.flipY = false; //Math.random() < 0.5;
+        this.stuffList.push(p); 
+
+        this.stuffList.forEach(p => {
+            console.log(p.color.r + " " + p.color.g + " " + p.color.b);
+        });
 
         /*
         if(this.penguins.length == 1) {
@@ -63,12 +68,15 @@ export class Application {
     // ----------
  
     private sprites: n.SpriteBatch | null = null;
+    private figureTex0 : n.Texture | null = null;
+    private figureTex1 : n.Texture | null = null;
 
     public startup() {
         n.requestResource("assets/gfx/sprites0.png#Key=0 0");
         n.requestResource("assets/gfx/sprites0a.png#Key=0 0"); 
 
         n.requestResource("assets/materials/basic2d.vs");
+        n.requestResource("assets/materials/basic2d_pix.vs");
         n.requestResource("assets/materials/basic2d.fs");
         n.requestResource("assets/materials/materials.json");
     }
@@ -77,7 +85,7 @@ export class Application {
   
     public userCommand(command: string): string {
         const errorParsingCommand: string = "Error parsing command.";
- 
+  
         command = command.replace(/[\r\n\t]/g, ' ').replace(/\s+/g, ' ').trim();
         if(command != "") {
  
@@ -112,8 +120,10 @@ export class Application {
         n.addMaterialsFromFile("assets/materials/materials.json");
         
         this.sprites = new n.SpriteBatch();
-        this.sprites.setMaterial("basic2d");
-        this.sprites.setTexture("assets/gfx/sprites0.png#Key=0 0");
+        this.sprites.setMaterial("basic2d_pix");
+
+        this.figureTex0 = n.getTexture("assets/gfx/sprites0.png#Key=0 0");
+        this.figureTex1 = n.getTexture("assets/gfx/sprites0a.png#Key=0 0");
     }
 
     private preRender() { 
@@ -146,51 +156,47 @@ export class Application {
     }
 
     private frame(time: number, frame: number) {
-        this.penguins.forEach(p => {
-            if(p.size < 0.3) {
-                p.rotation += 0.01 / p.size;
-            }
-            else {
-                p.rotation -= 0.01 / p.size;
-            }
+        this.stuffList.forEach(p => {
         });
     }   
 
-    private colorSwap = true;
+    private figureTextureActive: number = 0;
 
     private oneSecond(time: number, frame: number) {
-        this.colorSwap = !this.colorSwap;
-    }
+
+        this.stuffList.forEach(p => {
+            if(Math.random() < 0.5) {
+                p.flipX = !p.flipX;
+            }
+        });
+
+        if(this.figureTextureActive) this.figureTextureActive = 0; else this.figureTextureActive = 1;
+    } 
  
     private fbo: n.RenderTarget | null = null;
     private blitter: n.Blitter = new n.Blitter();
 
     public render() {
-        this.preRender();
+        this.preRender(); 
 
-        setRenderTarget(this.fbo);
+        n.setRenderTarget(this.fbo);
 
-        if(this.colorSwap) {
-            n.gl.clearColor(0.2, 0.0, 0.0, 1.0);
-            n.gl.clear(n.gl.COLOR_BUFFER_BIT);
-        } else {
-            n.gl.clearColor(0.2, 0.2, 0.0, 1.0);
-            n.gl.clear(n.gl.COLOR_BUFFER_BIT);
-        }
-          
+        n.gl.clearColor(0.3, 0.3, 0.3, 1.0);
+        n.gl.clear(n.gl.COLOR_BUFFER_BIT);
+        
         this.sprites!.begin();
-        this.penguins.forEach(p => {
+        this.stuffList.forEach(p => {
             this.sprites!.sprite(
-                p.x, p.y, 
-                p.size / (16/9), p.size, 
+                p.x, p.y,
+                p.w, p.h, 
                 n.Align2d.Centre,
                 p.uv,
                 p.color, 
                 p.flipX, p.flipY,
                 p.size, p.rotation,
-                renderAspect);
+                1.0);
         });
-        this.sprites!.end();
+        this.sprites!.end(this.figureTextureActive ? this.figureTex0 : this.figureTex1);
                
         this.blitter.blitToScreen(this.fbo!);
     }

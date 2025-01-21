@@ -13,6 +13,16 @@
         },
 
         {
+            "id" : "basic2d_pix",
+            "vs" : "assets/materials/basic2d_pix.vs",
+            "fs" : "assets/materials/basic2d.fs",
+            "ztest" : false,
+            "zwrite" : false,
+            "fbop" : "alpha",
+            "filter": true      
+        },
+
+        {
             "id" : "basic2d",
             "vs" : "assets/materials/basic2d.vs",
             "fs" : "assets/materials/basic2d.fs",

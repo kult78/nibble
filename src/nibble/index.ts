@@ -35,7 +35,7 @@ export {
     TickEventHandler, RenderOglEventHandler, KeyEventHandler,
     setTickEventHandler, setRenderOglEventHandler, startup, shutdown, 
     setKeyEventHandler, setMouseMoveEventHandler, setMouseButtonEventHandler,
-    oglWidth, oglHeight,
+    oglCanvasWidth, oglCanvasHeight, renderWidth, renderHeight, setRenderTarget,
     setOglCanvas, showOglCanvasMouseCursor, gl,
 } from "./WebEnv.js"
 
