@@ -141,7 +141,14 @@ export class ShaderSetup {
     public set_u_fbres(width: number, height: number) { if(this.u_fbres != null) env.gl.uniform2f(this.u_fbres, width, height); }
     public set_u_time(time: number) { if(this.u_time != null) env.gl.uniform1f(this.u_time, time); }
 
+    public set_u_model(mtx: number[]) { if(this.u_model_mtx != null) env.gl.uniformMatrix4fv(this.u_model_mtx, false, mtx); }
+    public set_u_view(mtx: number[]) { if(this.u_view_mtx != null) env.gl.uniformMatrix4fv(this.u_view_mtx, false, mtx); }
+    public set_u_projection(mtx: number[]) { if(this.u_projection_mtx != null) env.gl.uniformMatrix4fv(this.u_projection_mtx, false, mtx); }
+    public set_u_modelinverse(mtx: number[]) { if(this.u_normal_mtx != null) env.gl.uniformMatrix4fv(this.u_normal_mtx, false, mtx); }
+
     public a_xy: number = -1;
+    public a_xyz: number = -1;
+    public a_nxnynz: number = -1;
     public a_uv0: number = -1;
     public a_rgba: number = -1;
 
@@ -149,9 +156,15 @@ export class ShaderSetup {
     public u_fbres: WebGLUniformLocation | null = null;
     public u_time: WebGLUniformLocation | null = null;
     public u_tex0: WebGLUniformLocation | null = null;
+    public u_model_mtx: WebGLUniformLocation | null = null;
+    public u_view_mtx: WebGLUniformLocation | null = null;
+    public u_projection_mtx: WebGLUniformLocation | null = null;
+    public u_normal_mtx : WebGLUniformLocation | null = null;
 
     private updateLocations() {
         this.a_xy = env.gl.getAttribLocation(this.program, "a_xy");
+        this.a_xyz = env.gl.getAttribLocation(this.program, "a_xyz");
+        this.a_nxnynz = env.gl.getAttribLocation(this.program, "a_nxnynz");
         this.a_uv0 = env.gl.getAttribLocation(this.program, "a_uv0");
         this.a_rgba = env.gl.getAttribLocation(this.program, "a_rgba");
         
@@ -159,6 +172,10 @@ export class ShaderSetup {
         this.u_fbres = env.gl.getUniformLocation(this.program, "u_fbres");
         this.u_time = env.gl.getUniformLocation(this.program, "u_time");
         this.u_tex0 = env.gl.getUniformLocation(this.program, "u_tex0");
+        this.u_model_mtx = env.gl.getUniformLocation(this.program, "u_model_mtx");
+        this.u_view_mtx = env.gl.getUniformLocation(this.program, "u_view_mtx");
+        this.u_projection_mtx = env.gl.getUniformLocation(this.program, "u_projection_mtx");
+        this.u_normal_mtx = env.gl.getUniformLocation(this.program, "u_normal_mtx");
     }  
 }
 

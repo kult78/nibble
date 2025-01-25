@@ -3,6 +3,7 @@ import * as mt from "./Material.js"
 import * as tex from "./Texture.js"
 import * as env from "./WebEnv.js"
 import * as c from "./Common.js";
+import { Program } from "./Shader.js";
 
 export enum Format {
     xyUvRgba,
@@ -16,12 +17,62 @@ function getVertexFloatSize(format: Format): number {
 }
 
 export class Geometry {
-    constructor(format: Format) {
+    constructor(format: Format, data: number[]) {
         this.format = format;
+        this.data = new Float32Array(data);
+
+        if(format != Format.xyzNxnynzUvRgba) throw new c.FatalError(`Not proper Geometry constructor vertex format: ${format}`);
     }
 
+    public render(program: Program) {
+        let gl = env.gl;
+
+        if(this.buffer == null) {            
+            this.buffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+            gl.bufferData(gl.ARRAY_BUFFER, this.data, gl.STATIC_DRAW);
+        } else {
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+        }
+
+        let shaderSetup = program.getSetup();
+
+        if(this.format == Format.xyzNxnynzUvRgba) {
+
+            let stride: number = 4* getVertexFloatSize(this.format);
+
+            let xyzLoc = shaderSetup.a_xyz;
+            gl.enableVertexAttribArray(xyzLoc);
+            gl.vertexAttribPointer(xyzLoc, 2, gl.FLOAT, false, stride, 0);
+
+            let nxnynzLoc = shaderSetup.a_nxnynz;
+            gl.enableVertexAttribArray(nxnynzLoc);
+            gl.vertexAttribPointer(nxnynzLoc, 2, gl.FLOAT, false, stride, 4 * 3);
+
+            let uv0Loc = shaderSetup.a_uv0;
+            gl.enableVertexAttribArray(uv0Loc);
+            gl.vertexAttribPointer(uv0Loc, 2, gl.FLOAT, false, stride, 4 * 3 + 4 * 3);
+    
+            let rgbaLoc = shaderSetup.a_rgba;
+            gl.enableVertexAttribArray(rgbaLoc);
+            gl.vertexAttribPointer(rgbaLoc, 4, gl.FLOAT, false, stride, 4 * 3 + 4 * 3 + 4 * 2);
+    
+            gl.drawArrays(gl.TRIANGLES, 0, this.data!.length / getVertexFloatSize(this.format));           
+        }
+    }
+
+    public dispose() {
+        if(this.buffer) env.gl.deleteBuffer(this.buffer);
+        this.buffer = null;
+    }
+
+
     private format: Format;
+    private data: Float32Array | null = null;
+    private buffer : WebGLBuffer | null = null; 
 }
+
+// ----------
 
 export class Builder {
     constructor(format: Format) {
@@ -61,7 +112,7 @@ export class Builder {
     public clear() { this.data = []; }
 
     public createGeometry() : Geometry {
-        let geometry = new Geometry(this.format);
+        let geometry = new Geometry(this.format, this.data);
         return geometry;
     }
 

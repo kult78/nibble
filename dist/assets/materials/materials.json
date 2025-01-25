@@ -40,8 +40,18 @@
             "zwrite" : false,
             "fbop" : "add",
             "filter": false
-        }
+        },
         
+        {
+            "id" : "basic3d",
+            "vs" : "assets/materials/basic3d.vs",
+            "fs" : "assets/materials/basic3d.fs",
+            "ztest" : true,
+            "zwrite" : true,
+            "fbop" : "alpha",
+            "filter": true      
+        }
+
     ]
 }
 

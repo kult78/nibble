@@ -74,10 +74,12 @@ export class Application {
     public startup() {
         n.requestResource("assets/gfx/sprites0.png#Key=0 0");
         n.requestResource("assets/gfx/sprites0a.png#Key=0 0"); 
-
+ 
         n.requestResource("assets/materials/basic2d.vs");
         n.requestResource("assets/materials/basic2d_pix.vs");
         n.requestResource("assets/materials/basic2d.fs");
+        n.requestResource("assets/materials/basic3d.vs");
+        n.requestResource("assets/materials/basic3d.fs");
         n.requestResource("assets/materials/materials.json");
     }
 
@@ -155,7 +157,7 @@ export class Application {
         } 
     }
 
-    private frame(time: number, frame: number) {
+    private tick(time: number, frame: number) {
         this.stuffList.forEach(p => {
         });
     }   
@@ -175,6 +177,10 @@ export class Application {
  
     private fbo: n.RenderTarget | null = null;
     private blitter: n.Blitter = new n.Blitter();
+    
+
+    private oglCanvasSize: n.Vector2 = new n.Vector2(0, 0);
+    private internalFboSize: n.Vector2 = new n.Vector2(0, 0);
 
     public render() {
         this.preRender(); 
@@ -187,7 +193,7 @@ export class Application {
         this.sprites!.begin();
         this.stuffList.forEach(p => {
             this.sprites!.sprite(
-                p.x, p.y,
+                p.x, p.y, 
                 p.w, p.h, 
                 n.Align2d.Centre,
                 p.uv,
@@ -204,7 +210,7 @@ export class Application {
     // ----------
   
     public tickLoop(time: number, frameCounter: number) { 
-        this.frame(time, frameCounter);
+        this.tick(time, frameCounter);
         if(frameCounter % 60 == 0) {
             this.oneSecond(time, frameCounter);   
         }

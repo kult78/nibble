@@ -4,7 +4,9 @@ export {
     Vertex, 
     Vector2, 
     Vector3, 
-    Vector4, 
+    Vector4,
+    Matrix4x4,
+    Algebra,
     Rgba, 
     UvRect, 
     FatalError, 
@@ -19,7 +21,9 @@ export {
 
 export { TileProps }  from "./TileProps.js"
 
-export { Box } from "./Geometry.js"
+export { Camera }  from "./Camera.js"
+
+export { Box, Geometry } from "./Geometry.js"
 
 export { Texture, getTexture } from "./Texture.js"
 export { Material, getMaterial, addMaterialsFromFile } from "./Material.js"

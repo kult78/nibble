@@ -17,7 +17,7 @@ let internalResIndex: number = 1;
 export function setInternalRenderResIndex(index: number): boolean {
     if(index < 0 || index >= internalResList.length) return false;
     internalResIndex = index;
-    return true;
+    return true; 
 }
 
 export function isInternalRenderRes(width: number, height: number): boolean {

@@ -73,6 +73,274 @@ export class Vector4 {
     public w: number = 0.0;
 }
 
+/*
+function computeModelMatrix(
+    scale: [number, number, number],
+    translate: [number, number, number],
+    rotate: [number, number, number, number] // axis (x, y, z) and angle (in radians)
+): number[] {
+    // Helper functions for matrix operations
+    function createIdentityMatrix(): number[] {
+        return [
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+        ];
+    }
+
+    function createTranslationMatrix(tx: number, ty: number, tz: number): number[] {
+        return [
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            tx, ty, tz, 1
+        ];
+    }
+
+    function createScaleMatrix(sx: number, sy: number, sz: number): number[] {
+        return [
+            sx, 0,  0,  0,
+            0,  sy, 0,  0,
+            0,  0,  sz, 0,
+            0,  0,  0,  1
+        ];
+    }
+
+    function createRotationMatrix(axis: [number, number, number], angle: number): number[] {
+        const [x, y, z] = axis;
+        const len = Math.sqrt(x * x + y * y + z * z);
+
+        if (len === 0) return createIdentityMatrix();
+
+        const nx = x / len;
+        const ny = y / len;
+        const nz = z / len;
+        const cos = Math.cos(angle);
+        const sin = Math.sin(angle);
+        const omc = 1 - cos; // One minus cosine
+
+        return [
+            cos + nx * nx * omc,     nx * ny * omc - nz * sin, nx * nz * omc + ny * sin, 0,
+            ny * nx * omc + nz * sin, cos + ny * ny * omc,     ny * nz * omc - nx * sin, 0,
+            nz * nx * omc - ny * sin, nz * ny * omc + nx * sin, cos + nz * nz * omc,     0,
+            0,                        0,                      0,                       1
+        ];
+    }
+
+    function multiplyMatrices(a: number[], b: number[]): number[] {
+        const result = new Array(16).fill(0);
+        for (let row = 0; row < 4; row++) {
+            for (let col = 0; col < 4; col++) {
+                result[row * 4 + col] =
+                    a[row * 4 + 0] * b[col + 0] +
+                    a[row * 4 + 1] * b[col + 4] +
+                    a[row * 4 + 2] * b[col + 8] +
+                    a[row * 4 + 3] * b[col + 12];
+            }
+        }
+        return result;
+    }
+
+    // Step 1: Create individual transformation matrices
+    const scaleMatrix = createScaleMatrix(scale[0], scale[1], scale[2]);
+    const translationMatrix = createTranslationMatrix(translate[0], translate[1], translate[2]);
+    const rotationMatrix = createRotationMatrix([rotate[0], rotate[1], rotate[2]], rotate[3]);
+
+    // Step 2: Combine transformations: Model = Translation * Rotation * Scale
+    const modelMatrix = multiplyMatrices(
+        multiplyMatrices(translationMatrix, rotationMatrix),
+        scaleMatrix
+    );
+
+    return modelMatrix;
+}
+
+// Example usage
+const scale = [2, 2, 2]; // Scale by 2 on all axes
+const translate = [1, 2, 3]; // Translate by (1, 2, 3)
+const rotate = [0, 1, 0, Math.PI / 4]; // Rotate 45° around the Y-axis
+
+const modelMatrix = computeModelMatrix(scale, translate, rotate);
+
+console.log("Model Matrix:", modelMatrix);
+*/
+
+// -------------------------------
+
+export class Matrix4x4 {
+    constructor() {
+    }
+
+    public values = 
+    [
+        1, 0, 0, 0, 
+        0, 1, 0, 0, 
+        0, 0, 1, 0, 
+        0, 0, 0, 1
+    ];
+
+    public set(values: number[]): Matrix4x4 {
+        this.values = [...values];
+        return this;
+    }
+
+    public setIdentity(): Matrix4x4 {
+        this.values = 
+        [
+            1, 0, 0, 0, 
+            0, 1, 0, 0, 
+            0, 0, 1, 0, 
+            0, 0, 0, 1
+        ];
+        return this;
+    }
+}
+
+// -------------------------------
+
+export class Algebra {
+
+    public static normalize(v: Vector3): Vector3 {
+        const length = Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+        return new Vector3(v.x / length, v.y / length, v.z / length);
+    }
+
+    public static cross(a: Vector3, b: Vector3): Vector3 {
+        return new Vector3(
+            a.y * b.z - a.z * b.y,
+            a.z * b.x - a.x * b.z,
+            a.x * b.y - a.y * b.x
+        );
+    }
+
+    public static dot(a: Vector3, b: Vector3): number {
+        return a.x * b.x + a.y * b.y + a.z * b.z;
+    }
+
+    public static matrixMultiply(a: Matrix4x4, b: Matrix4x4): Matrix4x4 {
+        const result = new Matrix4x4();
+        const out = result.values;
+        const aVals = a.values;
+        const bVals = b.values;
+
+        for (let row = 0; row < 4; row++) {
+            for (let col = 0; col < 4; col++) {
+                out[row * 4 + col] =
+                    aVals[row * 4 + 0] * bVals[0 * 4 + col] +
+                    aVals[row * 4 + 1] * bVals[1 * 4 + col] +
+                    aVals[row * 4 + 2] * bVals[2 * 4 + col] +
+                    aVals[row * 4 + 3] * bVals[3 * 4 + col];
+            }
+        }
+        return result;
+    }
+
+    public static createTransformationMatrix(position: Vector3, yawPitchRoll: Vector3, scale: Vector3): Matrix4x4 {
+        const [yaw, pitch, roll] = [yawPitchRoll.x, yawPitchRoll.y, yawPitchRoll.z];
+
+        // Create scale matrix
+        const scaleMatrix = new Matrix4x4();
+        scaleMatrix.values[0] = scale.x;
+        scaleMatrix.values[5] = scale.y;
+        scaleMatrix.values[10] = scale.z;
+
+        // Create rotation matrices (yaw, pitch, roll)
+        const yawMatrix = new Matrix4x4();
+        yawMatrix.values[0] = Math.cos(yaw);
+        yawMatrix.values[2] = Math.sin(yaw);
+        yawMatrix.values[8] = -Math.sin(yaw);
+        yawMatrix.values[10] = Math.cos(yaw);
+
+        const pitchMatrix = new Matrix4x4();
+        pitchMatrix.values[5] = Math.cos(pitch);
+        pitchMatrix.values[6] = Math.sin(pitch);
+        pitchMatrix.values[9] = -Math.sin(pitch);
+        pitchMatrix.values[10] = Math.cos(pitch);
+
+        const rollMatrix = new Matrix4x4();
+        rollMatrix.values[0] = Math.cos(roll);
+        rollMatrix.values[1] = -Math.sin(roll);
+        rollMatrix.values[4] = Math.sin(roll);
+        rollMatrix.values[5] = Math.cos(roll);
+
+        const rotationMatrix = 
+            this.matrixMultiply(
+                this.matrixMultiply(yawMatrix, pitchMatrix),
+                rollMatrix
+            );
+
+        const translationMatrix = new Matrix4x4();
+        translationMatrix.values[12] = position.x;
+        translationMatrix.values[13] = position.y;
+        translationMatrix.values[14] = position.z;
+
+        return this.matrixMultiply(
+            translationMatrix,
+            this.matrixMultiply(rotationMatrix, scaleMatrix)
+        );
+    } 
+
+    public matrixInverse(matrix: Matrix4x4): Matrix4x4 {
+        let m = matrix.values;
+        let det = 
+            m[0] * (m[5] * m[10] - m[6] * m[9]) -
+            m[1] * (m[4] * m[10] - m[6] * m[8]) +
+            m[2] * (m[4] * m[9] - m[5] * m[8]);
+        let invDet = 1 / det;
+        let inv = new Matrix4x4().set
+        ([
+            (m[5] * m[10] - m[6] * m[9]) * invDet,
+            (m[2] * m[9] - m[1] * m[10]) * invDet,
+            (m[1] * m[6] - m[2] * m[5]) * invDet,
+            0,
+            (m[6] * m[8] - m[4] * m[10]) * invDet,
+            (m[0] * m[10] - m[2] * m[8]) * invDet,
+            (m[2] * m[4] - m[0] * m[6]) * invDet,
+            0,
+            (m[4] * m[9] - m[5] * m[8]) * invDet,
+            (m[1] * m[8] - m[0] * m[9]) * invDet,
+            (m[0] * m[5] - m[1] * m[4]) * invDet,
+            0,
+            0, 0, 0, 1
+        ]);
+        return inv;
+    }
+
+    public static createViewMatrix(cameraPos: Vector3, 
+        forward: Vector3, 
+        up: Vector3): Matrix4x4 {
+
+            let zAxis: Vector3 = this.normalize(forward);
+            const xAxis: Vector3 = this.normalize(this.cross(up, zAxis));
+            const yAxis: Vector3 = this.cross(zAxis, xAxis);
+        
+            const tx = -this.dot(xAxis, cameraPos);
+            const ty = -this.dot(yAxis, cameraPos);
+            const tz = -this.dot(zAxis, cameraPos);
+        
+            return new Matrix4x4().set([
+                xAxis.x, yAxis.x, zAxis.x, 0,
+                xAxis.y, yAxis.y, zAxis.y, 0,
+                xAxis.z, yAxis.z, zAxis.z, 0,
+                tx, ty, tz, 1
+            ]);
+    }
+
+    public static createProjectionMatrix(fov: number, aspect: number, near: number, far: number): Matrix4x4 {
+        const fovRad = (fov * Math.PI) / 180;
+        const f = 1 / Math.tan(fovRad / 2);
+        const rangeInv = 1 / (near - far);
+    
+        return new Matrix4x4().set([
+            f / aspect, 0,           0,                          0,
+            0,          f,           0,                          0,
+            0,          0,           (near + far) * rangeInv,   -1,
+            0,          0,           (2 * near * far) * rangeInv, 0
+        ]);
+    }
+}
+
 // -------------------------------
 
 export class Rgba {
