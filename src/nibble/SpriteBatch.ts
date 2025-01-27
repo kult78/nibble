@@ -12,8 +12,8 @@ export class SpriteBatch {
     public addVertex(v: c.Vertex) {
         this.data.push(v.x);
         this.data.push(v.y);
-        this.data.push(v.u);
-        this.data.push(v.v);
+        this.data.push(v.u0);
+        this.data.push(v.v0);
         this.data.push(v.r);
         this.data.push(v.g);
         this.data.push(v.b);

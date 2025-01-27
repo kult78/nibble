@@ -23,7 +23,7 @@ export { TileProps }  from "./TileProps.js"
 
 export { Camera }  from "./Camera.js"
 
-export { Box, Geometry } from "./Geometry.js"
+export { Box, Geometry, Builder, Format } from "./Geometry.js"
 
 export { Texture, getTexture } from "./Texture.js"
 export { Material, getMaterial, addMaterialsFromFile } from "./Material.js"

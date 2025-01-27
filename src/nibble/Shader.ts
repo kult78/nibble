@@ -144,7 +144,7 @@ export class ShaderSetup {
     public set_u_model(mtx: number[]) { if(this.u_model_mtx != null) env.gl.uniformMatrix4fv(this.u_model_mtx, false, mtx); }
     public set_u_view(mtx: number[]) { if(this.u_view_mtx != null) env.gl.uniformMatrix4fv(this.u_view_mtx, false, mtx); }
     public set_u_projection(mtx: number[]) { if(this.u_projection_mtx != null) env.gl.uniformMatrix4fv(this.u_projection_mtx, false, mtx); }
-    public set_u_modelinverse(mtx: number[]) { if(this.u_normal_mtx != null) env.gl.uniformMatrix4fv(this.u_normal_mtx, false, mtx); }
+    public set_u_normal(mtx: number[]) { if(this.u_normal_mtx != null) env.gl.uniformMatrix4fv(this.u_normal_mtx, false, mtx); }
 
     public a_xy: number = -1;
     public a_xyz: number = -1;

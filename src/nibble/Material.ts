@@ -27,7 +27,7 @@ export class Material {
         if(!this.program || !this.program.getSetup() || !this.program.getSetup().u_tex0)
             throw new FatalError(`Invalid object state in [${this.id}] Material`);
 
-        this.program.use();
+        this.program.use(); 
 
         // --- setup uniforms
 

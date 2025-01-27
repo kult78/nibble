@@ -5,8 +5,8 @@ export class Vertex {
         let vertex = new Vertex();
         vertex.x = x;
         vertex.y = y;
-        vertex.u = u;
-        vertex.v = v;
+        vertex.u0 = u;
+        vertex.v0 = v;
         vertex.r = c.r;
         vertex.g = c.g;
         vertex.b = c.b;
@@ -22,8 +22,8 @@ export class Vertex {
     public ny: number = 0;
     public nz: number = 0;
 
-    public u: number = 0;
-    public v: number = 0;
+    public u0: number = 0;
+    public v0: number = 0;
 
     public r: number = 0;
     public g: number = 0;
@@ -72,7 +72,7 @@ export class Vector4 {
     public z: number = 0.0;
     public w: number = 0.0;
 }
-
+ 
 /*
 function computeModelMatrix(
     scale: [number, number, number],
@@ -281,7 +281,17 @@ export class Algebra {
         );
     } 
 
-    public matrixInverse(matrix: Matrix4x4): Matrix4x4 {
+    public static matrixTranspose(matrix: Matrix4x4): Matrix4x4 {
+        const temp = [...matrix.values];
+        for (let row = 0; row < 4; row++) {
+            for (let col = 0; col < 4; col++) {
+                matrix.values[row * 4 + col] = temp[col * 4 + row];
+            }
+        }
+        return new Matrix4x4().set(matrix.values);
+    }
+
+    public static matrixInverse(matrix: Matrix4x4): Matrix4x4 {
         let m = matrix.values;
         let det = 
             m[0] * (m[5] * m[10] - m[6] * m[9]) -

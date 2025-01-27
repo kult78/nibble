@@ -57,7 +57,8 @@ export class Geometry {
             gl.enableVertexAttribArray(rgbaLoc);
             gl.vertexAttribPointer(rgbaLoc, 4, gl.FLOAT, false, stride, 4 * 3 + 4 * 3 + 4 * 2);
     
-            gl.drawArrays(gl.TRIANGLES, 0, this.data!.length / getVertexFloatSize(this.format));           
+            let allVertices = this.data!.length / getVertexFloatSize(this.format);
+            gl.drawArrays(gl.TRIANGLES, 0, allVertices);           
         }
     }
 
@@ -85,28 +86,28 @@ export class Builder {
         if(this.format == Format.xyUvRgba) {
             this.data.push(this.vertex.x);
             this.data.push(this.vertex.y);
-            this.data.push(this.vertex.u);
-            this.data.push(this.vertex.v);
+            this.data.push(this.vertex.u0);
+            this.data.push(this.vertex.v0);
             this.data.push(this.vertex.r);
             this.data.push(this.vertex.g);
             this.data.push(this.vertex.b); 
             this.data.push(this.vertex.a);
-        }
-        if(this.format == Format.xyzNxnynzUvRgba) {
+        } else if(this.format == Format.xyzNxnynzUvRgba) {
             this.data.push(this.vertex.x);
             this.data.push(this.vertex.y);
             this.data.push(this.vertex.z);
             this.data.push(this.vertex.ny);
             this.data.push(this.vertex.ny); 
             this.data.push(this.vertex.nz);
-            this.data.push(this.vertex.u);
-            this.data.push(this.vertex.v);
+            this.data.push(this.vertex.u0);
+            this.data.push(this.vertex.v0);
             this.data.push(this.vertex.r);
             this.data.push(this.vertex.g); 
             this.data.push(this.vertex.b);
             this.data.push(this.vertex.a);
+        } else {
+            throw new c.FatalError(`Unknown vertex format in builder: ${this.format}`);
         }
-        throw new c.FatalError(`Unknown vertex format in builder: ${this.format}`);
     }
 
     public clear() { this.data = []; }

@@ -3,6 +3,10 @@
 import * as n from "./nibble/index.js";
 import * as global from "./Global.js"
 
+import { Scene3d } from "./Scene3d.js";
+import { Entity, RenderComponent3d, CameraComponent } from "./Entity.js";
+import { Build } from "./Build.js"
+
 class Stuff {
     constructor(public x: number, public y: number, public w: number, public h: number,
         public color: n.Color, public uv: n.UvRect, public size: number, public rotation: number) {
@@ -14,8 +18,12 @@ class Stuff {
 
 export class Application {
 
-    private tileProps : n.TileProps | null = null;
+    public constructor() {
+    }
 
+    private scene: Scene3d | null = null;
+
+    private tileProps : n.TileProps | null = null;
     public stuffList : Stuff[] = [];
 
     public addPenguin(x: number, y: number) {
@@ -72,6 +80,7 @@ export class Application {
     private figureTex1 : n.Texture | null = null;
 
     public startup() {
+        n.requestResource("assets/gfx/sprites0.png");
         n.requestResource("assets/gfx/sprites0.png#Key=0 0");
         n.requestResource("assets/gfx/sprites0a.png#Key=0 0"); 
  
@@ -128,7 +137,23 @@ export class Application {
         this.figureTex1 = n.getTexture("assets/gfx/sprites0a.png#Key=0 0");
     }
 
-    private preRender() { 
+    private preRender() {
+ 
+        if(this.scene == null) {
+            this.scene = new Scene3d();
+            let camEntity: Entity = new Entity().setName("default_camera");
+            this.scene.addEntity(camEntity).addNewComponent<CameraComponent>(CameraComponent).camera.position = new n.Vector3(-5, 0, 0);;
+
+            let geomEntity: Entity = new Entity();
+            geomEntity.addNewComponent<RenderComponent3d>(RenderComponent3d)
+                .setGeometry(Build.randomBlockTris(new n.Vector3(0, 0, 0), 100))
+                .setMaterial("basic3d")
+                .setTexture("assets/gfx/sprites0.png");
+            this.scene.addEntity(geomEntity);
+        }
+
+        // ---
+
         if(this.fbo == null || !global.isInternalRenderRes(this.fbo.width, this.fbo.height)) {
             if(this.fbo) this.fbo.dispose();
             this.fbo = null;
@@ -185,6 +210,9 @@ export class Application {
     public render() {
         this.preRender(); 
 
+        this.scene?.render("default_camera", null);
+
+        /*
         n.setRenderTarget(this.fbo);
 
         n.gl.clearColor(0.3, 0.3, 0.3, 1.0);
@@ -205,6 +233,7 @@ export class Application {
         this.sprites!.end(this.figureTextureActive ? this.figureTex0 : this.figureTex1);
                
         this.blitter.blitToScreen(this.fbo!);
+        */
     }
 
     // ----------
