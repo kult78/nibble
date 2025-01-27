@@ -41,7 +41,7 @@ export class Application {
         if(rt == 5) t = "guard"; 
         if(rt == 6) t = "baron";
 
-        let color = n.Colors.white;
+        let color = n.Colors.white.clone();
         color.r -= Math.random() / 10;
         color.g -= Math.random() / 10;
         color.b -= Math.random() / 10;
@@ -142,11 +142,11 @@ export class Application {
         if(this.scene == null) {
             this.scene = new Scene3d();
             let camEntity: Entity = new Entity().setName("default_camera");
-            this.scene.addEntity(camEntity).addNewComponent<CameraComponent>(CameraComponent).camera.position = new n.Vector3(-5, 0, 0);;
+            this.scene.addEntity(camEntity).addNewComponent<CameraComponent>(CameraComponent).camera.position = new n.Vector3(-15, 0, 0);
 
             let geomEntity: Entity = new Entity();
             geomEntity.addNewComponent<RenderComponent3d>(RenderComponent3d)
-                .setGeometry(Build.randomBlockTris(new n.Vector3(0, 0, 0), 100))
+                .setGeometry(Build.randomBlockTris(new n.Vector3(0, 0, 0), 1000))
                 .setMaterial("basic3d")
                 .setTexture("assets/gfx/sprites0.png");
             this.scene.addEntity(geomEntity);
@@ -203,12 +203,19 @@ export class Application {
     private fbo: n.RenderTarget | null = null;
     private blitter: n.Blitter = new n.Blitter();
     
-
     private oglCanvasSize: n.Vector2 = new n.Vector2(0, 0);
     private internalFboSize: n.Vector2 = new n.Vector2(0, 0);
 
     public render() {
         this.preRender(); 
+
+        //this.scene.addEntity(camEntity).addNewComponent<CameraComponent>(CameraComponent).camera.position = new n.Vector3(-15, 0, 0);
+        let cameraComponent = this.scene?.getEntityByName("default_camera")?.getComponent<CameraComponent>(CameraComponent);
+        if(cameraComponent) {
+            cameraComponent.camera.position = new n.Vector3(50, 0.0, 200); 
+            cameraComponent.camera.target = new n.Vector3(0, 0, 0); 
+            cameraComponent.camera.up = new n.Vector3(0, 1, 0); 
+        }
 
         this.scene?.render("default_camera", null);
 

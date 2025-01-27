@@ -34,7 +34,7 @@ export class Scene3d {
 
         n.setRenderTarget(fbo);
 
-        n.gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        n.gl.clearColor(0.7, 0.7, 0.7, 1.0);
         n.gl.clearDepth(1.0);
         n.gl.clear(n.gl.COLOR_BUFFER_BIT | n.gl.DEPTH_BUFFER_BIT);
 

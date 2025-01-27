@@ -214,6 +214,14 @@ export class Algebra {
         );
     }
 
+    public static subtract(a: Vector3, b: Vector3): Vector3 {
+        return new Vector3(
+            a.x - b.x,
+            a.y - b.y,
+            a.z - b.z
+        );
+    }
+
     public static dot(a: Vector3, b: Vector3): number {
         return a.x * b.x + a.y * b.y + a.z * b.z;
     }
@@ -317,17 +325,15 @@ export class Algebra {
         return inv;
     }
 
-    public static createViewMatrix(cameraPos: Vector3, 
-        forward: Vector3, 
-        up: Vector3): Matrix4x4 {
+    public static createViewMatrix(position: Vector3, forward: Vector3, up: Vector3): Matrix4x4 {
 
-            let zAxis: Vector3 = this.normalize(forward);
+            const zAxis: Vector3 = this.normalize(forward);
             const xAxis: Vector3 = this.normalize(this.cross(up, zAxis));
             const yAxis: Vector3 = this.cross(zAxis, xAxis);
-        
-            const tx = -this.dot(xAxis, cameraPos);
-            const ty = -this.dot(yAxis, cameraPos);
-            const tz = -this.dot(zAxis, cameraPos);
+
+            const tx = -this.dot(xAxis, position);
+            const ty = -this.dot(yAxis, position);
+            const tz = -this.dot(zAxis, position);
         
             return new Matrix4x4().set([
                 xAxis.x, yAxis.x, zAxis.x, 0,

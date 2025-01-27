@@ -3,7 +3,7 @@ import * as n from "./nibble/index.js";
 
 export class Build {
 
-    public static unit = 100.0;
+    public static unit = 1.0;
 
     public static getCentreOfWordBlock(blockPos: n.Vector3): n.Vector3 {
         return new n.Vector3(
@@ -26,15 +26,19 @@ export class Build {
 
         for(let i = 0; i < triCount; i++) {
             for(let j = 0; j < 3; j++) {
-                builder.current().x = centre.x + (Math.random() - 0.5) * this.unit;
-                builder.current().y = centre.y + (Math.random() - 0.5) * this.unit;
-                builder.current().z = centre.z + (Math.random() - 0.5) * this.unit;
+                let x = centre.x + (Math.random() - 0.5) * this.unit * 100;
+                let y = centre.x + (Math.random() - 0.5) * this.unit * 100;
+                let z = centre.x + (Math.random() - 0.5) * this.unit * 100;
+                builder.current().x = x;
+                builder.current().y = y;
+                builder.current().z = z;
+                console.log(x + " " + y + " " + z);
                 builder.current().u0 = Math.random();
                 builder.current().v0 = Math.random();
                 builder.current().r = Math.random();
                 builder.current().g = Math.random();
                 builder.current().b = Math.random();
-                builder.current().a = Math.random();
+                builder.current().a = 1;
                 builder.commitVertex(); 
             }
         }

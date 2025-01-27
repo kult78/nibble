@@ -28,11 +28,18 @@ export class RenderComponent3d extends EntityComponent {
         if(!this.material) throw new n.FatalError("Material not set in RenderComponent3d");
         if(!this.texture) throw new n.FatalError("Texture not set in RenderComponent3d");
 
+        //console.log(transformation.values);
+        //console.log(n.Algebra.matrixTranspose(n.Algebra.matrixInverse(transformation)).values);
+        //console.log(camera.projectionMatrix.values);
+        //console.log(camera.viewMatrix.values);
+
         this.material.use(this.texture.getApiTexture());
         this.material.getProgram().getSetup().set_u_model(transformation.values);
         this.material.getProgram().getSetup().set_u_normal(n.Algebra.matrixTranspose(n.Algebra.matrixInverse(transformation)).values);
         this.material.getProgram().getSetup().set_u_projection(camera.projectionMatrix.values);
         this.material.getProgram().getSetup().set_u_view(camera.viewMatrix.values);
+
+
   
         this.geometry.render(this.material.getProgram());
     }
