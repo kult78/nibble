@@ -206,21 +206,36 @@ export class Application {
     private oglCanvasSize: n.Vector2 = new n.Vector2(0, 0);
     private internalFboSize: n.Vector2 = new n.Vector2(0, 0);
 
+    private time = 0;
+
+    private generateCirclePoint(time: number, radius: number): n.Vector3 {
+        const angle = n.Algebra.deg2rad(time);
+        const x = radius * Math.cos(angle);
+        const z = radius * Math.sin(angle); 
+        const y = 0;
+
+        return new n.Vector3(x, y, z);
+    } 
+
     public render() {
         this.preRender(); 
 
         //this.scene.addEntity(camEntity).addNewComponent<CameraComponent>(CameraComponent).camera.position = new n.Vector3(-15, 0, 0);
         let cameraComponent = this.scene?.getEntityByName("default_camera")?.getComponent<CameraComponent>(CameraComponent);
         if(cameraComponent) {
-            cameraComponent.camera.position = new n.Vector3(50, 0.0, 200); 
+            cameraComponent.camera.position = this.generateCirclePoint(this.time, 20);
+            cameraComponent.camera.position.y = Math.sin(this.time / 100) * 20; 
             cameraComponent.camera.target = new n.Vector3(0, 0, 0); 
             cameraComponent.camera.up = new n.Vector3(0, 1, 0); 
         }
 
-        this.scene?.render("default_camera", null);
+        this.time = this.time + 1;
+
+        //n.setRenderTarget(this.fbo);
+        this.scene?.render("default_camera", this.fbo);
+        this.blitter.blitToScreen(this.fbo!);
 
         /*
-        n.setRenderTarget(this.fbo);
 
         n.gl.clearColor(0.3, 0.3, 0.3, 1.0);
         n.gl.clear(n.gl.COLOR_BUFFER_BIT);

@@ -36,18 +36,17 @@ export class Geometry {
         }
 
         let shaderSetup = program.getSetup();
+        let stride: number = 4 * getVertexFloatSize(this.format);
 
         if(this.format == Format.xyzNxnynzUvRgba) {
 
-            let stride: number = 4* getVertexFloatSize(this.format);
-
             let xyzLoc = shaderSetup.a_xyz;
             gl.enableVertexAttribArray(xyzLoc);
-            gl.vertexAttribPointer(xyzLoc, 2, gl.FLOAT, false, stride, 0);
+            gl.vertexAttribPointer(xyzLoc, 3, gl.FLOAT, false, stride, 0);
 
             let nxnynzLoc = shaderSetup.a_nxnynz;
             gl.enableVertexAttribArray(nxnynzLoc);
-            gl.vertexAttribPointer(nxnynzLoc, 2, gl.FLOAT, false, stride, 4 * 3);
+            gl.vertexAttribPointer(nxnynzLoc, 3, gl.FLOAT, false, stride, 4 * 3);
 
             let uv0Loc = shaderSetup.a_uv0;
             gl.enableVertexAttribArray(uv0Loc);

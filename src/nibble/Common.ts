@@ -181,6 +181,7 @@ export class Matrix4x4 {
     ];
 
     public set(values: number[]): Matrix4x4 {
+        if(values.length != 16) throw new Error("Invalid number of values to set Matrix4x4");
         this.values = [...values];
         return this;
     }
@@ -211,6 +212,14 @@ export class Algebra {
             a.y * b.z - a.z * b.y,
             a.z * b.x - a.x * b.z,
             a.x * b.y - a.y * b.x
+        );
+    }
+
+    public static negate(a: Vector3): Vector3 {
+        return new Vector3(
+            a.x * -1,
+            a.y * -1,
+            a.z * -1
         );
     }
 
@@ -325,24 +334,51 @@ export class Algebra {
         return inv;
     }
 
-    public static createViewMatrix(position: Vector3, forward: Vector3, up: Vector3): Matrix4x4 {
-
-            const zAxis: Vector3 = this.normalize(forward);
-            const xAxis: Vector3 = this.normalize(this.cross(up, zAxis));
-            const yAxis: Vector3 = this.cross(zAxis, xAxis);
-
-            const tx = -this.dot(xAxis, position);
-            const ty = -this.dot(yAxis, position);
-            const tz = -this.dot(zAxis, position);
-        
-            return new Matrix4x4().set([
-                xAxis.x, yAxis.x, zAxis.x, 0,
-                xAxis.y, yAxis.y, zAxis.y, 0,
-                xAxis.z, yAxis.z, zAxis.z, 0,
-                tx, ty, tz, 1
-            ]);
+    public static deg2rad(degrees: number): number {
+        return degrees * (Math.PI / 180);
     }
 
+    public static rad2deg(radians: number): number {
+        return radians * (180 / Math.PI);
+    }   
+
+    public static createViewMatrix(position: Vector3, forward: Vector3, up: Vector3): Matrix4x4 {
+        // Normalize input vectors
+        const zAxis = Algebra.normalize(Algebra.negate(forward)); // Camera looks along -forward
+        const xAxis = Algebra.normalize(Algebra.cross(up, zAxis)); // Right vector
+        const yAxis = Algebra.cross(zAxis, xAxis); // Up vector (orthogonalized)
+    
+        // Compute translation components
+        const tx = -Algebra.dot(xAxis, position);
+        const ty = -Algebra.dot(yAxis, position);
+        const tz = -Algebra.dot(zAxis, position);
+    
+        // Create the view matrix (column-major for WebGL)
+        const matrix = new Matrix4x4().set([    
+            xAxis.x,
+            yAxis.x,
+            zAxis.x,
+            0,
+        
+            xAxis.y,
+            yAxis.y,
+            zAxis.y,
+            0,
+        
+            xAxis.z,
+            yAxis.z,
+            zAxis.z,
+            0,
+        
+            tx,
+            ty,
+            tz,
+            1
+        ]);
+    
+        return matrix;
+    }
+        
     public static createProjectionMatrix(fov: number, aspect: number, near: number, far: number): Matrix4x4 {
         const fovRad = (fov * Math.PI) / 180;
         const f = 1 / Math.tan(fovRad / 2);
@@ -355,6 +391,50 @@ export class Algebra {
             0,          0,           (2 * near * far) * rangeInv, 0
         ]);
     }
+
+    /*
+    public static createProjectionMatrix(fov: number, aspect: number, near: number, far: number): Matrix4x4 {
+
+        let ymax: number, xmax: number;
+        let temp: number, temp2: number, temp3: number, temp4: number;
+        ymax = near * Math.tan(fov * 3.1415 / 360.0);
+        xmax = ymax * aspect;
+        
+        let left = -xmax;
+        let right = xmax;
+        let bottom = -ymax;
+        let top = ymax;
+        let znear = near;
+        let zfar = far;
+        
+        temp = 2.0 * znear;
+        temp2 = right - left;
+        temp3 = top - bottom;
+        temp4 = zfar - znear;
+
+        let ret = new Matrix4x4()
+
+        ret.values[0] = temp / temp2;
+        ret.values[1] = 0.0;
+        ret.values[2] = 0.0;
+        ret.values[3] = 0.0;
+        ret.values[4] = 0.0;
+        ret.values[5] = temp / temp3;
+        ret.values[6] = 0.0;
+        ret.values[7] = 0.0;
+        ret.values[8] = (right + left) / temp2;
+        ret.values[9] = (top + bottom) / temp3;
+        ret.values[10] = (-zfar - znear) / temp4;
+        ret.values[11] = -1.0;
+        ret.values[12] = 0.0;
+        ret.values[13] = 0.0;
+        ret.values[14] = (-temp * zfar) / temp4;
+        ret.values[15] = 0.0;
+
+        return ret;
+    }
+        */
+
 }
 
 // -------------------------------

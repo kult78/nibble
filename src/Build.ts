@@ -26,13 +26,15 @@ export class Build {
 
         for(let i = 0; i < triCount; i++) {
             for(let j = 0; j < 3; j++) {
-                let x = centre.x + (Math.random() - 0.5) * this.unit * 100;
-                let y = centre.x + (Math.random() - 0.5) * this.unit * 100;
-                let z = centre.x + (Math.random() - 0.5) * this.unit * 100;
+                //let x = centre.x + (Math.random() - 0.5) * this.unit;
+                //let y = centre.x + (Math.random() - 0.5) * this.unit;
+                //let z = centre.x + (Math.random() - 0.5) * this.unit;
+                let x = (Math.random() - 0.5) * 10;
+                let y = (Math.random() - 0.5) * 10;
+                let z = (Math.random() - 0.5) * 10;
                 builder.current().x = x;
                 builder.current().y = y;
                 builder.current().z = z;
-                console.log(x + " " + y + " " + z);
                 builder.current().u0 = Math.random();
                 builder.current().v0 = Math.random();
                 builder.current().r = Math.random();
