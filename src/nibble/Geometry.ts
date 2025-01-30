@@ -5,24 +5,94 @@ import * as env from "./WebEnv.js"
 import * as c from "./Common.js";
 import { Program } from "./Shader.js";
 
-export enum Format {
+export enum GeometryAlign {
+    None = 0,
+    Center = 1,
+    Pivot = 2
+}
+
+export enum GeometryFormat {
     xyUvRgba,
     xyzNxnynzUvRgba
 }
 
-function getVertexFloatSize(format: Format): number {
-    if(format == Format.xyUvRgba) return 8;
-    if(format == Format.xyzNxnynzUvRgba) return 12;
+function getVertexFloatSize(format: GeometryFormat): number {
+    if(format == GeometryFormat.xyUvRgba) return 8;
+    if(format == GeometryFormat.xyzNxnynzUvRgba) return 12;
     throw new c.FatalError(`Unknown vertex format: ${format}`);
 }
 
 export class Geometry {
-    constructor(format: Format, data: number[]) {
+    constructor(format: GeometryFormat, data: number[], align: GeometryAlign = GeometryAlign.None) {
         this.format = format;
-        this.data = new Float32Array(data);
 
-        if(format != Format.xyzNxnynzUvRgba) throw new c.FatalError(`Not proper Geometry constructor vertex format: ${format}`);
+        if(format == GeometryFormat.xyzNxnynzUvRgba) {
+            this.computeDimensions(data);
+            
+            if(align != GeometryAlign.None) {
+                this.alignGeometry(data, align);
+                this.computeDimensions(data);
+            }
+            
+            this.data = new Float32Array(data);
+        } else  {
+            throw new c.FatalError(`Not proper Geometry constructor vertex format: ${format}`);
+        }
     }
+
+    private alignGeometry(vertices: number[], align: GeometryAlign) {
+        let floatPerVertex = getVertexFloatSize(this.format);
+        if(align == GeometryAlign.Center) {
+            for(let i = 0; i < vertices.length; i += floatPerVertex) {
+                vertices[i] -= this.centre.x;
+                vertices[i + 1] -= this.centre.y;
+                vertices[i + 2] -= this.centre.z;
+            }
+        } else if (align == GeometryAlign.Pivot) {
+            for(let i = 0; i < vertices.length; i += floatPerVertex) {
+                vertices[i] -= this.centre.x;
+                vertices[i + 1] += this.minY;
+                vertices[i + 2] -= this.centre.z;
+            }
+        }
+    }
+
+    private computeDimensions(vertices: number[]) {
+        this.centre = new c.Vector3(0, 0, 0);
+        let floatPerVertex = getVertexFloatSize(this.format);
+
+        if(this.format == GeometryFormat.xyzNxnynzUvRgba) {
+
+            this.minX = this.minY = this.minZ = Number.MAX_VALUE;
+            this.maxX = this.maxY = this.maxZ = Number.MIN_VALUE;
+
+            for(let i = 0; i < vertices.length; i += floatPerVertex) {
+                this.centre.x += vertices[i];
+                this.centre.y += vertices[i + 1];
+                this.centre.z += vertices[i + 2];
+
+                if(vertices[i] < this.minX) this.minX = vertices[i];
+                if(vertices[i] > this.maxX) this.maxX = vertices[i];
+                if(vertices[i + 1] < this.minY) this.minY = vertices[i + 1];
+                if(vertices[i + 1] > this.maxY) this.maxY = vertices[i + 1];
+                if(vertices[i + 2] < this.minZ) this.minZ = vertices[i + 2];
+                if(vertices[i + 2] > this.maxZ) this.maxZ = vertices[i + 2];
+            }
+            this.centre.x /= vertices.length / floatPerVertex;
+            this.centre.y /= vertices.length / floatPerVertex;
+            this.centre.z /= vertices.length / floatPerVertex;
+        } else {
+            throw new c.FatalError(`Not proper Geometry center computation: ${this.format}`);
+        }
+    }
+
+    public centre: c.Vector3 = new c.Vector3(0, 0, 0);
+    public minX: number = 0;
+    public minY: number = 0;
+    public minZ: number = 0;
+    public maxX: number = 0;
+    public maxY: number = 0;
+    public maxZ: number = 0;
 
     public render(program: Program) {
         let gl = env.gl;
@@ -38,7 +108,7 @@ export class Geometry {
         let shaderSetup = program.getSetup();
         let stride: number = 4 * getVertexFloatSize(this.format);
 
-        if(this.format == Format.xyzNxnynzUvRgba) {
+        if(this.format == GeometryFormat.xyzNxnynzUvRgba) {
 
             let xyzLoc = shaderSetup.a_xyz;
             gl.enableVertexAttribArray(xyzLoc);
@@ -67,7 +137,7 @@ export class Geometry {
     }
 
 
-    private format: Format;
+    private format: GeometryFormat;
     private data: Float32Array | null = null;
     private buffer : WebGLBuffer | null = null; 
 }
@@ -75,14 +145,14 @@ export class Geometry {
 // ----------
 
 export class Builder {
-    constructor(format: Format) {
+    constructor(format: GeometryFormat) {
         this.format = format;
     }
 
     public current(): c.Vertex { return this.vertex; }
 
     public commitVertex() {
-        if(this.format == Format.xyUvRgba) {
+        if(this.format == GeometryFormat.xyUvRgba) {
             this.data.push(this.vertex.x);
             this.data.push(this.vertex.y);
             this.data.push(this.vertex.u0);
@@ -91,7 +161,7 @@ export class Builder {
             this.data.push(this.vertex.g);
             this.data.push(this.vertex.b); 
             this.data.push(this.vertex.a);
-        } else if(this.format == Format.xyzNxnynzUvRgba) {
+        } else if(this.format == GeometryFormat.xyzNxnynzUvRgba) {
             this.data.push(this.vertex.x);
             this.data.push(this.vertex.y);
             this.data.push(this.vertex.z);
@@ -111,13 +181,13 @@ export class Builder {
 
     public clear() { this.data = []; }
 
-    public createGeometry() : Geometry {
-        let geometry = new Geometry(this.format, this.data);
+    public createGeometry(align: GeometryAlign = GeometryAlign.None) : Geometry {
+        let geometry = new Geometry(this.format, this.data, align);
         return geometry;
     }
 
     private vertex = new c.Vertex();   
-    private format: Format;
+    private format: GeometryFormat;
     private data: number[] = [];
 }
 

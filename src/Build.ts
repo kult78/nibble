@@ -28,9 +28,11 @@ export class Build {
 
     }*/
 
-    public static loadObj(obj: string): n.Geometry {
+    
 
-        let builder: n.Builder = new n.Builder(n.Format.xyzNxnynzUvRgba);
+    public static loadObj(obj: string, align: n.GeometryAlign = n.GeometryAlign.None): n.Geometry {
+
+        let builder: n.Builder = new n.Builder(n.GeometryFormat.xyzNxnynzUvRgba);
         
         let obj2 = obj.replace(new RegExp("\r", "g"), "");
         let lines = obj2.split("\n");
@@ -76,11 +78,11 @@ export class Build {
             }
         }
 
-        return builder.createGeometry();
+        return builder.createGeometry(align);
     }
 
     public static randomBlockTris(blockPos: n.Vector3, triCount: number): n.Geometry {
-        let builder: n.Builder = new n.Builder(n.Format.xyzNxnynzUvRgba);
+        let builder: n.Builder = new n.Builder(n.GeometryFormat.xyzNxnynzUvRgba);
         let centre = this.getCentreOfWordBlock(blockPos);
 
         for(let i = 0; i < triCount; i++) {

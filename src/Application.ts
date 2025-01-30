@@ -83,9 +83,6 @@ export class Application {
         n.requestResource("assets/gfx/sprites0.png");
         n.requestResource("assets/gfx/sprites0.png#Key=0 0");
         n.requestResource("assets/gfx/sprites0a.png#Key=0 0"); 
-        n.requestResource("assets/gfx/pine/PineTexture.png");
-        n.requestResource("assets/gfx/pine/AlienTreeTexture.png");
-        n.requestResource("assets/gfx/pine/EvergreenTexture.png");
   
         n.requestResource("assets/materials/basic2d.vs");
         n.requestResource("assets/materials/basic2d_pix.vs");
@@ -94,8 +91,17 @@ export class Application {
         n.requestResource("assets/materials/basic3d.fs");
         n.requestResource("assets/materials/materials.json");
 
-        n.requestResourceWithType("assets/gfx/pine/PineTree2.obj", n.ResourceType.Text);
+        n.requestResourceWithType("assets/gfx/pine/PineStump.obj", n.ResourceType.Text);
+        n.requestResourceWithType("assets/gfx/pine/PineStump2.obj", n.ResourceType.Text);
+        n.requestResourceWithType("assets/gfx/pine/PineTree1.obj", n.ResourceType.Text);
         n.requestResourceWithType("assets/gfx/pine/PineTree1Snowy.obj", n.ResourceType.Text);
+        n.requestResourceWithType("assets/gfx/pine/PineTree2.obj", n.ResourceType.Text);
+        n.requestResourceWithType("assets/gfx/pine/PineTree2Snowy.obj", n.ResourceType.Text);
+        n.requestResourceWithType("assets/gfx/pine/PineTree3.obj", n.ResourceType.Text);
+        n.requestResourceWithType("assets/gfx/pine/PineTree3Snowy.obj", n.ResourceType.Text);
+        n.requestResource("assets/gfx/pine/PineTexture.png");
+        n.requestResource("assets/gfx/pine/EvergreenTexture.png");
+        n.requestResource("assets/gfx/pine/AlienTreeTexture.png");
     }
 
     private music = false;
@@ -141,12 +147,14 @@ export class Application {
 
         this.figureTex0 = n.getTexture("assets/gfx/sprites0.png#Key=0 0");
         this.figureTex1 = n.getTexture("assets/gfx/sprites0a.png#Key=0 0");
-    }
+    } 
 
     private preRender() {
 
         let pine: n.Geometry = Build.loadObj(n.getText("assets/gfx/pine/PineTree2.obj")!);
-        let snowyPine: n.Geometry = Build.loadObj(n.getText("assets/gfx/pine/PineTree1Snowy.obj")!);        
+        let snowyPine: n.Geometry = Build.loadObj(n.getText("assets/gfx/pine/PineTree1Snowy.obj")!, n.GeometryAlign.Pivot);
+        let stump: n.Geometry = Build.loadObj(n.getText("assets/gfx/pine/PineStump.obj")!);        
+        let stump2: n.Geometry = Build.loadObj(n.getText("assets/gfx/pine/PineStump2.obj")!);        
  
         if(this.scene == null) {
             this.scene = new Scene3d();
@@ -155,57 +163,79 @@ export class Application {
             this.scene.addEntity(camEntity).addNewComponent<CameraComponent>(CameraComponent).camera.position = new n.Vector3(-15, 0, 0);
 
             let geomEntity: Entity = new Entity().setName("box");
-            geomEntity.addNewComponent<TransformationComponent>(TransformationComponent);
+            geomEntity.addNewComponent<TransformationComponent>(TransformationComponent); 
+            geomEntity.addNewComponent<RenderComponent3d>(RenderComponent3d)
+                .setGeometry(pine) 
+                .setMaterial("basic3d")
+                .setTexture("assets/gfx/pine/AlienTreeTexture.png");
+            this.scene.addEntity(geomEntity);
+           
+            geomEntity = new Entity().setName("box");
+            geomEntity.addNewComponent<TransformationComponent>(TransformationComponent)
+                .setScale(1, 1.5, 1)
+                .setPosition(-2, 0, -2)
+                .setYawPitchRoll(20, 0, 0);
             geomEntity.addNewComponent<RenderComponent3d>(RenderComponent3d)
                 .setGeometry(pine)
                 .setMaterial("basic3d")
                 .setTexture("assets/gfx/pine/PineTexture.png");
             this.scene.addEntity(geomEntity);
-           
-                geomEntity = new Entity().setName("box");
-                geomEntity.addNewComponent<TransformationComponent>(TransformationComponent)
-                    .setScale(1, 1.5, 1)
-                    .setPosition(-2, 0, -2)
-                    .setYawPitchRoll(20, 0, 0);
-                geomEntity.addNewComponent<RenderComponent3d>(RenderComponent3d)
-                    .setGeometry(pine)
-                    .setMaterial("basic3d")
-                    .setTexture("assets/gfx/pine/PineTexture.png");
-                this.scene.addEntity(geomEntity);
 
-                geomEntity = new Entity().setName("box");
-                geomEntity.addNewComponent<TransformationComponent>(TransformationComponent)
-                    .setScale(1, 1.1, 1)
-                    .setPosition(-3, 0, 2)
-                    .setYawPitchRoll(50, 0, 0);
-                geomEntity.addNewComponent<RenderComponent3d>(RenderComponent3d)
-                    .setGeometry(snowyPine)
-                    .setMaterial("basic3d")
-                    .setTexture("assets/gfx/pine/PineTexture.png");
-                this.scene.addEntity(geomEntity);
+            geomEntity = new Entity().setName("box");
+            geomEntity.addNewComponent<TransformationComponent>(TransformationComponent)
+                .setScale(1, 1.1, 1)
+                .setPosition(-3, 0, 2)
+                .setYawPitchRoll(50, 0, 0);
+            geomEntity.addNewComponent<RenderComponent3d>(RenderComponent3d)
+                .setGeometry(snowyPine)
+                .setMaterial("basic3d")
+                .setTexture("assets/gfx/pine/PineTexture.png");
+            this.scene.addEntity(geomEntity);
 
-                geomEntity = new Entity().setName("box");
-                geomEntity.addNewComponent<TransformationComponent>(TransformationComponent)
-                    .setScale(1, 1.1, 1)
-                    .setPosition(2, 0, 4)
-                    .setYawPitchRoll(10, 0, 0);
-                geomEntity.addNewComponent<RenderComponent3d>(RenderComponent3d)
-                    .setGeometry(pine)
-                    .setMaterial("basic3d")
-                    .setTexture("assets/gfx/pine/PineTexture.png");
-                this.scene.addEntity(geomEntity);
+            geomEntity = new Entity().setName("box");
+            geomEntity.addNewComponent<TransformationComponent>(TransformationComponent)
+                .setScale(1, 1.1, 1)
+                .setPosition(2, 0, 4)
+                .setYawPitchRoll(10, 0, 0);
+            geomEntity.addNewComponent<RenderComponent3d>(RenderComponent3d)
+                .setGeometry(pine)
+                .setMaterial("basic3d")
+                .setTexture("assets/gfx/pine/PineTexture.png");
+            this.scene.addEntity(geomEntity);
 
-                geomEntity = new Entity().setName("box");
-                geomEntity.addNewComponent<TransformationComponent>(TransformationComponent)
-                    .setScale(1, 1.3, 1)
-                    .setPosition(3, 0, -2)
-                    .setYawPitchRoll(30, 0, 0);
-                geomEntity.addNewComponent<RenderComponent3d>(RenderComponent3d)
-                    .setGeometry(snowyPine)
-                    .setMaterial("basic3d")
-                    .setTexture("assets/gfx/pine/PineTexture.png");
-                this.scene.addEntity(geomEntity);
-            }
+            geomEntity = new Entity().setName("box");
+            geomEntity.addNewComponent<TransformationComponent>(TransformationComponent)
+                .setScale(1, 1.3, 1)
+                .setPosition(3, 0, -2)
+                .setYawPitchRoll(30, 0, 0);
+            geomEntity.addNewComponent<RenderComponent3d>(RenderComponent3d)
+                .setGeometry(snowyPine)
+                .setMaterial("basic3d")
+                .setTexture("assets/gfx/pine/PineTexture.png");
+            this.scene.addEntity(geomEntity);
+
+            geomEntity = new Entity().setName("box");
+            geomEntity.addNewComponent<TransformationComponent>(TransformationComponent)
+                .setScale(1, 1, 1)
+                .setPosition(4, 0, 6)
+                .setYawPitchRoll(0, 0, 0);
+            geomEntity.addNewComponent<RenderComponent3d>(RenderComponent3d)
+                .setGeometry(stump)
+                .setMaterial("basic3d")
+                .setTexture("assets/gfx/pine/PineTexture.png");
+            this.scene.addEntity(geomEntity);
+
+            geomEntity = new Entity().setName("box");
+            geomEntity.addNewComponent<TransformationComponent>(TransformationComponent)
+                .setScale(1.1, 2, 1.05)
+                .setPosition(4, 0, 4)
+                .setYawPitchRoll(0, 0, 0);
+            geomEntity.addNewComponent<RenderComponent3d>(RenderComponent3d)
+                .setGeometry(stump2)
+                .setMaterial("basic3d")
+                .setTexture("assets/gfx/pine/PineTexture.png");
+            this.scene.addEntity(geomEntity);
+        }
 
         // ---
 
@@ -292,21 +322,16 @@ export class Application {
 
         this.time = this.time + 1;
 
-        //n.setRenderTarget(this.fbo);
         this.scene?.render("default_camera", this.fbo);
          
 
         this.blitter.blitToScreen(this.fbo!);
 
-        /*
-
-        n.gl.clearColor(0.3, 0.3, 0.3, 1.0);
-        n.gl.clear(n.gl.COLOR_BUFFER_BIT);
-        
-        this.sprites!.begin();
+        n.setRenderTarget(null);
+        this.sprites!.begin(); 
         this.stuffList.forEach(p => {
             this.sprites!.sprite(
-                p.x, p.y, 
+                p.x, p.y,  
                 p.w, p.h, 
                 n.Align2d.Centre,
                 p.uv,
@@ -316,6 +341,13 @@ export class Application {
                 1.0);
         });
         this.sprites!.end(this.figureTextureActive ? this.figureTex0 : this.figureTex1);
+
+
+        /*
+
+        n.gl.clearColor(0.3, 0.3, 0.3, 1.0);
+        n.gl.clear(n.gl.COLOR_BUFFER_BIT);
+        
                
         this.blitter.blitToScreen(this.fbo!);
         */
