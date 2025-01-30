@@ -77,6 +77,21 @@ export class TransformationComponent extends EntityComponent {
     public yawPithcRoll: n.Vector3 = new n.Vector3(0, 0, 0);
     public scale: n.Vector3 = new n.Vector3(1, 1, 1);
 
+    public setPosition(x: number, y: number, z: number): TransformationComponent {
+        this.position = new n.Vector3(x, y, z);
+        return this;
+    }
+
+    public setYawPitchRoll(yaw: number, pitch: number, roll: number): TransformationComponent {
+        this.yawPithcRoll = new n.Vector3(yaw, pitch, roll);
+        return this;
+    }
+
+    public setScale(x: number, y: number, z: number): TransformationComponent {
+        this.scale = new n.Vector3(x, y, z);
+        return this;
+    }
+
     public getMatrix(): n.Matrix4x4 {
         return n.Algebra.createTransformationMatrix(this.position, this.yawPithcRoll, this.scale);
     }
@@ -86,7 +101,7 @@ export class TransformationComponent extends EntityComponent {
 // ----------
 
 export class Entity {
-
+ 
     constructor() {}
 
     public tick(time: number) {
@@ -102,7 +117,12 @@ export class Entity {
         this.components.push(component);
 
         if(component instanceof RenderComponent3d) {
-            this.renderable = component;
+            this.renderable = component as RenderComponent3d;
+            console.log("Renderable component added");
+        }
+
+        if(component instanceof TransformationComponent) {
+            this.transformation = component as TransformationComponent;
             console.log("Renderable component added");
         }
 
@@ -118,7 +138,7 @@ export class Entity {
         return null;
     }
 
-    public transformation: TransformationComponent = new TransformationComponent();
+    public transformation: TransformationComponent | null = null;
     public renderable: RenderComponent3d | null = null;
     public components: EntityComponent[] = [];
 

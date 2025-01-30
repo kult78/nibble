@@ -3,6 +3,7 @@ import { Vector2 } from "./nibble/index.js";
 
 export let internalResList: Vector2[] =
 [
+    new Vector2(160, 90),
     new Vector2(320, 180),
     new Vector2(640, 360),
     new Vector2(1280, 720),
@@ -12,7 +13,7 @@ export let internalResList: Vector2[] =
     new Vector2(3840, 2160)
 ]; 
 
-let internalResIndex: number = 1;
+let internalResIndex: number = 2;
  
 export function setInternalRenderResIndex(index: number): boolean {
     if(index < 0 || index >= internalResList.length) return false;

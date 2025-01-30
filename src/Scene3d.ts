@@ -20,25 +20,25 @@ export class Scene3d {
 
     private renderEntities(camera: n.Camera) {
         this.entities.forEach(e => {
-            if(e.renderable) {
-                e.renderable.render(camera, new n.Matrix4x4);
+            if(e.renderable) { 
+                e.renderable.render(camera, e.transformation!.getMatrix());
            }
         });
     }
-    
+      
     public render(cameraId: string, fbo: n.RenderTarget | null) {
         let camera: n.Camera | undefined = this.getEntityByName(cameraId)?.getComponent(CameraComponent)?.camera;
         if(!camera) throw new n.FatalError(`Camera [${cameraId}] not found in Scene3d`);
 
-        camera.update();
-
         n.setRenderTarget(fbo);
 
-        n.gl.clearColor(0.7, 0.7, 0.7, 1.0);
+        camera.update(); 
+        n.gl.depthMask(true); 
+        n.gl.clearColor(0.7, 0.7, 0.7, 1.0); 
         n.gl.clearDepth(1.0);
-        n.gl.clear(n.gl.COLOR_BUFFER_BIT | n.gl.DEPTH_BUFFER_BIT);
+        n.gl.clear(n.gl.DEPTH_BUFFER_BIT | n.gl.COLOR_BUFFER_BIT);
 
         this.renderEntities(camera);
     }
-
+ 
 }

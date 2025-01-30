@@ -4,7 +4,7 @@ import * as n from "./nibble/index.js";
 import * as global from "./Global.js"
 
 import { Scene3d } from "./Scene3d.js";
-import { Entity, RenderComponent3d, CameraComponent } from "./Entity.js";
+import { Entity, RenderComponent3d, CameraComponent, TransformationComponent } from "./Entity.js";
 import { Build } from "./Build.js"
 
 class Stuff {
@@ -83,13 +83,19 @@ export class Application {
         n.requestResource("assets/gfx/sprites0.png");
         n.requestResource("assets/gfx/sprites0.png#Key=0 0");
         n.requestResource("assets/gfx/sprites0a.png#Key=0 0"); 
- 
+        n.requestResource("assets/gfx/pine/PineTexture.png");
+        n.requestResource("assets/gfx/pine/AlienTreeTexture.png");
+        n.requestResource("assets/gfx/pine/EvergreenTexture.png");
+  
         n.requestResource("assets/materials/basic2d.vs");
         n.requestResource("assets/materials/basic2d_pix.vs");
         n.requestResource("assets/materials/basic2d.fs");
         n.requestResource("assets/materials/basic3d.vs");
         n.requestResource("assets/materials/basic3d.fs");
         n.requestResource("assets/materials/materials.json");
+
+        n.requestResourceWithType("assets/gfx/pine/PineTree2.obj", n.ResourceType.Text);
+        n.requestResourceWithType("assets/gfx/pine/PineTree1Snowy.obj", n.ResourceType.Text);
     }
 
     private music = false;
@@ -138,19 +144,68 @@ export class Application {
     }
 
     private preRender() {
+
+        let pine: n.Geometry = Build.loadObj(n.getText("assets/gfx/pine/PineTree2.obj")!);
+        let snowyPine: n.Geometry = Build.loadObj(n.getText("assets/gfx/pine/PineTree1Snowy.obj")!);        
  
         if(this.scene == null) {
             this.scene = new Scene3d();
             let camEntity: Entity = new Entity().setName("default_camera");
+            camEntity.addNewComponent<TransformationComponent>(TransformationComponent);
             this.scene.addEntity(camEntity).addNewComponent<CameraComponent>(CameraComponent).camera.position = new n.Vector3(-15, 0, 0);
 
-            let geomEntity: Entity = new Entity();
+            let geomEntity: Entity = new Entity().setName("box");
+            geomEntity.addNewComponent<TransformationComponent>(TransformationComponent);
             geomEntity.addNewComponent<RenderComponent3d>(RenderComponent3d)
-                .setGeometry(Build.randomBlockTris(new n.Vector3(0, 0, 0), 1000))
+                .setGeometry(pine)
                 .setMaterial("basic3d")
-                .setTexture("assets/gfx/sprites0.png");
+                .setTexture("assets/gfx/pine/PineTexture.png");
             this.scene.addEntity(geomEntity);
-        }
+           
+                geomEntity = new Entity().setName("box");
+                geomEntity.addNewComponent<TransformationComponent>(TransformationComponent)
+                    .setScale(1, 1.5, 1)
+                    .setPosition(-2, 0, -2)
+                    .setYawPitchRoll(20, 0, 0);
+                geomEntity.addNewComponent<RenderComponent3d>(RenderComponent3d)
+                    .setGeometry(pine)
+                    .setMaterial("basic3d")
+                    .setTexture("assets/gfx/pine/PineTexture.png");
+                this.scene.addEntity(geomEntity);
+
+                geomEntity = new Entity().setName("box");
+                geomEntity.addNewComponent<TransformationComponent>(TransformationComponent)
+                    .setScale(1, 1.1, 1)
+                    .setPosition(-3, 0, 2)
+                    .setYawPitchRoll(50, 0, 0);
+                geomEntity.addNewComponent<RenderComponent3d>(RenderComponent3d)
+                    .setGeometry(snowyPine)
+                    .setMaterial("basic3d")
+                    .setTexture("assets/gfx/pine/PineTexture.png");
+                this.scene.addEntity(geomEntity);
+
+                geomEntity = new Entity().setName("box");
+                geomEntity.addNewComponent<TransformationComponent>(TransformationComponent)
+                    .setScale(1, 1.1, 1)
+                    .setPosition(2, 0, 4)
+                    .setYawPitchRoll(10, 0, 0);
+                geomEntity.addNewComponent<RenderComponent3d>(RenderComponent3d)
+                    .setGeometry(pine)
+                    .setMaterial("basic3d")
+                    .setTexture("assets/gfx/pine/PineTexture.png");
+                this.scene.addEntity(geomEntity);
+
+                geomEntity = new Entity().setName("box");
+                geomEntity.addNewComponent<TransformationComponent>(TransformationComponent)
+                    .setScale(1, 1.3, 1)
+                    .setPosition(3, 0, -2)
+                    .setYawPitchRoll(30, 0, 0);
+                geomEntity.addNewComponent<RenderComponent3d>(RenderComponent3d)
+                    .setGeometry(snowyPine)
+                    .setMaterial("basic3d")
+                    .setTexture("assets/gfx/pine/PineTexture.png");
+                this.scene.addEntity(geomEntity);
+            }
 
         // ---
 
@@ -160,7 +215,7 @@ export class Application {
         }
 
         if(this.fbo == null) {           
-            let [w, h] = global.getInternalRenderRes();
+            let [w, h] = global.getInternalRenderRes(); 
             this.fbo = new n.RenderTarget(w, h);
             n.info(`New internal rendertarget with resolution ${this.fbo.width}x${this.fbo.height}`, "tech");
 
@@ -213,18 +268,24 @@ export class Application {
         const x = radius * Math.cos(angle);
         const z = radius * Math.sin(angle); 
         const y = 0;
-
+ 
         return new n.Vector3(x, y, z);
     } 
 
     public render() {
         this.preRender(); 
 
-        //this.scene.addEntity(camEntity).addNewComponent<CameraComponent>(CameraComponent).camera.position = new n.Vector3(-15, 0, 0);
+        let box: Entity | null = this.scene!.getEntityByName("box");
+        if(box) {
+            let transformation = box.transformation;
+            //transformation.yawPithcRoll.y = -this.time / 10;
+        }
+
         let cameraComponent = this.scene?.getEntityByName("default_camera")?.getComponent<CameraComponent>(CameraComponent);
         if(cameraComponent) {
-            cameraComponent.camera.position = this.generateCirclePoint(this.time, 20);
-            cameraComponent.camera.position.y = Math.sin(this.time / 100) * 20; 
+            cameraComponent.camera.position = this.generateCirclePoint(this.time, 10); 
+            cameraComponent.camera.position.y = 10; 
+
             cameraComponent.camera.target = new n.Vector3(0, 0, 0); 
             cameraComponent.camera.up = new n.Vector3(0, 1, 0); 
         }
@@ -233,6 +294,8 @@ export class Application {
 
         //n.setRenderTarget(this.fbo);
         this.scene?.render("default_camera", this.fbo);
+         
+
         this.blitter.blitToScreen(this.fbo!);
 
         /*

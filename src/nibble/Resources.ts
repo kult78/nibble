@@ -3,15 +3,15 @@ import * as log from "./Logging.js";
 import * as c from "./Common.js";
 import { FatalError } from "./Common.js";
 
-export enum Type { Text, Image, Sound, Music }
+export enum ResourceType { Text, Image, Sound, Music }
 
 class Resource {   
-    constructor(type: Type, url: string) {
+    constructor(type: ResourceType, url: string) {
         this.type = type;
         this.url = url;
     }
 
-    public type: Type;
+    public type: ResourceType;
     public url: string;
 
     public bitmap: c.BitmapRGBA | null = null;
@@ -20,7 +20,7 @@ class Resource {
 }
  
 class Task {
-    constructor(url: string, type: Type){
+    constructor(url: string, type: ResourceType){
         this.url = url;
         this.type = type;
     }
@@ -28,7 +28,7 @@ class Task {
     public async process(): Promise<void> {
         let loaded : boolean = false;
 
-        if(this.type == Type.Image) {
+        if(this.type == ResourceType.Image) {
             const bitmap = await loadFileAsBitmap(this.url);
             if(bitmap != null) {
                 resources.push(new Resource(this.type, this.url));
@@ -37,7 +37,7 @@ class Task {
                 log.info(`Resource [${this.url}] loaded as image`, "tech");
                 loaded = true;
             }
-        } else if(this.type == Type.Text) {
+        } else if(this.type == ResourceType.Text) {
             const text = await loadFileAsText(this.url);
             if(text != null) {
                 resources.push(new Resource(this.type, this.url));
@@ -52,27 +52,27 @@ class Task {
     }
 
     public url: string;
-    public type: Type;
+    public type: ResourceType;
 }
 
 const tasks: Task[] = [];
 const processingTasks: Task[] = [];
 const resources: Resource[] = [];
 
-export function requestResourceWithType(url: string, type: Type) {
+export function requestResourceWithType(url: string, type: ResourceType) {
     log.info(`Requesting resource [${url}] as ${type.toString()}`, "tech");
     tasks.push(new Task(url, type));
 }
 
 export function requestResource(url: string) {
     if(url.includes(".png") || url.includes(".jpg") || url.includes(".jpeg")) {
-        requestResourceWithType(url, Type.Image);
+        requestResourceWithType(url, ResourceType.Image);
     } else if(url.includes(".txt") || url.includes(".vs") || url.includes(".fs") || url.includes(".json")) {
-        requestResourceWithType(url, Type.Text);
+        requestResourceWithType(url, ResourceType.Text);
     } else if(url.includes(".wav")) {
-        requestResourceWithType(url, Type.Sound);
+        requestResourceWithType(url, ResourceType.Sound);
     } else if(url.includes(".mp3")) {
-        requestResourceWithType(url, Type.Music);
+        requestResourceWithType(url, ResourceType.Music);
     } else {
         throw new FatalError(`Unknown resource type for [${url}]`);
     }
@@ -80,7 +80,7 @@ export function requestResource(url: string) {
 
 export function getImage(url: string): c.BitmapRGBA | null {
     for(let i = 0; i < resources.length; i++) {
-        if(resources[i].url == url && resources[i].type == Type.Image) {
+        if(resources[i].url == url && resources[i].type == ResourceType.Image) {
             return resources[i].bitmap;
         }
     }
@@ -89,7 +89,7 @@ export function getImage(url: string): c.BitmapRGBA | null {
 
 export function getText(url: string): string | null {
     for(let i = 0; i < resources.length; i++) {
-        if(resources[i].url == url && resources[i].type == Type.Text) {
+        if(resources[i].url == url && resources[i].type == ResourceType.Text) {
             return resources[i].text;
         }
     }

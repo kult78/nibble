@@ -22,12 +22,12 @@ export class Material {
         tex1: WebGLTexture | null = null, 
         tex2: WebGLTexture | null = null, 
         tex3: WebGLTexture | null = null) {
-        let gl: WebGLRenderingContext = env.gl;
+        let gl: WebGL2RenderingContext = env.gl;
   
         if(!this.program || !this.program.getSetup() || !this.program.getSetup().u_tex0)
             throw new FatalError(`Invalid object state in [${this.id}] Material`);
 
-        this.program.use(); 
+        this.program.use();
 
         // --- setup uniforms
 
@@ -41,6 +41,12 @@ export class Material {
     
         // --- setup render states
 
+        gl.depthFunc(gl.LESS);
+        //gl.depthRange(0, 1); 
+
+        gl.disable(gl.STENCIL_TEST);
+        gl.disable(gl.SCISSOR_TEST);
+
         if(this.zTest)
             gl.enable(gl.DEPTH_TEST);
         else
@@ -50,6 +56,7 @@ export class Material {
             gl.depthMask(true);
         else
             gl.depthMask(false);
+
 
         if(this.fbOp == "alpha") {
             gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
@@ -100,7 +107,7 @@ export function addMaterialsFromFile(url: string) {
         return;
     }
 
-    let gl: WebGLRenderingContext = env.gl;
+    let gl: WebGL2RenderingContext = env.gl;
     const obj = JSON.parse(text);
 
     obj.materials.forEach((mo : any) => {

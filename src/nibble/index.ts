@@ -31,7 +31,7 @@ export { Material, getMaterial, addMaterialsFromFile } from "./Material.js"
 export { SpriteBatch } from "./SpriteBatch.js"
 export { RenderTarget, Blitter } from "./Fbo.js"
 
-export { requestResourceWithType, requestResource, getImage, getText, hasResourceTask, processResourceTasks } from "./Resources.js"
+export { requestResourceWithType, requestResource, getImage, getText, hasResourceTask, processResourceTasks, ResourceType } from "./Resources.js"
 
 export { setLogEventHandler, info, warning, error } from "./Logging.js"
 

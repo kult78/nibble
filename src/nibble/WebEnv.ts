@@ -123,7 +123,7 @@ export function setKeyEventHandler(handler: KeyEventHandler) {
 
 let oglCanvasId: string = "";
 let oglCanvas: HTMLCanvasElement | null = null;
-export let gl: WebGLRenderingContext;
+export let gl: WebGL2RenderingContext;
 
 export function showOglCanvasMouseCursor(show: boolean) {
     if(oglCanvas) {
@@ -143,14 +143,16 @@ export function setOglCanvas(id: string): boolean {
         return false;
     }
 
-    //gl = canvas.getContext("webgl", { preserveDrawingBuffer: true }) as WebGLRenderingContext;
-    gl = oglCanvas.getContext("webgl2") as WebGLRenderingContext;
+    //gl = canvas.getContext("webgl", { preserveDrawingBuffer: true }) as WebGL2RenderingContext;
+    gl = oglCanvas.getContext("webgl2") as WebGL2RenderingContext;
     if(gl == null) {
         log.error(`Could not access OpenGL context for [${id}]`, "tech");
         return false;
     }
   
     log.info(`OpenGL context is set up for canvas [${id}]`, "tech");
+    console.log(gl.getParameter(gl.VERSION));
+    console.log(gl.getSupportedExtensions());
 
     oglCanvasWidth = Math.round(oglCanvas.width);
     oglCanvasHeight = Math.round(oglCanvas.height);

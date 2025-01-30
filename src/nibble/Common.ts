@@ -350,7 +350,7 @@ export class Algebra {
     
         // Compute translation components
         const tx = -Algebra.dot(xAxis, position);
-        const ty = -Algebra.dot(yAxis, position);
+        const ty = -Algebra.dot(yAxis, position); 
         const tz = -Algebra.dot(zAxis, position);
     
         // Create the view matrix (column-major for WebGL)
@@ -377,8 +377,26 @@ export class Algebra {
         ]);
     
         return matrix;
-    }
-        
+    }  
+     
+    /*public static createProjectionMatrix(fov: number, aspect: number, near: number, far: number) {
+
+        let ret: Matrix4x4 = new Matrix4x4().setIdentity(); 
+
+        var D2R = Math.PI / 180.0;  
+        var yScale = 1.0 / Math.tan(D2R * fov / 2);
+        var xScale = yScale / aspect;       
+        var nearmfar = near - far;
+        ret.set([
+          xScale, 0, 0, 0, 
+          0, yScale, 0, 0,
+          0, 0, (far + near) / nearmfar, -1,
+          0, 0, 2 * far * near / nearmfar, 0
+        ]);
+
+        return ret;
+    }*/
+
     public static createProjectionMatrix(fov: number, aspect: number, near: number, far: number): Matrix4x4 {
         const fovRad = (fov * Math.PI) / 180;
         const f = 1 / Math.tan(fovRad / 2);

@@ -77,7 +77,7 @@ export class Texture {
 
         // ----------
 
-        let gl: WebGLRenderingContext = env.gl;
+        let gl: WebGL2RenderingContext = env.gl;
 
         this.dispose();
      

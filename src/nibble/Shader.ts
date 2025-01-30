@@ -15,7 +15,7 @@ export class Shader {
     }
 
     private recompile() {
-        let gl: WebGLRenderingContext = env.gl;
+        let gl: WebGL2RenderingContext = env.gl;
 
         this.shader = gl.createShader(this.type == ShaderType.Vertex ? gl.VERTEX_SHADER : gl.FRAGMENT_SHADER);
         if(this.shader == null) {
@@ -66,7 +66,7 @@ export class Program {
     } 
 
     private relink() {
-        let gl: WebGLRenderingContext = env.gl;
+        let gl: WebGL2RenderingContext = env.gl;
 
         let vertexShader: Shader | null = getShader(this.vertexShaderId);
         if(vertexShader == null) { throw new FatalError(`Vertex shader [${this.vertexShaderId}] not found`); }

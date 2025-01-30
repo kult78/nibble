@@ -45,9 +45,35 @@ export class RenderTarget {
             this.texture,
             0 // Mipmap level
         );
+/*
+        this.depth = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, this.depth);
+        
+        gl.texImage2D(
+            gl.TEXTURE_2D, 
+            0, 
+            gl.DEPTH24_STENCIL8,  // ✅ 24-bit depth + 8-bit stencil
+            this.width, 
+            this.height, 
+            0, 
+            gl.DEPTH_STENCIL,     // ✅ Must match DEPTH24_STENCIL8
+            gl.UNSIGNED_INT_24_8, // ✅ Data format must be UNSIGNED_INT_24_8
+            null
+        );
+        
+        // Texture Parameters
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
+        // Attach depth texture to FBO
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_STENCIL_ATTACHMENT, gl.TEXTURE_2D, this.depth, 0);
+*/
+        
         this.renderbuffer = gl.createRenderbuffer();
         gl.bindRenderbuffer(gl.RENDERBUFFER, this.renderbuffer);
+
         gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, this.width, this.height);
         gl.framebufferRenderbuffer(
             gl.FRAMEBUFFER,
@@ -55,7 +81,7 @@ export class RenderTarget {
             gl.RENDERBUFFER,
             this.renderbuffer
         );
-
+ 
         if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
             throw new FatalError(`Failed to create ${this.width}x${this.height} Framebuffer`);
         } else {
@@ -109,8 +135,9 @@ export class RenderTarget {
     public width: number;
     public height: number;
 
-    private renderbuffer : WebGLRenderbuffer | null = null;
+    public renderbuffer : WebGLRenderbuffer | null = null;
     private texture: WebGLTexture | null = null;
+    private depth: WebGLTexture | null = null;
     private framebuffer: WebGLFramebuffer | null = null;
 }
 
