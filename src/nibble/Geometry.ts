@@ -144,7 +144,7 @@ export class Geometry {
 
 // ----------
 
-export class Builder {
+export class GeometryBuilder {
     constructor(format: GeometryFormat) {
         this.format = format;
     }

@@ -32,7 +32,7 @@ export class Build {
 
     public static loadObj(obj: string, align: n.GeometryAlign = n.GeometryAlign.None): n.Geometry {
 
-        let builder: n.Builder = new n.Builder(n.GeometryFormat.xyzNxnynzUvRgba);
+        let builder: n.GeometryBuilder = new n.GeometryBuilder(n.GeometryFormat.xyzNxnynzUvRgba);
         
         let obj2 = obj.replace(new RegExp("\r", "g"), "");
         let lines = obj2.split("\n");
@@ -63,7 +63,7 @@ export class Build {
                     let positionIndex = (parseInt(faceParts[0]) - 1) * 3;
                     let uv0Index = (parseInt(faceParts[1]) - 1) * 2;
                     let normalIndex = (parseInt(faceParts[2]) - 1) * 3;
-
+ 
                     builder.current().x = positions[positionIndex];
                     builder.current().y = positions[positionIndex + 1];
                     builder.current().z = positions[positionIndex + 2];
@@ -82,7 +82,7 @@ export class Build {
     }
 
     public static randomBlockTris(blockPos: n.Vector3, triCount: number): n.Geometry {
-        let builder: n.Builder = new n.Builder(n.GeometryFormat.xyzNxnynzUvRgba);
+        let builder: n.GeometryBuilder = new n.GeometryBuilder(n.GeometryFormat.xyzNxnynzUvRgba);
         let centre = this.getCentreOfWordBlock(blockPos);
 
         for(let i = 0; i < triCount; i++) {

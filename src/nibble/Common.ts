@@ -72,99 +72,6 @@ export class Vector4 {
     public z: number = 0.0;
     public w: number = 0.0;
 }
- 
-/*
-function computeModelMatrix(
-    scale: [number, number, number],
-    translate: [number, number, number],
-    rotate: [number, number, number, number] // axis (x, y, z) and angle (in radians)
-): number[] {
-    // Helper functions for matrix operations
-    function createIdentityMatrix(): number[] {
-        return [
-            1, 0, 0, 0,
-            0, 1, 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1
-        ];
-    }
-
-    function createTranslationMatrix(tx: number, ty: number, tz: number): number[] {
-        return [
-            1, 0, 0, 0,
-            0, 1, 0, 0,
-            0, 0, 1, 0,
-            tx, ty, tz, 1
-        ];
-    }
-
-    function createScaleMatrix(sx: number, sy: number, sz: number): number[] {
-        return [
-            sx, 0,  0,  0,
-            0,  sy, 0,  0,
-            0,  0,  sz, 0,
-            0,  0,  0,  1
-        ];
-    }
-
-    function createRotationMatrix(axis: [number, number, number], angle: number): number[] {
-        const [x, y, z] = axis;
-        const len = Math.sqrt(x * x + y * y + z * z);
-
-        if (len === 0) return createIdentityMatrix();
-
-        const nx = x / len;
-        const ny = y / len;
-        const nz = z / len;
-        const cos = Math.cos(angle);
-        const sin = Math.sin(angle);
-        const omc = 1 - cos; // One minus cosine
-
-        return [
-            cos + nx * nx * omc,     nx * ny * omc - nz * sin, nx * nz * omc + ny * sin, 0,
-            ny * nx * omc + nz * sin, cos + ny * ny * omc,     ny * nz * omc - nx * sin, 0,
-            nz * nx * omc - ny * sin, nz * ny * omc + nx * sin, cos + nz * nz * omc,     0,
-            0,                        0,                      0,                       1
-        ];
-    }
-
-    function multiplyMatrices(a: number[], b: number[]): number[] {
-        const result = new Array(16).fill(0);
-        for (let row = 0; row < 4; row++) {
-            for (let col = 0; col < 4; col++) {
-                result[row * 4 + col] =
-                    a[row * 4 + 0] * b[col + 0] +
-                    a[row * 4 + 1] * b[col + 4] +
-                    a[row * 4 + 2] * b[col + 8] +
-                    a[row * 4 + 3] * b[col + 12];
-            }
-        }
-        return result;
-    }
-
-    // Step 1: Create individual transformation matrices
-    const scaleMatrix = createScaleMatrix(scale[0], scale[1], scale[2]);
-    const translationMatrix = createTranslationMatrix(translate[0], translate[1], translate[2]);
-    const rotationMatrix = createRotationMatrix([rotate[0], rotate[1], rotate[2]], rotate[3]);
-
-    // Step 2: Combine transformations: Model = Translation * Rotation * Scale
-    const modelMatrix = multiplyMatrices(
-        multiplyMatrices(translationMatrix, rotationMatrix),
-        scaleMatrix
-    );
-
-    return modelMatrix;
-}
-
-// Example usage
-const scale = [2, 2, 2]; // Scale by 2 on all axes
-const translate = [1, 2, 3]; // Translate by (1, 2, 3)
-const rotate = [0, 1, 0, Math.PI / 4]; // Rotate 45° around the Y-axis
-
-const modelMatrix = computeModelMatrix(scale, translate, rotate);
-
-console.log("Model Matrix:", modelMatrix);
-*/
 
 // -------------------------------
 
@@ -256,13 +163,13 @@ export class Algebra {
     public static createTransformationMatrix(position: Vector3, yawPitchRoll: Vector3, scale: Vector3): Matrix4x4 {
         const [yaw, pitch, roll] = [yawPitchRoll.x, yawPitchRoll.y, yawPitchRoll.z];
 
-        // Create scale matrix
+        // scale matrix
         const scaleMatrix = new Matrix4x4();
         scaleMatrix.values[0] = scale.x;
         scaleMatrix.values[5] = scale.y;
         scaleMatrix.values[10] = scale.z;
 
-        // Create rotation matrices (yaw, pitch, roll)
+        // rotation matrices
         const yawMatrix = new Matrix4x4();
         yawMatrix.values[0] = Math.cos(yaw);
         yawMatrix.values[2] = Math.sin(yaw);
@@ -343,60 +250,24 @@ export class Algebra {
     }   
 
     public static createViewMatrix(position: Vector3, forward: Vector3, up: Vector3): Matrix4x4 {
-        // Normalize input vectors
         const zAxis = Algebra.normalize(Algebra.negate(forward)); // Camera looks along -forward
         const xAxis = Algebra.normalize(Algebra.cross(up, zAxis)); // Right vector
         const yAxis = Algebra.cross(zAxis, xAxis); // Up vector (orthogonalized)
     
-        // Compute translation components
         const tx = -Algebra.dot(xAxis, position);
         const ty = -Algebra.dot(yAxis, position); 
         const tz = -Algebra.dot(zAxis, position);
     
-        // Create the view matrix (column-major for WebGL)
         const matrix = new Matrix4x4().set([    
-            xAxis.x,
-            yAxis.x,
-            zAxis.x,
-            0,
-        
-            xAxis.y,
-            yAxis.y,
-            zAxis.y,
-            0,
-        
-            xAxis.z,
-            yAxis.z,
-            zAxis.z,
-            0,
-        
-            tx,
-            ty,
-            tz,
-            1
+            xAxis.x, yAxis.x, zAxis.x, 0,        
+            xAxis.y, yAxis.y, zAxis.y, 0,        
+            xAxis.z, yAxis.z, zAxis.z, 0,       
+            tx, ty, tz, 1 
         ]);
     
         return matrix;
     }  
-     
-    /*public static createProjectionMatrix(fov: number, aspect: number, near: number, far: number) {
-
-        let ret: Matrix4x4 = new Matrix4x4().setIdentity(); 
-
-        var D2R = Math.PI / 180.0;  
-        var yScale = 1.0 / Math.tan(D2R * fov / 2);
-        var xScale = yScale / aspect;       
-        var nearmfar = near - far;
-        ret.set([
-          xScale, 0, 0, 0, 
-          0, yScale, 0, 0,
-          0, 0, (far + near) / nearmfar, -1,
-          0, 0, 2 * far * near / nearmfar, 0
-        ]);
-
-        return ret;
-    }*/
-
+    
     public static createProjectionMatrix(fov: number, aspect: number, near: number, far: number): Matrix4x4 {
         const fovRad = (fov * Math.PI) / 180;
         const f = 1 / Math.tan(fovRad / 2);
@@ -409,49 +280,6 @@ export class Algebra {
             0,          0,           (2 * near * far) * rangeInv, 0
         ]);
     }
-
-    /*
-    public static createProjectionMatrix(fov: number, aspect: number, near: number, far: number): Matrix4x4 {
-
-        let ymax: number, xmax: number;
-        let temp: number, temp2: number, temp3: number, temp4: number;
-        ymax = near * Math.tan(fov * 3.1415 / 360.0);
-        xmax = ymax * aspect;
-        
-        let left = -xmax;
-        let right = xmax;
-        let bottom = -ymax;
-        let top = ymax;
-        let znear = near;
-        let zfar = far;
-        
-        temp = 2.0 * znear;
-        temp2 = right - left;
-        temp3 = top - bottom;
-        temp4 = zfar - znear;
-
-        let ret = new Matrix4x4()
-
-        ret.values[0] = temp / temp2;
-        ret.values[1] = 0.0;
-        ret.values[2] = 0.0;
-        ret.values[3] = 0.0;
-        ret.values[4] = 0.0;
-        ret.values[5] = temp / temp3;
-        ret.values[6] = 0.0;
-        ret.values[7] = 0.0;
-        ret.values[8] = (right + left) / temp2;
-        ret.values[9] = (top + bottom) / temp3;
-        ret.values[10] = (-zfar - znear) / temp4;
-        ret.values[11] = -1.0;
-        ret.values[12] = 0.0;
-        ret.values[13] = 0.0;
-        ret.values[14] = (-temp * zfar) / temp4;
-        ret.values[15] = 0.0;
-
-        return ret;
-    }
-        */
 
 }
 

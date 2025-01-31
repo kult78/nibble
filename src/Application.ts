@@ -59,18 +59,19 @@ export class Application {
             console.log(p.color.r + " " + p.color.g + " " + p.color.b);
         });
 
+        
         /*
-        if(this.penguins.length == 1) {
+        if(this.stuffList.length == 1) {
             if(!this.music) { 
                 this.music = true;
                 n.playMusic("assets/sound/cthulhu_lairs.ogg");
             }
         }
 
-        if(this.penguins.length % 10 == 0) { 
+        if(this.stuffList.length % 10 == 0) { 
             n.playMusic("assets/sound/tada.wav");
         } 
-            */
+          */  
     }
 
     // ----------
@@ -136,7 +137,7 @@ export class Application {
         return "";
     } 
  
-    public keyEvent(code: string, pressed: boolean) {
+    public keyEvent(code: string, pressed: boolean) { 
     }
 
     public renderStart() {       
@@ -152,7 +153,7 @@ export class Application {
     private preRender() {
 
         let pine: n.Geometry = Build.loadObj(n.getText("assets/gfx/pine/PineTree2.obj")!);
-        let snowyPine: n.Geometry = Build.loadObj(n.getText("assets/gfx/pine/PineTree1Snowy.obj")!, n.GeometryAlign.Pivot);
+        let pine2: n.Geometry = Build.loadObj(n.getText("assets/gfx/pine/PineTree1.obj")!);
         let stump: n.Geometry = Build.loadObj(n.getText("assets/gfx/pine/PineStump.obj")!);        
         let stump2: n.Geometry = Build.loadObj(n.getText("assets/gfx/pine/PineStump2.obj")!);        
  
@@ -162,6 +163,34 @@ export class Application {
             camEntity.addNewComponent<TransformationComponent>(TransformationComponent);
             this.scene.addEntity(camEntity).addNewComponent<CameraComponent>(CameraComponent).camera.position = new n.Vector3(-15, 0, 0);
 
+            for(let z = -20; z < 20; z++) {
+                for(let x = -20; x < 20; x++) 
+                {
+                    let geom = pine;
+                    if(Math.random() < 0.3) geom = pine2;
+                    if(Math.random() < 0.2) geom = stump;
+                    if(Math.random() < 0.1) geom = stump2;
+
+
+                    let tex = "assets/gfx/pine/PineTexture.png";
+                    if(Math.random() < 0.1) tex = "assets/gfx/pine/EvergreenTexture.png";
+                    if(Math.random() < 0.02) tex = "assets/gfx/pine/AlienTreeTexture.png";
+
+                    let geomEntity = new Entity().setName("box");
+                    geomEntity.addNewComponent<TransformationComponent>(TransformationComponent)
+                        .setScale(1, 1.0 + Math.random(), 1)
+                        .setPosition(x * 3, 0, z * 3)
+                        .setYawPitchRoll(Math.random() * 10, 0, 0);
+                    geomEntity.addNewComponent<RenderComponent3d>(RenderComponent3d)
+                        .setGeometry(geom)
+                        .setMaterial("basic3d")
+                        .setTexture(tex);
+                    this.scene.addEntity(geomEntity);
+               
+                }
+            }
+
+            /*
             let geomEntity: Entity = new Entity().setName("box");
             geomEntity.addNewComponent<TransformationComponent>(TransformationComponent); 
             geomEntity.addNewComponent<RenderComponent3d>(RenderComponent3d)
@@ -189,7 +218,7 @@ export class Application {
             geomEntity.addNewComponent<RenderComponent3d>(RenderComponent3d)
                 .setGeometry(snowyPine)
                 .setMaterial("basic3d")
-                .setTexture("assets/gfx/pine/PineTexture.png");
+                .setTexture("assets/gfx/pine/EvergreenTexture.png");
             this.scene.addEntity(geomEntity);
 
             geomEntity = new Entity().setName("box");
@@ -235,6 +264,7 @@ export class Application {
                 .setMaterial("basic3d")
                 .setTexture("assets/gfx/pine/PineTexture.png");
             this.scene.addEntity(geomEntity);
+            */
         }
 
         // ---
@@ -267,7 +297,10 @@ export class Application {
         } 
     }
 
+    private time: number = 0;
+
     private tick(time: number, frame: number) {
+        this.time = time;
         this.stuffList.forEach(p => {
         });
     }   
@@ -291,38 +324,36 @@ export class Application {
     private oglCanvasSize: n.Vector2 = new n.Vector2(0, 0);
     private internalFboSize: n.Vector2 = new n.Vector2(0, 0);
 
-    private time = 0;
-
+ 
     private generateCirclePoint(time: number, radius: number): n.Vector3 {
         const angle = n.Algebra.deg2rad(time);
         const x = radius * Math.cos(angle);
-        const z = radius * Math.sin(angle); 
+        const z = radius * Math.sin(angle);  
         const y = 0;
  
         return new n.Vector3(x, y, z);
     } 
-
+ 
     public render() {
         this.preRender(); 
 
-        let box: Entity | null = this.scene!.getEntityByName("box");
+        /*let box: Entity | null = this.scene!.getEntityByName("box");
         if(box) {
             let transformation = box.transformation;
-            //transformation.yawPithcRoll.y = -this.time / 10;
-        }
+            transformation.yawPithcRoll.y = -this.time / 10;
+        }*/
 
         let cameraComponent = this.scene?.getEntityByName("default_camera")?.getComponent<CameraComponent>(CameraComponent);
         if(cameraComponent) {
-            cameraComponent.camera.position = this.generateCirclePoint(this.time, 10); 
-            cameraComponent.camera.position.y = 10; 
+            cameraComponent.camera.position = this.generateCirclePoint(this.time / 1000, 20); 
+            cameraComponent.camera.position.y = 14 + Math.sin(this.time / 1000);  
 
             cameraComponent.camera.target = new n.Vector3(0, 0, 0); 
+            cameraComponent.camera.target.y = 14 + Math.cos(this.time / 1000); 
             cameraComponent.camera.up = new n.Vector3(0, 1, 0); 
         }
 
-        this.time = this.time + 1;
-
-        this.scene?.render("default_camera", this.fbo);
+        this.scene?.render("default_camera", this.time, this.fbo);
          
 
         this.blitter.blitToScreen(this.fbo!);

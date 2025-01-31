@@ -18,15 +18,29 @@ export class Scene3d {
         return this.entities.find(e => e.getName() === entityId) || null;
     }
 
-    private renderEntities(camera: n.Camera) {
+    private renderEntities(camera: n.Camera, time: number) {
         this.entities.forEach(e => {
-            if(e.renderable) { 
-                e.renderable.render(camera, e.transformation!.getMatrix());
+            if(e.renderable) {
+                e.renderable.useMaterial();
+ 
+                let shader = e.renderable.material!.getProgram().getSetup(); 
+                
+                shader.set_u_time(time / 1000); 
+                shader.set_u_fbres(n.renderWidth, n.renderHeight);
+
+                shader.set_u_model(e.transformation!.getMatrix().values);
+                shader.set_u_normal(n.Algebra.matrixTranspose(n.Algebra.matrixInverse(e.transformation!.getMatrix())).values);
+                shader.set_u_projection(camera.projectionMatrix.values);
+                shader.set_u_view(camera.viewMatrix.values);
+
+                e.renderable.render();
            }
         });
-    }
+    } 
+ 
+    public fogColor: n.Color = n.Colors.darkcyan.clone(); 
       
-    public render(cameraId: string, fbo: n.RenderTarget | null) {
+    public render(cameraId: string, time: number, fbo: n.RenderTarget | null) {
         let camera: n.Camera | undefined = this.getEntityByName(cameraId)?.getComponent(CameraComponent)?.camera;
         if(!camera) throw new n.FatalError(`Camera [${cameraId}] not found in Scene3d`);
 
@@ -34,11 +48,11 @@ export class Scene3d {
 
         camera.update(); 
         n.gl.depthMask(true); 
-        n.gl.clearColor(0.7, 0.7, 0.7, 1.0); 
+        n.gl.clearColor(this.fogColor.r, this.fogColor.g, this.fogColor.b, 1.0); 
         n.gl.clearDepth(1.0);
         n.gl.clear(n.gl.DEPTH_BUFFER_BIT | n.gl.COLOR_BUFFER_BIT);
 
-        this.renderEntities(camera);
+        this.renderEntities(camera, time);
     }
  
 }

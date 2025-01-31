@@ -13,7 +13,7 @@ export let internalResList: Vector2[] =
     new Vector2(3840, 2160)
 ]; 
 
-let internalResIndex: number = 2;
+let internalResIndex: number = 3;
  
 export function setInternalRenderResIndex(index: number): boolean {
     if(index < 0 || index >= internalResList.length) return false;
@@ -25,9 +25,10 @@ export function isInternalRenderRes(width: number, height: number): boolean {
     if(internalResList[internalResIndex].x != width) return false;
     if(internalResList[internalResIndex].y != height) return false;
     return true;
-}
+} 
 
 export function getInternalRenderRes(): [number, number] {
     return [internalResList[internalResIndex].x, internalResList[internalResIndex].y];
 }
 
+ 
