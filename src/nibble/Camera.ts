@@ -9,8 +9,8 @@ export class Camera {
 
     public fov: number = 90;
     public aspect: number = 16.0 / 9.0;
-    public near: number = 0.1;
-    public far: number = 200; 
+    public near: number = 0.5;
+    public far: number = 150; 
 
     public viewMatrix: c.Matrix4x4 = new c.Matrix4x4();
     public projectionMatrix: c.Matrix4x4 = new c.Matrix4x4();

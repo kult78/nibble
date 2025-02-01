@@ -98,8 +98,6 @@ function timeStep(currentTime : number)
         renderRequested = false;
          
         setRenderTarget(null);
-        //gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-        //gl.viewport(0, 0, oglWidth, oglHeight)
         
         eventRenderOgl();      
     }
@@ -143,7 +141,6 @@ export function setOglCanvas(id: string): boolean {
         return false;
     }
 
-    //gl = canvas.getContext("webgl", { preserveDrawingBuffer: true }) as WebGL2RenderingContext;
     gl = oglCanvas.getContext("webgl2") as WebGL2RenderingContext;
     if(gl == null) {
         log.error(`Could not access OpenGL context for [${id}]`, "tech");

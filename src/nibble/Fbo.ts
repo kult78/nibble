@@ -43,21 +43,23 @@ export class RenderTarget {
             gl.COLOR_ATTACHMENT0,
             gl.TEXTURE_2D,
             this.texture,
-            0 // Mipmap level
+            0 // mipmap level
         );
-/*
+        
+        /* --- depth texture instead of renderbuffer (to sample Z values)
+
         this.depth = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, this.depth);
         
         gl.texImage2D(
             gl.TEXTURE_2D, 
             0, 
-            gl.DEPTH24_STENCIL8,  // ✅ 24-bit depth + 8-bit stencil
+            gl.DEPTH24_STENCIL8,
             this.width, 
             this.height, 
             0, 
-            gl.DEPTH_STENCIL,     // ✅ Must match DEPTH24_STENCIL8
-            gl.UNSIGNED_INT_24_8, // ✅ Data format must be UNSIGNED_INT_24_8
+            gl.DEPTH_STENCIL,
+            gl.UNSIGNED_INT_24_8,
             null
         );
         
@@ -69,7 +71,8 @@ export class RenderTarget {
 
         // Attach depth texture to FBO
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_STENCIL_ATTACHMENT, gl.TEXTURE_2D, this.depth, 0);
-*/
+
+        */
         
         this.renderbuffer = gl.createRenderbuffer();
         gl.bindRenderbuffer(gl.RENDERBUFFER, this.renderbuffer);
@@ -143,6 +146,8 @@ export class RenderTarget {
 
 // ----------
 
+// class that renders an FBO to other (or to the screen)
+
 export class Blitter {
     public blit(source: RenderTarget, destination: RenderTarget | null) {                     
         if(this.materialId == "") throw new FatalError("No material is set to blit with Blitter");
@@ -159,14 +164,7 @@ export class Blitter {
             );            
         }
  
-        if(destination == null) { 
-            env.setRenderTarget(null);
-            //env.gl.bindFramebuffer(env.gl.FRAMEBUFFER, null);
-            //env.gl.viewport(0, 0, env.oglCanvasWidth, env.oglHeight)
-        } else {
-            env.setRenderTarget(destination);
-            //destination.useAsRenderTarget();
-        }
+        env.setRenderTarget(null);
 
         this.targetBox.renderWith(this.material, source.getApiTexture());
     }

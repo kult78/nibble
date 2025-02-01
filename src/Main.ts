@@ -108,14 +108,14 @@ async function main() {
                 if(code === "Escape") {
                     command.focus();
                     return;
-                }
+                } 
             }  
-        }
+        } 
 
         try {
             if(userCommand !== "") {
                 command.placeholder = application.userCommand(userCommand);
-                if(command.placeholder == "") command.placeholder = "Type commands here (use ESC key to focus)";
+                if(command.placeholder == "") command.placeholder = "Type commands here (use ESC key to focus) - commands: ires";
             }
             
             if(document.activeElement != command) {

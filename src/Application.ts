@@ -21,13 +21,18 @@ export class Application {
     public constructor() {
     }
 
+    private generateScene: boolean = false;
     private scene: Scene3d | null = null;
+    private playMusic = true;
 
     private tileProps : n.TileProps | null = null;
     public stuffList : Stuff[] = [];
 
     public addPenguin(x: number, y: number) {
 
+        this.generateScene = true;
+
+        /*
         x = x * 640;
         y = y * 360;
 
@@ -58,20 +63,14 @@ export class Application {
         this.stuffList.forEach(p => {
             console.log(p.color.r + " " + p.color.g + " " + p.color.b);
         });
-
         
-        /*
         if(this.stuffList.length == 1) {
             if(!this.music) { 
                 this.music = true;
-                n.playMusic("assets/sound/cthulhu_lairs.ogg");
+                n.playMusic("assets/sound/cthulhu_lairs.ogg", true, 1.0);
             }
-        }
+        }*/
 
-        if(this.stuffList.length % 10 == 0) { 
-            n.playMusic("assets/sound/tada.wav");
-        } 
-          */  
     }
 
     // ----------
@@ -80,7 +79,7 @@ export class Application {
     private figureTex0 : n.Texture | null = null;
     private figureTex1 : n.Texture | null = null;
 
-    public startup() {
+    public startup() { 
         n.requestResource("assets/gfx/sprites0.png");
         n.requestResource("assets/gfx/sprites0.png#Key=0 0");
         n.requestResource("assets/gfx/sprites0a.png#Key=0 0"); 
@@ -96,7 +95,7 @@ export class Application {
         n.requestResourceWithType("assets/gfx/pine/PineStump2.obj", n.ResourceType.Text);
         n.requestResourceWithType("assets/gfx/pine/PineTree1.obj", n.ResourceType.Text);
         n.requestResourceWithType("assets/gfx/pine/PineTree1Snowy.obj", n.ResourceType.Text);
-        n.requestResourceWithType("assets/gfx/pine/PineTree2.obj", n.ResourceType.Text);
+        n.requestResourceWithType("assets/gfx/pine/PineTree2.obj", n.ResourceType.Text);  
         n.requestResourceWithType("assets/gfx/pine/PineTree2Snowy.obj", n.ResourceType.Text);
         n.requestResourceWithType("assets/gfx/pine/PineTree3.obj", n.ResourceType.Text);
         n.requestResourceWithType("assets/gfx/pine/PineTree3Snowy.obj", n.ResourceType.Text);
@@ -156,9 +155,27 @@ export class Application {
         let pine2: n.Geometry = Build.loadObj(n.getText("assets/gfx/pine/PineTree1.obj")!);
         let stump: n.Geometry = Build.loadObj(n.getText("assets/gfx/pine/PineStump.obj")!);        
         let stump2: n.Geometry = Build.loadObj(n.getText("assets/gfx/pine/PineStump2.obj")!);        
- 
+  
         if(this.scene == null) {
             this.scene = new Scene3d();
+        }
+
+        if(this.generateScene) {
+            this.generateScene = false;
+
+            if(this.playMusic) {
+                n.playMusic("assets/sound/cthulhu_lairs.ogg", true, 1.0);
+                this.playMusic = false;
+            }
+
+            this.scene = new Scene3d();
+            this.scene.albedo = new n.Color(Math.random() / 4, Math.random() / 4, Math.random() / 4, 1.0);
+            this.scene.sunColor = new n.Color(1.0 - Math.random() / 5.0, 1.0 - Math.random() / 5.0, 1.0 - Math.random() / 5.0, 1.0);
+            this.scene.fogColor = this.scene.albedo.clone();
+            
+            this.scene.sunDirection = n.Algebra.normalize(n.Algebra.subtract(new n.Vector3(0.0, 0.0, 0.0), new n.Vector3((Math.random() - 0.5) * 100, 100.0, (Math.random() - 0.5) * 100)));
+            this.scene.fogStart = 0.8 + Math.random() / 6.0;
+            
             let camEntity: Entity = new Entity().setName("default_camera");
             camEntity.addNewComponent<TransformationComponent>(TransformationComponent);
             this.scene.addEntity(camEntity).addNewComponent<CameraComponent>(CameraComponent).camera.position = new n.Vector3(-15, 0, 0);

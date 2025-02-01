@@ -1,4 +1,3 @@
-
 precision mediump float;
 
 attribute vec3 a_xyz;
@@ -9,41 +8,53 @@ attribute vec4 a_rgba;
 varying vec3 v_nxnynz;
 varying vec2 v_uv0;
 varying vec4 v_rgba;
-
-uniform vec2 u_texres0;
-uniform vec2 u_fbres;
-uniform float u_time;
+varying float v_depth;
 
 uniform mat4 u_model_mtx;
 uniform mat4 u_view_mtx;
 uniform mat4 u_projection_mtx;
 uniform mat4 u_normal_mtx;
 
-uniform bool u_fog_enable;
-uniform vec3 u_fog_color;
-uniform float u_fog_start;
-uniform float u_fog_end;
-
 uniform bool u_wind_enable;
-uniform vec3 u_wind_dir;
 uniform float u_wind_strength;
 
+uniform vec4 u_scene_albedo;
+
+uniform vec3 u_sun_direction;
+uniform vec4 u_sun_color;
+
+uniform float u_time;
+
 void main() {
-    
+    // Transform vertex position to world space
     vec4 worldPos = u_model_mtx * vec4(a_xyz, 1.0);
 
-    worldPos.x = worldPos.x + 0.04 * worldPos.y * sin(u_time + worldPos.x + worldPos.z);
-    worldPos.z = worldPos.z + 0.04 * worldPos.y * cos(u_time + worldPos.x + worldPos.z);
+    // Apply wind effect
+    if (u_wind_enable) {
+        worldPos.x += u_wind_strength * worldPos.y * sin(u_time + worldPos.x + worldPos.z);
+        worldPos.z += u_wind_strength * worldPos.y * cos(u_time + worldPos.x + worldPos.z);
+    }
 
+    // Transform to view space
     vec4 viewPos = u_view_mtx * worldPos;
-
     gl_Position = u_projection_mtx * viewPos;
-    v_nxnynz = (u_normal_mtx * vec4(a_nxnynz, 0.0)).xyz;
 
-    //vec3 lv = normalize(vec3(-1.0, -1.0, -1.0));
-    //float l = dot(normalize(v_nxnynz), lv);
+    // Transform normal using normal matrix
+    v_nxnynz = normalize((u_normal_mtx * vec4(a_nxnynz, 0.0)).xyz);
 
+    // Compute depth for fog effects
+    v_depth = gl_Position.z / gl_Position.w;
+
+    // Compute diffuse lighting
+    float diffuse = max(dot(v_nxnynz, normalize(-u_sun_direction)), 0.0);
+
+    // Apply lighting effect
+    vec4 lightEffect = u_sun_color * diffuse;
+    lightEffect.a = a_rgba.a;  // Preserve alpha
+
+    // Combine base color with lighting
+    v_rgba = a_rgba * (u_scene_albedo + lightEffect);
+
+    // Pass texture coordinates
     v_uv0 = a_uv0;
-    //v_rgba = vec4(a_rgba.x * l, a_rgba.y * l, a_rgba.z * l, a_rgba.w);
-    v_rgba = a_rgba;
 }

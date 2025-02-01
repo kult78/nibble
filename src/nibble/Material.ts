@@ -42,7 +42,7 @@ export class Material {
         // --- setup render states
 
         gl.depthFunc(gl.LESS);
-        //gl.depthRange(0, 1); 
+        gl.depthRange(0.0, 1.0); 
 
         gl.disable(gl.STENCIL_TEST);
         gl.disable(gl.SCISSOR_TEST);

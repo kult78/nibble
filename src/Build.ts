@@ -64,11 +64,14 @@ export class Build {
                     let uv0Index = (parseInt(faceParts[1]) - 1) * 2;
                     let normalIndex = (parseInt(faceParts[2]) - 1) * 3;
  
-                    builder.current().x = positions[positionIndex];
+                    builder.current().x = positions[positionIndex + 0];
                     builder.current().y = positions[positionIndex + 1];
                     builder.current().z = positions[positionIndex + 2];
-                    builder.current().u0 = uv0s[uv0Index];
+                    builder.current().u0 = uv0s[uv0Index + 0];
                     builder.current().v0 = uv0s[uv0Index + 1];
+                    builder.current().nx = normals[normalIndex + 0];
+                    builder.current().ny = normals[normalIndex + 1];
+                    builder.current().nz = normals[normalIndex + 2];
                     builder.current().r = 1;
                     builder.current().g = 1;
                     builder.current().b = 1;

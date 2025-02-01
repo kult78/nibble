@@ -75,7 +75,7 @@ export function requestResource(url: string) {
         requestResourceWithType(url, ResourceType.Music);
     } else {
         throw new FatalError(`Unknown resource type for [${url}]`);
-    }
+    } 
 }
 
 export function getImage(url: string): c.BitmapRGBA | null {
