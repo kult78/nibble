@@ -3,7 +3,7 @@ import * as n from "./nibble/index.js";
 
 export class EntityComponent { }
 
-// ----------
+// ---------- ---------- ---------- ---------- ---------- ---------- ----------
 
 export class CameraComponent extends EntityComponent {
     
@@ -15,7 +15,7 @@ export class CameraComponent extends EntityComponent {
 
 }
 
-// ----------
+// ---------- ---------- ---------- ---------- ---------- ---------- ----------
 
 export class RenderComponent3d extends EntityComponent {
 
@@ -55,7 +55,7 @@ export class RenderComponent3d extends EntityComponent {
 
 }
 
-// ----------
+// ---------- ---------- ---------- ---------- ---------- ---------- ----------
 
 export class TransformationComponent extends EntityComponent {
 
@@ -88,7 +88,7 @@ export class TransformationComponent extends EntityComponent {
 
 }
 
-// ----------
+// ---------- ---------- ---------- ---------- ---------- ---------- ----------
 
 export class Entity {
  
@@ -118,7 +118,7 @@ export class Entity {
 
         return component;
     }
-    
+
     public getComponent<T extends EntityComponent>(type: new (...args: any[]) => T): T | null {
         for (const component of this.components) {
             if (component instanceof type) {

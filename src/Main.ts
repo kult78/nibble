@@ -49,8 +49,7 @@ async function main() {
         console.log(leftDown + " " + x + " " + y);
  
         if(leftDown == false)
-            //for(let i = 0; i < 100; i++)
-                application.addPenguin(x / n.oglCanvasWidth, 1.0 - y / n.oglCanvasHeight);
+            application.leftMouseUp(x / n.oglCanvasWidth, 1.0 - y / n.oglCanvasHeight);
 
     });
 

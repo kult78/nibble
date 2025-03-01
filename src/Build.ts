@@ -19,17 +19,7 @@ export class Build {
             }
         }
     }
-
-    /*public static blockCube(blockPos: n.Vector3, triCount: number): n.Geometry {
-
-        let builder: n.Builder = new n.Builder(n.Format.xyzNxnynzUvRgba);
-        let c: n.Vector3 = this.getCentreOfWordBlock(blockPos);
-
-
-    }*/
-
-    
-
+     
     public static loadObj(obj: string, align: n.GeometryAlign = n.GeometryAlign.None): n.Geometry {
 
         let builder: n.GeometryBuilder = new n.GeometryBuilder(n.GeometryFormat.xyzNxnynzUvRgba);
