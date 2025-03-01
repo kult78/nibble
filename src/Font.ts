@@ -1,4 +1,5 @@
-import { Texture } from "./nibble/index.js";
+
+import * as n from "./nibble/index.js";
 
 type GlyphData = {
     width: number;
@@ -19,21 +20,36 @@ type GlyphMeta = {
     kerning: Record<string, number>;
 };
 
-type FontTexture = {
-    canvas: HTMLCanvasElement;
-    context: CanvasRenderingContext2D;
-    glyphs: Record<string, GlyphMeta>;
-};
-
 export class Font {
-    private fontTexture: FontTexture;
-    private fontData: FontData;
 
-    constructor(fileContent: string) {
+    private fontData: FontData;
+    private fontTexture: n.Texture;
+    private fontName: String;
+    private glyphs: Record<string, GlyphMeta>;
+
+    constructor(fontName: string, fileContent: string) {
+        
+        this.fontName = fontName;
         this.fontData = loadFontData(fileContent);
-        this.fontTexture = createFontTexture(this.fontData);
+        let fontTexture: FontTexture = createFontTexture(this.fontData);
+
+        this.glyphs = fontTexture.glyphs;
+        this.fontTexture = n.createTexture(fontName, new n.BitmapRGBA(fontTexture.canvas.width, fontTexture.canvas.height, this.extractRGBA(fontTexture.canvas)));
     }
 
+    private extractRGBA(canvas: HTMLCanvasElement): Uint8ClampedArray {
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+            throw new Error("CanvasRenderingContext2D is not supported.");
+        }
+    
+        const width = canvas.width;
+        const height = canvas.height;
+    
+        const imageData = ctx.getImageData(0, 0, width, height);
+        return imageData.data;
+    }
+    
     //public getTexture(): Texture {
     //  return this.fontTexture.canvas;
     //}
@@ -66,6 +82,12 @@ function calculateTextureSize(fontData: FontData): number {
     const estimatedSize = Math.sqrt(totalArea) * 1.5;
     return nextPowerOfTwo(estimatedSize);
 }
+
+type FontTexture = {
+    canvas: HTMLCanvasElement;
+    context: CanvasRenderingContext2D;
+    glyphs: Record<string, GlyphMeta>;
+};
 
 function createFontTexture(fontData: FontData): FontTexture {
     const textureSize = calculateTextureSize(fontData);

@@ -9,6 +9,7 @@ import { FatalError } from "./Common.js";
 export class Texture {
 
     // this string contains the file id of the texture image file
+    private origin: string = "";
     private imageOrigin: string = "";
 
     // if the imageOrigon contains # then it is originated form a image file
@@ -20,42 +21,41 @@ export class Texture {
     // this is the bitmap of its texels
     private proceduralBitmap : c.BitmapRGBA | null = null;
 
-    constructor(origin_?: string, proceduralBitmap_?: c.BitmapRGBA) {
+    static constructFromFile(origin: string) : Texture {
 
-        if(origin_ != undefined) {
-            this.origin = origin;
+        let instance: Texture = new Texture();
 
-            if(origin.includes("#") == false) {
-                this.imageOrigin = origin;
-            } else {
-                let fileAndArgs = origin.split("#");
-                this.imageOrigin = fileAndArgs[0];
-                if(fileAndArgs.length >= 2) {
-                    const args = fileAndArgs[1];
-                    const argsSplit = args.split(";");
-                    argsSplit.forEach(s => {
-                        if(s != "") {
-                            let key = "";
-                            let value = "";
-                                if(s.includes("=")) {
-                                    key = s.split("=")[0];
-                                    value = s.split("=")[1];
-                                } else {
-                                    key = s; 
-                            }
-                            this.argsMap.set(key, value);
-                        }
-                    });
-                }
-            }
-        } else if(proceduralBitmap_ != undefined)
-        {
-            this.proceduralBitmap = proceduralBitmap_;
+        if(origin.includes("#") == false) {
+            instance.origin = origin;
         } else {
-            throw new FatalError("Texture constructor has no valid texture data");
+            let fileAndArgs = origin.split("#");
+            instance.origin = fileAndArgs[0];
+            if(fileAndArgs.length >= 2) {
+                const args = fileAndArgs[1];
+                const argsSplit = args.split(";");
+                argsSplit.forEach(s => {
+                    if(s != "") {
+                        let key = "";
+                        let value = "";
+                            if(s.includes("=")) {
+                                key = s.split("=")[0];
+                                value = s.split("=")[1];
+                            } else {
+                                key = s; 
+                        }
+                        instance.argsMap.set(key, value);
+                    }
+                });
+            }
         }
 
-        this.recreate();
+        return instance;
+    }
+
+    static constructFromBitmap(bitmap: c.BitmapRGBA) : Texture {
+        let instance: Texture = new Texture();
+        instance.proceduralBitmap = bitmap;
+        return instance;
     }
 
     public dispose() {
@@ -73,7 +73,7 @@ export class Texture {
 
             this.image = res.getImage(this.origin);
             if(this.image == null) {
-                log.error("Failed to load image for texture: " + this.imageOrigin, "tech");
+                log.error("Failed to load image for texture: " + this.origin, "tech");
                 return;
             }
 
@@ -100,7 +100,7 @@ export class Texture {
             imageToUse = this.image;
         }
 
-        if(this.proceduralBitmap) {
+        if(this.proceduralBitmap != null) {
             imageToUse = this.proceduralBitmap;
         }
 
@@ -150,11 +150,11 @@ export class Texture {
     }
 
     public getApiTexture() { 
+        if(this.texture == null) this.recreate();
         if(this.texture == null) throw new FatalError(`No gl texture in texture [${this.origin}]`);
         return this.texture; 
     }
 
-    private origin: string = "";
     private image: c.BitmapRGBA | null = null;
     private texture: WebGLTexture | null = null;
     public width: number = -1;
@@ -166,17 +166,14 @@ let textures: Map<string, Texture> = new Map();
 export function getTexture(url: string): Texture {
     let texture: Texture | undefined = textures.get(url);
     if(texture == undefined) {
-        texture = new Texture(url);
+        texture = Texture.constructFromFile(url);
         textures.set(origin, texture);
     }
     return texture;
 }
 
-export function createTexture(bitmap: c.BitmapRGBA): Texture {
-    let texture: Texture | undefined = textures.get(url);
-    if(texture == undefined) {
-        texture = new Texture(url);
-        textures.set(origin, texture);
-    }
+export function createTexture(id: string, bitmap: c.BitmapRGBA): Texture {
+    let texture: Texture = Texture.constructFromBitmap(bitmap);
+    textures.set(id, texture);
     return texture;
 }
