@@ -1,7 +1,7 @@
 {
-    "name": "underneath-albion",
+    "name": "nibble-stuff",
     "version": "1.0.0",
-    "description": "rl-rpg",
+    "description": "nibble ts engine",
     "type": "module",
     "main": "main.js",
     "scripts": {
