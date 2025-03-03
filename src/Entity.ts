@@ -108,12 +108,10 @@ export class Entity {
 
         if(component instanceof RenderComponent3d) {
             this.renderable = component as RenderComponent3d;
-            console.log("Renderable component added");
         }
 
         if(component instanceof TransformationComponent) {
             this.transformation = component as TransformationComponent;
-            console.log("Renderable component added");
         }
 
         return component;

@@ -26,7 +26,9 @@ export class Geometry {
     constructor(format: GeometryFormat, data: number[], align: GeometryAlign = GeometryAlign.None) {
         this.format = format;
 
-        if(format == GeometryFormat.xyzNxnynzUvRgba) {
+        if(format == GeometryFormat.xyUvRgba) {
+            this.data = new Float32Array(data);
+        } else if(format == GeometryFormat.xyzNxnynzUvRgba) {
             this.computeDimensions(data);
             
             if(align != GeometryAlign.None) {
@@ -35,7 +37,7 @@ export class Geometry {
             }
             
             this.data = new Float32Array(data);
-        } else  {
+        } else {
             throw new c.FatalError(`Not proper Geometry constructor vertex format: ${format}`);
         }
     }
@@ -107,6 +109,24 @@ export class Geometry {
 
         let shaderSetup = program.getSetup();
         let stride: number = 4 * getVertexFloatSize(this.format);
+
+        if(this.format == GeometryFormat.xyUvRgba) {
+
+            let xyLoc = shaderSetup.a_xy;
+            gl.enableVertexAttribArray(xyLoc);
+            gl.vertexAttribPointer(xyLoc, 2, gl.FLOAT, false, stride, 0);
+
+            let uv0Loc = shaderSetup.a_uv0;
+            gl.enableVertexAttribArray(uv0Loc);
+            gl.vertexAttribPointer(uv0Loc, 2, gl.FLOAT, false, stride, 4 * 2);
+    
+            let rgbaLoc = shaderSetup.a_rgba;
+            gl.enableVertexAttribArray(rgbaLoc);
+            gl.vertexAttribPointer(rgbaLoc, 4, gl.FLOAT, false, stride, 4 * 2 + 4 * 2);
+    
+            let allVertices = this.data!.length / getVertexFloatSize(this.format);
+            gl.drawArrays(gl.TRIANGLES, 0, allVertices);           
+        }
 
         if(this.format == GeometryFormat.xyzNxnynzUvRgba) {
 
@@ -231,6 +251,10 @@ export class Box {
 
     public renderWith(material: mt.Material, apiTexture: WebGLTexture) {
         this.renderBuffer(material, apiTexture);
+    }
+    public renderWithTexture(apiTexture: WebGLTexture) {
+        if(this.material == null) this.material = mt.getMaterial(this.materialId);
+        this.renderBuffer(this.material, apiTexture);
     }
 
     private renderBuffer(material: mt.Material, apiTexture: WebGLTexture) {

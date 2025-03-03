@@ -519,10 +519,15 @@ export function throwShouldNotRun(what: string = "") {
 // -------------------------------
 
 export class BitmapRGBA {
-    constructor(width: number, height: number, pixels: ArrayBuffer) {
+    constructor(width: number, height: number, pixels?: ArrayBuffer) {
         this.width = width;
         this.height = height;
-        this.pixels = pixels;
+        
+        if(pixels) {
+            this.pixels = pixels;
+        } else {
+            this.pixels = new ArrayBuffer(width * height * 4);
+        }        
     }
 
     public getPixel(x: number, y: number) : number {

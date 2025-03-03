@@ -7,6 +7,9 @@ import { Scene3d } from "./Scene3d.js";
 import { Entity, RenderComponent3d, CameraComponent, TransformationComponent } from "./Entity.js";
 import { Build } from "./Build.js"
 
+import { Font } from "./Font.js";
+import { Text } from "./Text.js";
+
 class Stuff {
     constructor(public x: number, public y: number, public w: number, public h: number,
         public color: n.Color, public uv: n.UvRect, public size: number, public rotation: number) {
@@ -24,6 +27,10 @@ export class Application {
     private generateScene: boolean = false;
     private scene: Scene3d | null = null;
     private playMusic = true;
+
+    private font: Font | null = null;
+    private text: Text | null = null;
+    private debugBox: n.Box | null = null;
 
     private tileProps : n.TileProps | null = null;
     public stuffList : Stuff[] = [];
@@ -50,6 +57,8 @@ export class Application {
         n.requestResource("assets/materials/basic3d.vs");
         n.requestResource("assets/materials/basic3d.fs");
         n.requestResource("assets/materials/materials.json");
+
+        n.requestResource("assets/gfx/fonts/bp-mono.json");
 
         n.requestResourceWithType("assets/gfx/pine/PineStump.obj", n.ResourceType.Text);
         n.requestResourceWithType("assets/gfx/pine/PineStump2.obj", n.ResourceType.Text);
@@ -109,16 +118,23 @@ export class Application {
         this.figureTex1 = n.getTexture("assets/gfx/sprites0a.png#Key=0 0");
     } 
 
-    private preRender() {
+    private preRender() {  
+        if(this.font == null) {
+            this.font = new Font("system_font", n.getText("assets/gfx/fonts/bp-mono.json")!);
+        } 
+        if(this.text == null) {
+            this.text = new Text(this.font, "Test print");
+        } 
+        if(this.debugBox == null) {
+            this.debugBox = new n.Box(
+                0, 0, this.font.getBitmapWidth(), this.font.getBitmapHeight(),
+                0.0, 0.0, 1.0, 1.0,
+                1.0, 1.0, 1.0, 1.0, undefined, "basic2d_pix");
+        }
 
-        let pine: n.Geometry = Build.loadObj(n.getText("assets/gfx/pine/PineTree2.obj")!);
-        let pine2: n.Geometry = Build.loadObj(n.getText("assets/gfx/pine/PineTree1.obj")!);
-        let stump: n.Geometry = Build.loadObj(n.getText("assets/gfx/pine/PineStump.obj")!);        
-        let stump2: n.Geometry = Build.loadObj(n.getText("assets/gfx/pine/PineStump2.obj")!);        
-  
         if(this.scene == null) {
             this.scene = new Scene3d();
-        }
+        } 
 
         if(this.generateScene) {
             this.generateScene = false;
@@ -128,44 +144,7 @@ export class Application {
                 this.playMusic = false;
             }
 
-            this.scene = new Scene3d();
-            this.scene.albedo = new n.Color(Math.random() / 4, Math.random() / 4, Math.random() / 4, 1.0);
-            this.scene.sunColor = new n.Color(1.0 - Math.random() / 5.0, 1.0 - Math.random() / 5.0, 1.0 - Math.random() / 5.0, 1.0);
-            this.scene.fogColor = this.scene.albedo.clone();
-            
-            this.scene.sunDirection = n.Algebra.normalize(n.Algebra.subtract(new n.Vector3(0.0, 0.0, 0.0), new n.Vector3((Math.random() - 0.5) * 100, 100.0, (Math.random() - 0.5) * 100)));
-            this.scene.fogStart = 0.8 + Math.random() / 6.0;
-            
-            let camEntity: Entity = new Entity().setName("default_camera");
-            camEntity.addNewComponent<TransformationComponent>(TransformationComponent);
-            this.scene.addEntity(camEntity).addNewComponent<CameraComponent>(CameraComponent).camera.position = new n.Vector3(-15, 0, 0);
-
-            for(let z = -20; z < 20; z++) {
-                for(let x = -20; x < 20; x++) 
-                {
-                    let geom = pine;
-                    if(Math.random() < 0.3) geom = pine2;
-                    if(Math.random() < 0.2) geom = stump;
-                    if(Math.random() < 0.1) geom = stump2;
-
-
-                    let tex = "assets/gfx/pine/PineTexture.png";
-                    if(Math.random() < 0.1) tex = "assets/gfx/pine/EvergreenTexture.png";
-                    if(Math.random() < 0.02) tex = "assets/gfx/pine/AlienTreeTexture.png";
-
-                    let geomEntity = new Entity().setName("box");
-                    geomEntity.addNewComponent<TransformationComponent>(TransformationComponent)
-                        .setScale(1, 1.0 + Math.random(), 1)
-                        .setPosition(x * 3, 0, z * 3)
-                        .setYawPitchRoll(Math.random() * 10, 0, 0);
-                    geomEntity.addNewComponent<RenderComponent3d>(RenderComponent3d)
-                        .setGeometry(geom)
-                        .setMaterial("basic3d")
-                        .setTexture(tex);
-                    this.scene.addEntity(geomEntity);
-               
-                }
-            }
+            this.createRandomScene();
         }
 
         // ---
@@ -184,9 +163,63 @@ export class Application {
         }
     }
 
+    private createRandomScene() { 
+        let pine: n.Geometry = Build.loadObj(n.getText("assets/gfx/pine/PineTree2.obj")!);
+        let pine2: n.Geometry = Build.loadObj(n.getText("assets/gfx/pine/PineTree1.obj")!); 
+        let stump: n.Geometry = Build.loadObj(n.getText("assets/gfx/pine/PineStump.obj")!);        
+        let stump2: n.Geometry = Build.loadObj(n.getText("assets/gfx/pine/PineStump2.obj")!);        
+ 
+        this.scene = new Scene3d();
+
+        //this.scene.albedo = new n.Color(Math.random() / 4, Math.random() / 4, Math.random() / 4, 1.0);
+        //this.scene.sunColor = new n.Color(1.0 - Math.random() / 5.0, 1.0 - Math.random() / 5.0, 1.0 - Math.random() / 5.0, 1.0);       
+        //this.scene.fogColor = this.scene.albedo.clone();
+        
+        //this.scene.albedo = n.randomColor3();
+        //this.scene.sunColor = n.randomColor3();
+        //this.scene.fogColor = this.scene.albedo.clone();
+
+        this.scene.albedo = new n.Color(Math.random() / 2, Math.random() / 2, Math.random() / 2, 1.0);
+        this.scene.sunColor = new n.Color(1.0 - Math.random() / 8.0, 1.0 - Math.random() / 8.0, 1.0 - Math.random() / 8.0, 1.0);
+        this.scene.fogColor = this.scene.albedo.clone();
+        
+        this.scene.sunDirection = n.Algebra.normalize(n.Algebra.subtract(new n.Vector3(0.0, 0.0, 0.0), new n.Vector3((Math.random() - 0.5) * 100, 100.0, (Math.random() - 0.5) * 100)));
+        this.scene.fogStart = 0.8 + Math.random() / 6.0;
+        
+        let camEntity: Entity = new Entity().setName("default_camera");
+        camEntity.addNewComponent<TransformationComponent>(TransformationComponent);
+        this.scene.addEntity(camEntity).addNewComponent<CameraComponent>(CameraComponent).camera.position = new n.Vector3(-15, 0, 0);
+
+        for(let z = -20; z < 20; z++) {
+            for(let x = -20; x < 20; x++) 
+            {
+                let geom = pine;
+                if(Math.random() < 0.3) geom = pine2;
+                if(Math.random() < 0.2) geom = stump;
+                if(Math.random() < 0.1) geom = stump2;
+
+
+                let tex = "assets/gfx/pine/PineTexture.png";
+                if(Math.random() < 0.1) tex = "assets/gfx/pine/EvergreenTexture.png";
+                if(Math.random() < 0.02) tex = "assets/gfx/pine/AlienTreeTexture.png";
+
+                let geomEntity = new Entity().setName("box");
+                geomEntity.addNewComponent<TransformationComponent>(TransformationComponent)
+                    .setScale(1, 1.0 + Math.random(), 1)
+                    .setPosition(x * 3, 0, z * 3)
+                    .setYawPitchRoll(Math.random() * 10, 0, 0);
+                geomEntity.addNewComponent<RenderComponent3d>(RenderComponent3d)
+                    .setGeometry(geom)
+                    .setMaterial("basic3d")
+                    .setTexture(tex);
+                this.scene.addEntity(geomEntity);
+           
+            }
+        }
+    }
     private time: number = 0;
 
-    private tick(time: number, frame: number) {
+    private tick(time: number, frame: number) { 
         this.time = time;
         this.stuffList.forEach(p => {
         });
@@ -220,8 +253,8 @@ export class Application {
  
         return new n.Vector3(x, y, z);
     } 
- 
-    public render() {
+  
+    public render() { 
         this.preRender(); 
 
         let cameraComponent = this.scene?.getEntityByName("default_camera")?.getComponent<CameraComponent>(CameraComponent);
@@ -234,12 +267,12 @@ export class Application {
             cameraComponent.camera.up = new n.Vector3(0, 1, 0); 
         }
 
-        this.scene?.render("default_camera", this.time, this.fbo);
+        this.scene?.render("default_camera", this.time, this.fbo); 
          
-
         this.blitter.blitToScreen(this.fbo!);
 
         n.setRenderTarget(null);
+        /*
         this.sprites!.begin(); 
         this.stuffList.forEach(p => {
             this.sprites!.sprite(
@@ -253,6 +286,12 @@ export class Application {
                 1.0);
         });
         this.sprites!.end(this.figureTextureActive ? this.figureTex0 : this.figureTex1);
+        */
+
+        // ----
+ 
+        this.text?.render();
+        this.debugBox?.renderWithTexture(this.font?.getApiTexture()!);
     }
 
     // ----------

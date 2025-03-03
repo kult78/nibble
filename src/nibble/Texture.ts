@@ -143,7 +143,7 @@ export class Texture {
         );
         gl.bindTexture(gl.TEXTURE_2D, null);
 
-        log.info("Texture created: " + this.origin, "tech");
+        log.info("API Texture created: " + this.origin, "tech");
 
         this.width = imageToUse.width;
         this.height = imageToUse.height;
@@ -167,7 +167,7 @@ export function getTexture(url: string): Texture {
     let texture: Texture | undefined = textures.get(url);
     if(texture == undefined) {
         texture = Texture.constructFromFile(url);
-        textures.set(origin, texture);
+        textures.set(url, texture);
     }
     return texture;
 }
