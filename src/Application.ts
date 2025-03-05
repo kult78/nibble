@@ -9,6 +9,7 @@ import { Build } from "./Build.js"
 
 import { Font } from "./Font.js";
 import { Text } from "./Text.js";
+import { ProceduralTextureImage } from "./ProceduralTextureImage.js";
 
 class Stuff {
     constructor(public x: number, public y: number, public w: number, public h: number,
@@ -32,6 +33,8 @@ export class Application {
     private text: Text | null = null;
     private debugBox: n.Box | null = null;
 
+    private map: ProceduralTextureImage = new ProceduralTextureImage(100, 100, 10);
+ 
     private tileProps : n.TileProps | null = null;
     public stuffList : Stuff[] = [];
 
@@ -289,9 +292,20 @@ export class Application {
         */
 
         // ----
- 
+ /*
         this.text?.render();
         this.debugBox?.renderWithTexture(this.font?.getApiTexture()!);
+
+        // ----
+
+        this.map.getBitmap().setPixel( 
+            Math.random() * this.map.getBitmap().width,
+            Math.random() * this.map.getBitmap().height,
+            Math.random() * 0xffffff
+        );
+        this.map.getBitmap().fillRandom();
+        this.map.render();
+        */
     }
 
     // ----------

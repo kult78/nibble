@@ -177,3 +177,11 @@ export function createTexture(id: string, bitmap: c.BitmapRGBA): Texture {
     textures.set(id, texture);
     return texture;
 }
+
+export function releaseTexture(id: string) {
+    let texture: Texture | undefined = textures.get(id);
+    if(texture != undefined) {
+        texture.dispose();
+        textures.delete(id);
+    }
+}

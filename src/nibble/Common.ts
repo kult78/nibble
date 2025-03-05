@@ -555,6 +555,13 @@ export class BitmapRGBA {
         uint8[index + 3] = a;
     }
 
+    public fillRandom() {
+        const uint8 = new Uint8Array(this.pixels!);
+        for(let i = 0; i < this.width * this.height * 4; i++) {
+            uint8[i] = Math.random() * 256;
+        }
+    }
+
     public width: number = 0;
     public height: number = 0;
     public pixels: ArrayBuffer | null = null;

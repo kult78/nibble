@@ -25,7 +25,7 @@ export { Camera }  from "./Camera.js"
 
 export { Box, Geometry, GeometryBuilder, GeometryFormat, GeometryAlign } from "./Geometry.js"
 
-export { Texture, getTexture, createTexture } from "./Texture.js"
+export { Texture, getTexture, createTexture, releaseTexture } from "./Texture.js"
 export { Material, getMaterial, addMaterialsFromFile } from "./Material.js"
 
 export { SpriteBatch } from "./SpriteBatch.js"
