@@ -84,10 +84,8 @@ export class Scene3d {
     public fogEnd = 1.0;
     public fogColor: n.Color = n.Colors.gray.clone();
       
-    public render(cameraId: string, time: number, fbo: n.RenderTarget | null) {
+    public render(cameraId: string, time: number) {
 
-        n.setRenderTarget(fbo);
- 
         n.gl.depthMask(true); 
         n.gl.clearColor(this.fogColor.r, this.fogColor.g, this.fogColor.b, 1.0); 
         n.gl.clearDepth(1.0);

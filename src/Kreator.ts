@@ -1,7 +1,7 @@
 
 import * as n from "./nibble/index.js";
 
-export class Build {
+export class Kreator {
 
     public static unit = 1.0;
 
