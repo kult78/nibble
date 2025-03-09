@@ -2,16 +2,41 @@
 import * as n from "./nibble/index.js";
 import { CameraComponent, Entity } from "./Entity.js";
 
-export class Scene3d {
+import { EventAware } from "./Events.js";
+
+export class Scene3d extends EventAware {
 
     public constructor() {
+        super();
     }
 
+    private time: number = 0.0;
     private entities: Entity[] = [];
+    
+    private renderCameraId: string = "";
+    public setRenderCameraId(id: string) { this.renderCameraId = id; }
 
     public addEntity(entity: Entity): Entity {
         this.entities.push(entity);
         return entity;
+    }
+
+    public tickEvent(time: number, crameCounter: number) {
+        this.time = time;
+    }
+
+    public rendervent() {
+        n.gl.depthMask(true); 
+        n.gl.clearColor(this.fogColor.r, this.fogColor.g, this.fogColor.b, 1.0); 
+        n.gl.clearDepth(1.0);
+        n.gl.clear(n.gl.DEPTH_BUFFER_BIT | n.gl.COLOR_BUFFER_BIT);
+
+        let camera: n.Camera | undefined = this.getEntityByName(this.renderCameraId)?.getComponent(CameraComponent)?.camera;
+        if(!camera) throw new n.FatalError(`Camera [${this.renderCameraId}] not found in Scene3d`);
+
+        camera.update(); 
+
+        this.renderEntities(camera, this.time);
     }
 
     public getEntityByName(entityId: string): Entity | null {
@@ -83,20 +108,5 @@ export class Scene3d {
     public fogStart = 0.96; 
     public fogEnd = 1.0;
     public fogColor: n.Color = n.Colors.gray.clone();
-      
-    public render(cameraId: string, time: number) {
-
-        n.gl.depthMask(true); 
-        n.gl.clearColor(this.fogColor.r, this.fogColor.g, this.fogColor.b, 1.0); 
-        n.gl.clearDepth(1.0);
-        n.gl.clear(n.gl.DEPTH_BUFFER_BIT | n.gl.COLOR_BUFFER_BIT);
-
-        let camera: n.Camera | undefined = this.getEntityByName(cameraId)?.getComponent(CameraComponent)?.camera;
-        if(!camera) return; //throw new n.FatalError(`Camera [${cameraId}] not found in Scene3d`);
-
-        camera.update(); 
-
-        this.renderEntities(camera, time);
-    }
- 
+       
 }

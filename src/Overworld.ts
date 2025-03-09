@@ -1,15 +1,16 @@
 
-
 import * as n from "./nibble/index.js";
 import * as global from "./Global.js"
 
 import { Scene3d } from "./Scene3d.js";
 import { Entity, RenderComponent3d, CameraComponent, TransformationComponent } from "./Entity.js";
 import { Kreator } from "./Kreator.js"
+import { EventAware } from "./Events.js";
 
-export class Overworld {
+export class Overworld extends EventAware {
 
     public constructor() {
+        super();
     }
 
     private scene: Scene3d | null = null;
@@ -20,7 +21,7 @@ export class Overworld {
         this.scene = null;
     }
 
-    public startup() { 
+    public applicationStartupEvent() { 
         n.requestResourceWithType("assets/gfx/pine/PineStump.obj", n.ResourceType.Text);
         n.requestResourceWithType("assets/gfx/pine/PineStump2.obj", n.ResourceType.Text);
         n.requestResourceWithType("assets/gfx/pine/PineTree1.obj", n.ResourceType.Text);
@@ -45,20 +46,23 @@ export class Overworld {
         this.pine2 = Kreator.loadObj(n.getText("assets/gfx/pine/PineTree1.obj")!);
         this.stump = Kreator.loadObj(n.getText("assets/gfx/pine/PineStump.obj")!);        
         this.stump2 = Kreator.loadObj(n.getText("assets/gfx/pine/PineStump2.obj")!);        
-    } 
+    }
+
+    public tickEvent(time: number, frameCounter: number): void {
+        this.time = time;
+
+        if(this.scene) 
+            this.scene.tickEvent(time, frameCounter);
+    }
 
     private preRender() {
         if(this.generateScene) {
             this.generateScene = false;
-            this.fillSceneRandomly();
+            this.populateSceneRandomly();
         }
     }
 
     private time: number = 0;
-
-    public updateTime(time: number) {
-        this.time = time;
-    }   
 
     private generateCirclePoint(time: number, radius: number): n.Vector3 {
         const angle = n.Algebra.deg2rad(time);
@@ -69,13 +73,10 @@ export class Overworld {
         return new n.Vector3(x, y, z);
     } 
  
-    public render() {
+    public renderEvent() {
         this.preRender(); 
 
-        console.log("overworld " + this.time);
-
         if(this.scene) {
-            console.log("render " + this.time);
             let cameraComponent = this.scene.getEntityByName("default_camera")?.getComponent<CameraComponent>(CameraComponent);
                 
             if(cameraComponent) {
@@ -86,11 +87,11 @@ export class Overworld {
                 cameraComponent.camera.target.y = 14 + Math.cos(this.time / 1000); 
                 cameraComponent.camera.up = new n.Vector3(0, 1, 0); 
 
-                this.scene.render("default_camera", this.time); 
+                this.scene.setRenderCameraId("default_camera");
+                this.scene.rendervent();
             }
 
         } else {
-            console.log("clear " + this.time);
             n.gl.depthMask(true); 
             n.gl.clearColor(0.5, 0.5, 0.5, 1.0); 
             n.gl.clearDepth(1.0);
@@ -98,16 +99,8 @@ export class Overworld {
         }
     }
 
-    private fillSceneRandomly() { 
+    private populateSceneRandomly() { 
         this.scene = new Scene3d();
-
-        //this.scene.albedo = new n.Color(Math.random() / 4, Math.random() / 4, Math.random() / 4, 1.0);
-        //this.scene.sunColor = new n.Color(1.0 - Math.random() / 5.0, 1.0 - Math.random() / 5.0, 1.0 - Math.random() / 5.0, 1.0);       
-        //this.scene.fogColor = this.scene.albedo.clone();
-        
-        //this.scene.albedo = n.randomColor3();
-        //this.scene.sunColor = n.randomColor3();
-        //this.scene.fogColor = this.scene.albedo.clone();
 
         this.scene.albedo = new n.Color(Math.random() / 2, Math.random() / 2, Math.random() / 2, 1.0);
         this.scene.sunColor = new n.Color(1.0 - Math.random() / 8.0, 1.0 - Math.random() / 8.0, 1.0 - Math.random() / 8.0, 1.0);

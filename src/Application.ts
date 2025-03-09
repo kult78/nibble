@@ -10,33 +10,18 @@ import { Kreator } from "./Kreator.js"
 import { Font } from "./Font.js";
 import { Text } from "./Text.js";
 import { ProceduralTextureImage } from "./ProceduralTextureImage.js";
-
+import { EventAware, Events } from "./Events.js";
 import { Overworld } from "./Overworld.js";
 
-export class Application {
+export class Application extends EventAware {
 
     public constructor() {
+        super();
+
+        Events.singleton.eventAwares.push(this);
     }
 
-    private playMusic = true;
-
-    private overworld: Overworld = new Overworld();
-
-    private font: Font | null = null;
-    private text: Text | null = null;
-    private debugBox: n.Box | null = null;
-
-    private music = false;
-
-    private map: ProceduralTextureImage = new ProceduralTextureImage(100, 100, 10);
- 
-    public leftMouseUp(x: number, y: number) {
-        this.overworld.requestNewScene();
-    }
-
-    // ----------
-
-    public startup() { 
+    public applicationStartupEvent() { 
   
         n.requestResource("assets/materials/basic2d.vs");
         n.requestResource("assets/materials/basic2d_pix.vs");
@@ -44,20 +29,70 @@ export class Application {
         n.requestResource("assets/materials/basic3d.vs");
         n.requestResource("assets/materials/basic3d.fs");
         n.requestResource("assets/materials/materials.json");
-
         n.requestResource("assets/gfx/fonts/bp-mono.json");
 
-        this.overworld.startup();
+        this.overworld.applicationStartupEvent();
     }
 
-    public renderStart() {       
+    public tickEvent(time: number, frameCounter: number) {
+        this.time = time;
+        this.overworld.tickEvent(time, frameCounter);
+    }
+
+    public renderEvent() {
+        this.preRender(); 
+
+        n.setRenderTarget(this.fbo!);
+
+        this.overworld.renderEvent();
+         
+        this.blitter.blitToScreen(this.fbo!);
+
+        n.setRenderTarget(null);
+    }
+
+    public keyEvent(down: boolean, code: string) {
+
+    }
+    
+    public mouseMoveEvent(x: number, y: number) {
+
+    }
+
+    public leftMouseButtonEvent(down: boolean, x: number, y: number) {
+        if(!down) {
+            this.overworld.requestNewScene();
+            this.playMusic = true;    
+        }
+    }
+
+    public rightMouseButtonEvent(down: boolean, x: number, y: number) {
+
+    }
+
+    public startRenderingEvent() {
         n.addMaterialsFromFile("assets/materials/materials.json");       
         this.overworld.renderStart();
-    } 
- 
-    public keyEvent(code: string, pressed: boolean) { 
     }
 
+    public stopRenderingEvent() {
+
+    }
+
+    private playMusic = false;
+    private music = false;
+
+    private overworld: Overworld = new Overworld();
+
+    private font: Font | null = null;
+    private text: Text | null = null;
+    private debugBox: n.Box | null = null;
+
+
+    private map: ProceduralTextureImage = new ProceduralTextureImage(100, 100, 10);
+ 
+    // ----------
+ 
     private preRender() {  
         if(this.font == null) {
             this.font = new Font("system_font", n.getText("assets/gfx/fonts/bp-mono.json")!);
@@ -72,9 +107,11 @@ export class Application {
                 1.0, 1.0, 1.0, 1.0, undefined, "basic2d_pix");
         }
 
-        if(this.playMusic) {
+        if(this.playMusic && !this.music) {
+            console.log("music");
             n.playMusic("assets/sound/cthulhu_lairs.ogg", true, 1.0);
             this.playMusic = false;
+            this.music = true;
         }
 
         // ---
@@ -93,40 +130,13 @@ export class Application {
         }
     }
 
-    public render() { 
-        this.preRender(); 
-
-        n.setRenderTarget(this.fbo!);
-
-        this.overworld.render();
-         
-        this.blitter.blitToScreen(this.fbo!);
-
-        n.setRenderTarget(null);
-    }
-
     private time: number = 0;
-
-    private tick(time: number, frame: number) { 
-        this.time = time;
-        this.overworld.updateTime(time);
-    }   
-
-    private oneSecond(time: number, frame: number) {
-    } 
  
     private fbo: n.RenderTarget | null = null;
     private blitter: n.Blitter = new n.Blitter();
      
     // ----------
   
-    public tickLoop(time: number, frameCounter: number) { 
-        this.tick(time, frameCounter);
-        if(frameCounter % 60 == 0) {
-            this.oneSecond(time, frameCounter);   
-        }
-    }
-
     public userCommand(command: string): string {
         const errorParsingCommand: string = "Error parsing command.";
   

@@ -4,6 +4,8 @@ import * as n from "./nibble/index.js";
 import * as app from "./Application.js";
 import * as global from "./Global.js";
 
+import { Events } from "./Events.js"
+
 const command: HTMLInputElement = document.getElementById("command")! as HTMLInputElement;
 let application: app.Application = new app.Application();
 let time: number = 0, frameCounter: number = 0;
@@ -37,7 +39,7 @@ async function main() {
 
     try {
         n.startup();
-        application.startup();   
+        application.applicationStartupEvent();   
     } catch(x) {
         panic(x);
         return false;
@@ -48,12 +50,15 @@ async function main() {
     n.setMouseButtonEventHandler((leftDown: boolean, x: number, y: number) => {
         console.log(leftDown + " " + x + " " + y);
  
-        if(leftDown == false)
-            application.leftMouseUp(x / n.oglCanvasWidth, 1.0 - y / n.oglCanvasHeight);
+        Events.singleton.leftMouseButton(leftDown, x, y);
+
+        //if(leftDown == false)
+            //application.leftMouseUp(x / n.oglCanvasWidth, 1.0 - y / n.oglCanvasHeight);
 
     });
 
     n.setMouseMoveEventHandler((x: number, y: number) => {
+        Events.singleton.mouseMove(x, y);
     });
 
     // ----------
@@ -62,13 +67,17 @@ async function main() {
         try {
             if(n.hasResourceTask())
                 return false;
-            application.tickLoop(tickTime, tickFrameCounter);        
+            
+
+            //application.tickLoop(tickTime, tickFrameCounter);        
             time = tickTime;
             frameCounter = tickFrameCounter
+            Events.singleton.tick(tickTime, tickFrameCounter);
             
             if(firstRender) {
                 firstRender = false;
-                application.renderStart()
+                Events.singleton.startRendering();
+                //application.renderStart()
             }
             
             return true;        
@@ -82,7 +91,8 @@ async function main() {
 
     n.setRenderOglEventHandler(() => {
         try {
-            application.render();
+            //application.render();
+            Events.singleton.render();
         }
         catch(x) {
             panic(x);
@@ -118,7 +128,7 @@ async function main() {
             }
             
             if(document.activeElement != command) {
-                application.keyEvent(code, pressed);
+                Events.singleton.key(pressed, code);
             }
         } catch(x) {
             panic(x);

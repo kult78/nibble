@@ -5,7 +5,7 @@ import { FatalError } from "./Common.js";
 
 // ---------- event types
 
-export type TickEventHandler = (a: number, b: number) => boolean;
+export type TickEventHandler = (time: number, crameCounter: number) => boolean;
 export type RenderOglEventHandler = () => void;
 
 export type KeyEventHandler = (code: string, pressed: boolean) => void;
