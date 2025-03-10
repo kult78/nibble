@@ -35,18 +35,17 @@ export class Overworld extends EventAware {
         n.requestResource("assets/gfx/pine/AlienTreeTexture.png");
     }
 
-    private pine: n.Geometry | null = null;
-    private pine2: n.Geometry | null = null;
-    private stump: n.Geometry | null = null;
-    private stump2: n.Geometry | null = null;
-
-
-    public renderStart() {       
+    public startRenderingEvent() {       
         this.pine = Kreator.loadObj(n.getText("assets/gfx/pine/PineTree2.obj")!);
         this.pine2 = Kreator.loadObj(n.getText("assets/gfx/pine/PineTree1.obj")!);
         this.stump = Kreator.loadObj(n.getText("assets/gfx/pine/PineStump.obj")!);        
         this.stump2 = Kreator.loadObj(n.getText("assets/gfx/pine/PineStump2.obj")!);        
     }
+
+    private pine: n.Geometry | null = null;
+    private pine2: n.Geometry | null = null;
+    private stump: n.Geometry | null = null;
+    private stump2: n.Geometry | null = null;
 
     public tickEvent(time: number, frameCounter: number): void {
         this.time = time;

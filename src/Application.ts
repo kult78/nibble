@@ -9,9 +9,10 @@ import { Kreator } from "./Kreator.js"
 
 import { Font } from "./Font.js";
 import { Text } from "./Text.js";
-import { ProceduralTextureImage } from "./ProceduralTextureImage.js";
+import { ProceduralTextureImage } from "./Helpers.js";
 import { EventAware, Events } from "./Events.js";
 import { Overworld } from "./Overworld.js";
+import { DungeonMap } from "./Dungeon.js";
 
 export class Application extends EventAware {
 
@@ -49,6 +50,8 @@ export class Application extends EventAware {
         this.blitter.blitToScreen(this.fbo!);
 
         n.setRenderTarget(null);
+
+        this.mapImage.render();
     }
 
     public keyEvent(down: boolean, code: string) {
@@ -72,12 +75,14 @@ export class Application extends EventAware {
 
     public startRenderingEvent() {
         n.addMaterialsFromFile("assets/materials/materials.json");       
-        this.overworld.renderStart();
+        this.overworld.startRenderingEvent();
     }
 
     public stopRenderingEvent() {
 
     }
+
+    private dungeonMap: DungeonMap | null = null;
 
     private playMusic = false;
     private music = false;
@@ -89,7 +94,7 @@ export class Application extends EventAware {
     private debugBox: n.Box | null = null;
 
 
-    private map: ProceduralTextureImage = new ProceduralTextureImage(100, 100, 10);
+    private mapImage: ProceduralTextureImage = new ProceduralTextureImage(64, 64, 8);
  
     // ----------
  
@@ -127,6 +132,13 @@ export class Application extends EventAware {
             n.info(`New internal rendertarget with resolution ${this.fbo.width}x${this.fbo.height}`, "tech");
 
             this.blitter.setMaterial("blitter");
+        }
+
+        // ---
+
+        if(this.dungeonMap == null) {
+            this.dungeonMap = new DungeonMap(64, 64);
+            this.mapImage.getBitmap().cloneFrom(this.dungeonMap.getBitmap());
         }
     }
 

@@ -530,6 +530,13 @@ export class BitmapRGBA {
         }        
     }
 
+    public cloneFrom(bitmap: BitmapRGBA) {
+        this.width = bitmap.width;
+        this.height = bitmap.height;
+        this.pixels = new ArrayBuffer(bitmap.pixels!.byteLength);
+        new Uint8Array(this.pixels!).set(new Uint8Array(bitmap.pixels!));
+    }
+
     public getPixel(x: number, y: number) : number {
         const index = 4 * (y * this.width + x);
         const uint8 = new Uint8Array(this.pixels!);
@@ -538,6 +545,16 @@ export class BitmapRGBA {
             (uint8[index + 1] << 16) |
             (uint8[index + 2] << 8) |
             (uint8[index + 3] << 0));
+    }
+
+    public isBorder(x: number, y: number) : boolean {
+        return x == 0 || x == this.width - 1 || y == 0 || y == this.height - 1;
+    }
+
+    public replace(from: number, to: number) {
+        for(let y = 0; y < this.height; y++)
+            for(let x = 0; x < this.width; x++)
+                if(this.getPixel(x, y) == from) this.setPixel(x, y, to);
     }
 
     public setPixel(x: number, y: number, color: number) {
@@ -555,10 +572,44 @@ export class BitmapRGBA {
         uint8[index + 3] = a;
     }
 
-    public fillRandom() {
+    public clear(color: number) {
+    const uint8 = new Uint8Array(this.pixels!);
+        for(let yy = 0; yy < this.height; yy++) {
+            for(let xx = 0; xx < this.width; xx++) {
+                this.setPixel(xx, yy, color);
+            }
+        }
+    }   
+
+    public clearRandom() {
         const uint8 = new Uint8Array(this.pixels!);
         for(let i = 0; i < this.width * this.height * 4; i++) {
             uint8[i] = Math.random() * 256;
+        }
+    }
+
+    public fillRect(x: number, y: number, w: number, h: number, color: number) {
+        for(let yy = y; yy < y + h; yy++) {
+            for(let xx = x; xx < x + w; xx++) {
+                this.setPixel(xx, yy, color);
+            }
+        }
+    } 
+
+    public floodFill(x: number, y: number, color: number) {
+        const target = this.getPixel(x, y);
+        const stack: number[] = [];
+        stack.push(x, y);
+        while(stack.length > 0) {
+            const y = stack.pop()!;
+            const x = stack.pop()!;
+            if(x < 0 || x >= this.width || y < 0 || y >= this.height) continue;
+            if(this.getPixel(x, y) != target) continue;
+            this.setPixel(x, y, color);
+            stack.push(x + 1, y);
+            stack.push(x - 1, y);
+            stack.push(x, y + 1);
+            stack.push(x, y - 1);
         }
     }
 
