@@ -540,11 +540,13 @@ export class BitmapRGBA {
     public getPixel(x: number, y: number) : number {
         const index = 4 * (y * this.width + x);
         const uint8 = new Uint8Array(this.pixels!);
+    
         return (
             (uint8[index + 0] << 24) |
             (uint8[index + 1] << 16) |
             (uint8[index + 2] << 8) |
-            (uint8[index + 3] << 0));
+            (uint8[index + 3] << 0)
+        ) >>> 0;
     }
 
     public isBorder(x: number, y: number) : boolean {
@@ -596,12 +598,20 @@ export class BitmapRGBA {
         }
     } 
 
+    public drawRect(x: number, y: number, w: number, h: number, color: number) {
+        for(let yy = y; yy < y + h; yy++) {
+            for(let xx = x; xx < x + w; xx++)
+                if(xx == 0 || yy == 0 || xx == x + w - 1 || yy == y + h - 1) 
+                    this.setPixel(xx, yy, color);
+        }
+    } 
+
     public floodFill(x: number, y: number, color: number) {
         const target = this.getPixel(x, y);
         const stack: number[] = [];
         stack.push(x, y);
         while(stack.length > 0) {
-            const y = stack.pop()!;
+            const y = stack.pop()!; 
             const x = stack.pop()!;
             if(x < 0 || x >= this.width || y < 0 || y >= this.height) continue;
             if(this.getPixel(x, y) != target) continue;

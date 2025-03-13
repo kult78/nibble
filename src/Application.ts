@@ -65,7 +65,8 @@ export class Application extends EventAware {
     public leftMouseButtonEvent(down: boolean, x: number, y: number) {
         if(!down) {
             this.overworld.requestNewScene();
-            this.playMusic = true;    
+            this.playMusic = true;
+            this.dungeonMap = null;
         }
     }
 
@@ -137,7 +138,7 @@ export class Application extends EventAware {
         // ---
 
         if(this.dungeonMap == null) {
-            this.dungeonMap = new DungeonMap(64, 64);
+            this.dungeonMap = new DungeonMap(32, 32);
             this.mapImage.getBitmap().cloneFrom(this.dungeonMap.getBitmap());
         }
     }

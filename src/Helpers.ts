@@ -50,7 +50,8 @@
          if(this.box == null) {
          this.box = new n.Box(
              this.x, this.y, this.bitmap.width * this.scale, this.bitmap.height * this.scale,
-             1.0 / this.bitmap.width, 1.0 / this.bitmap.height, 1.0 - 1.0 / this.bitmap.width, 1.0 - 1.0 / this.bitmap.height,
+             0, 0, 1, 1,
+             //1.0 / this.bitmap.width, 1.0 / this.bitmap.height, 1.0 - 1.0 / this.bitmap.width, 1.0 - 1.0 / this.bitmap.height,
              //0, 0, this.bitmap.width, this.bitmap.height,
              1.0, 1.0, 1.0, 1.0, undefined, "basic2d_pix");
          }
