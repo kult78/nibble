@@ -7,6 +7,8 @@ import { Entity, RenderComponent3d, CameraComponent, TransformationComponent } f
 import { Kreator } from "./Kreator.js"
 import { EventAware } from "./Events.js";
 
+import { Labyrinth } from "./Labyrinth.js";
+
 export class Overworld extends EventAware {
 
     public constructor() {
@@ -64,7 +66,7 @@ export class Overworld extends EventAware {
     private preRender() {
         if(this.generateScene) {
             this.generateScene = false;
-            this.populateSceneRandomly();
+            this.populateSceneRandomly();           
         }
     }
 
@@ -86,6 +88,7 @@ export class Overworld extends EventAware {
             let cameraComponent = this.scene.getEntityByName("default_camera")?.getComponent<CameraComponent>(CameraComponent);
                 
             if(cameraComponent) {
+
                 cameraComponent.camera.position = this.generateCirclePoint(this.time / 1000, 20); 
                 cameraComponent.camera.position.y = 14 + Math.sin(this.time / 1000);  
 
@@ -94,10 +97,8 @@ export class Overworld extends EventAware {
                 cameraComponent.camera.up = new n.Vector3(0, 1, 0); 
 
                 this.scene.setRenderCameraId("default_camera");
-                this.scene.rendervent();
-            }
-
-        } else {
+                this.scene.renderEvent();
+        } else { 
             n.gl.depthMask(true); 
             n.gl.clearColor(0.5, 0.5, 0.5, 1.0); 
             n.gl.clearDepth(1.0);

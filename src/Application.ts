@@ -12,7 +12,8 @@ import { Text } from "./Text.js";
 import { ProceduralTextureImage } from "./Helpers.js";
 import { EventAware, Events } from "./Events.js";
 import { Overworld } from "./Overworld.js";
-import { Dungeon, DungeonMap } from "./Dungeon.js";
+import { Dungeon } from "./Dungeon.js";
+import { Labyrinth } from "./Labyrinth.js";
 
 export class Application extends EventAware {
 
@@ -57,7 +58,7 @@ export class Application extends EventAware {
 
         n.setRenderTarget(null);
 
-        this.mapImage.render();
+        this.labyrinthImage.render();
     }
 
     public keyEvent(down: boolean, code: string) {
@@ -72,7 +73,11 @@ export class Application extends EventAware {
         if(!down) {
             this.overworld.requestNewScene();
             this.playMusic = true;
-            this.dungeonMap = null;
+
+            let labyrinth = new Labyrinth(32, 32);
+            this.dungeon.setLabyrinth(labyrinth);
+            this.labyrinthImage = new ProceduralTextureImage(labyrinth.getBitmap().width, labyrinth.getBitmap().height, 8)
+            this.labyrinthImage.getBitmap().cloneFrom(labyrinth.getBitmap()); 
         }
     }
 
@@ -90,8 +95,6 @@ export class Application extends EventAware {
 
     }
 
-    private dungeonMap: DungeonMap | null = null;
-
     private playMusic = false;
     private music = false;
 
@@ -103,7 +106,7 @@ export class Application extends EventAware {
     private debugBox: n.Box | null = null;
 
 
-    private mapImage: ProceduralTextureImage = new ProceduralTextureImage(64, 64, 8);
+    private labyrinthImage: ProceduralTextureImage = new ProceduralTextureImage(64, 64, 8);
  
     // ----------
  
@@ -129,7 +132,7 @@ export class Application extends EventAware {
         }
 
         // ---
-
+        
         if(this.overWorldFbo == null || !global.isInternalRenderRes(this.overWorldFbo.width, this.overWorldFbo.height)) {
             if(this.overWorldFbo) this.overWorldFbo.dispose();
             this.overWorldFbo = null;
@@ -142,17 +145,10 @@ export class Application extends EventAware {
             n.info(`New overworld fbo with resolution ${this.overWorldFbo.width}x${this.overWorldFbo.height}`, "tech");
             this.overworldBlitter.setMaterial("blitter");
 
-            this.dungeonFbo = new n.RenderTarget(w / 2, h / 2);
+            this.dungeonFbo = new n.RenderTarget(w / 4, h / 4);
             n.info(`New dungeon fbo with resolution ${this.dungeonFbo.width}x${this.dungeonFbo.height}`, "tech");
             this.dungeonBlitter.setMaterial("blitter");
             this.dungeonBlitter.setViewport(0.4, 0.4, 0.4, 0.4);
-        }
-
-        // ---
-
-        if(this.dungeonMap == null) {
-            this.dungeonMap = new DungeonMap(32, 32);
-            this.mapImage.getBitmap().cloneFrom(this.dungeonMap.getBitmap());
         }
     }
 

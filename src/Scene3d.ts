@@ -25,7 +25,7 @@ export class Scene3d extends EventAware {
         this.time = time;
     }
 
-    public rendervent() {
+    public renderEvent() {
         n.gl.depthMask(true); 
         n.gl.clearColor(this.fogColor.r, this.fogColor.g, this.fogColor.b, 1.0); 
         n.gl.clearDepth(1.0);

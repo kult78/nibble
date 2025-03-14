@@ -122,7 +122,7 @@ export class Kreator {
             geom.current().y = origoY;
             geom.current().z = origoZ;
             geom.current().nx = 0; geom.current().ny = 1; geom.current().nz = 0;
-            geom.current().u0 = 0; geom.current().v0 = 0;
+            geom.current().u0 = 1; geom.current().v0 = 0;
             geom.current().r = 1; geom.current().g = 1; geom.current().b = 1; geom.current().a = 1;
             geom.commitVertex();
 
@@ -130,7 +130,7 @@ export class Kreator {
             geom.current().y = origoY;
             geom.current().z = origoZ - this.dungeonUnit;
             geom.current().nx = 0; geom.current().ny = 1; geom.current().nz = 0;
-            geom.current().u0 = 0; geom.current().v0 = 0;
+            geom.current().u0 = 1; geom.current().v0 = 1;
             geom.current().r = 1; geom.current().g = 1; geom.current().b = 1; geom.current().a = 1;
             geom.commitVertex();
 
@@ -148,7 +148,7 @@ export class Kreator {
             geom.current().y = origoY;
             geom.current().z = origoZ - this.dungeonUnit;
             geom.current().nx = 0; geom.current().ny = 1; geom.current().nz = 0;
-            geom.current().u0 = 0; geom.current().v0 = 0;
+            geom.current().u0 = 1; geom.current().v0 = 1;
             geom.current().r = 1; geom.current().g = 1; geom.current().b = 1; geom.current().a = 1;
             geom.commitVertex();
 
@@ -156,7 +156,7 @@ export class Kreator {
             geom.current().y = origoY;
             geom.current().z = origoZ - this.dungeonUnit;
             geom.current().nx = 0; geom.current().ny = 1; geom.current().nz = 0;
-            geom.current().u0 = 0; geom.current().v0 = 0;
+            geom.current().u0 = 0; geom.current().v0 = 1;
             geom.current().r = 1; geom.current().g = 1; geom.current().b = 1; geom.current().a = 1;
             geom.commitVertex();
         }
@@ -171,7 +171,11 @@ export class Kreator {
 
                 if(pixel == 0x000000)
                 {
-                    this.createDungeonWall(new n.Vector3(x, -y, 0), "down", geom);
+                    this.createDungeonWall(new n.Vector3(x, 0, -y), "down", geom);
+                }
+                else
+                {
+                    //this.createDungeonWall(new n.Vector3(x, 1, -y), "down", geom);
                 }
 
             }
