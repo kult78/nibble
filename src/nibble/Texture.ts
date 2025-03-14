@@ -143,7 +143,9 @@ export class Texture {
         );
         gl.bindTexture(gl.TEXTURE_2D, null);
 
-        log.info("API Texture created: " + this.origin, "tech");
+        let info = this.origin;
+        if(info == "") info = `procedural ${this.proceduralBitmap!.width}x${this.proceduralBitmap!.height}`;
+        log.info("API Texture created: " + info, "tech");
 
         this.width = imageToUse.width;
         this.height = imageToUse.height;

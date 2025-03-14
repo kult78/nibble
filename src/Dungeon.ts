@@ -8,13 +8,19 @@ import { Kreator } from "./Kreator.js"
 import { EventAware } from "./Events.js";
 
 export class DungeonMap {
+
+    private map: n.BitmapRGBA;
+    private geometry: n.Geometry;
+    private scene: Scene3d | null = null;
+    private material: n.Material | null = null;
+    private texture: n.Texture | null = null;
     
     constructor(w: number, h: number) {
         this.map = new n.BitmapRGBA(w, h);
         this.generate();
-    }
 
-    private map: n.BitmapRGBA;
+        this.geometry = Kreator.dungeonToGeometry(this.map);
+    }
 
     public getBitmap(): n.BitmapRGBA { return this.map; }
 
@@ -45,6 +51,10 @@ export class DungeonMap {
         this.map.floodFill(firstSpaceX, firstSpaceY, 0x00000000);
         this.map.replace(0x000000ff, 0xffffffff);
         this.map.drawRect(0, 0, this.map.width - 1, this.map.height - 1, 0xffffffff);
+
+        this.map.setPixel(0, this.map.height - 2, 0x0000ffff);
+        this.map.setPixel(0, this.map.height - 1, 0x00ff00ff);
+        this.map.setPixel(1, this.map.height - 1, 0xff0000ff);
     } 
  
     private randomFillMap(): void {
@@ -137,7 +147,7 @@ export class DungeonMap {
         if(this.map.getPixel(x, y + 1) == color) return true;
         return false;
     }
-
+    
     private getNeighboursOfColor(color: number): n.Vector2[] {
         let ret: n.Vector2[] = [];
         for(let y = 2; y < this.map.height - 4; y++) {
@@ -152,29 +162,6 @@ export class DungeonMap {
         }
         return ret;
     }
-
-    private buildSpace() {
- 
-        for(let y = 0; y < this.map.height; y++) {
-            for(let x = 0; x < this.map.width; x++) {
-                if(x == 0  || y == 0 || x == this.map.width - 1 || y == this.map.height - 1)
-                    this.map.setPixel(x, y, 0xaa00aaff);
-            }
-        } 
-    
-        for(let y = 1; y < this.map.height - 1; y += this.getRandomInt(1, 4)) {
-            for(let x = 1; x < this.map.width - 1; x += this.getRandomInt(1, 4)) {
-                this.map.setPixel(x, y, 0xffffffff);
-            }
-        } 
-
-        for(let i = 0; i < this.map.width * this.map.height / 4; i++) {
-            let neighbours = this.getNeighboursOfColor(0xffffffff);
-            if(neighbours.length == 0) continue;
-            let n = neighbours[this.getRandomInt(0, neighbours.length - 1)];
-            this.map.setPixel(n.x, n.y, 0xffffffff);
-        }
-    }
 }  
 
 export class Dungeon extends EventAware {
@@ -185,4 +172,47 @@ export class Dungeon extends EventAware {
 
     private scene: Scene3d | null = null;
 
+    public applicationStartupEvent() { 
+        n.requestResource("assets/materials/basic2d.vs");
+        n.requestResource("assets/materials/basic2d_pix.vs");
+        n.requestResource("assets/materials/basic2d.fs");
+        n.requestResource("assets/materials/basic3d.vs");
+        n.requestResource("assets/materials/basic3d.fs");
+        n.requestResource("assets/materials/materials.json");
+
+        n.requestResourceWithType("assets/gfx/chess_2x2.png", n.ResourceType.Image);
+    }
+
+    private preRender() {
+    }
+
+    public renderEvent() {
+        this.preRender(); 
+
+        console.log("rendering dungeon " + this.scene); 
+
+        if(this.scene) {
+            let cameraComponent = this.scene.getEntityByName("default_camera")?.getComponent<CameraComponent>(CameraComponent);
+                
+            if(cameraComponent) {
+                /*
+                cameraComponent.camera.position = this.generateCirclePoint(this.time / 1000, 20); 
+                cameraComponent.camera.position.y = 14 + Math.sin(this.time / 1000);  
+
+                cameraComponent.camera.target = new n.Vector3(0, 0, 0); 
+                cameraComponent.camera.target.y = 14 + Math.cos(this.time / 1000); 
+                cameraComponent.camera.up = new n.Vector3(0, 1, 0); 
+
+                this.scene.setRenderCameraId("default_camera");
+                this.scene.rendervent();
+                */
+            }
+
+        } else {
+            n.gl.depthMask(true); 
+            n.gl.clearColor(0.5, 0.5, 0.5, 1.0); 
+            n.gl.clearDepth(1.0);
+            n.gl.clear(n.gl.DEPTH_BUFFER_BIT | n.gl.COLOR_BUFFER_BIT);
+        }
+    }
 }

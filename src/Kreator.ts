@@ -98,5 +98,85 @@ export class Kreator {
 
         return builder.createGeometry();
     }
+
+    // -------------------------------
     
+    private static dungeonUnit: number = 1.0;
+
+    public static createDungeonWall(blockPos: n.Vector3, direction: string, geom: n.GeometryBuilder) {
+        
+        const origoX = blockPos.x * this.dungeonUnit;
+        const origoY = blockPos.y * this.dungeonUnit;
+        const origoZ = blockPos.z * this.dungeonUnit;
+
+        if(direction == "down") {
+            geom.current().x = origoX;
+            geom.current().y = origoY;
+            geom.current().z = origoZ;
+            geom.current().nx = 0; geom.current().ny = 1; geom.current().nz = 0;
+            geom.current().u0 = 0; geom.current().v0 = 0;
+            geom.current().r = 1; geom.current().g = 1; geom.current().b = 1; geom.current().a = 1;
+            geom.commitVertex();
+
+            geom.current().x = origoX + this.dungeonUnit;
+            geom.current().y = origoY;
+            geom.current().z = origoZ;
+            geom.current().nx = 0; geom.current().ny = 1; geom.current().nz = 0;
+            geom.current().u0 = 0; geom.current().v0 = 0;
+            geom.current().r = 1; geom.current().g = 1; geom.current().b = 1; geom.current().a = 1;
+            geom.commitVertex();
+
+            geom.current().x = origoX + this.dungeonUnit;
+            geom.current().y = origoY;
+            geom.current().z = origoZ - this.dungeonUnit;
+            geom.current().nx = 0; geom.current().ny = 1; geom.current().nz = 0;
+            geom.current().u0 = 0; geom.current().v0 = 0;
+            geom.current().r = 1; geom.current().g = 1; geom.current().b = 1; geom.current().a = 1;
+            geom.commitVertex();
+
+            // ---
+
+            geom.current().x = origoX;
+            geom.current().y = origoY;
+            geom.current().z = origoZ;
+            geom.current().nx = 0; geom.current().ny = 1; geom.current().nz = 0;
+            geom.current().u0 = 0; geom.current().v0 = 0;
+            geom.current().r = 1; geom.current().g = 1; geom.current().b = 1; geom.current().a = 1;
+            geom.commitVertex();
+
+            geom.current().x = origoX + this.dungeonUnit;
+            geom.current().y = origoY;
+            geom.current().z = origoZ - this.dungeonUnit;
+            geom.current().nx = 0; geom.current().ny = 1; geom.current().nz = 0;
+            geom.current().u0 = 0; geom.current().v0 = 0;
+            geom.current().r = 1; geom.current().g = 1; geom.current().b = 1; geom.current().a = 1;
+            geom.commitVertex();
+
+            geom.current().x = origoX;
+            geom.current().y = origoY;
+            geom.current().z = origoZ - this.dungeonUnit;
+            geom.current().nx = 0; geom.current().ny = 1; geom.current().nz = 0;
+            geom.current().u0 = 0; geom.current().v0 = 0;
+            geom.current().r = 1; geom.current().g = 1; geom.current().b = 1; geom.current().a = 1;
+            geom.commitVertex();
+        }
+    }
+
+    public static dungeonToGeometry(map: n.BitmapRGBA): n.Geometry {
+        let geom = new n.GeometryBuilder(n.GeometryFormat.xyzNxnynzUvRgba);
+
+        for(let y = map.height - 1; y >= 0; y--) {
+            for(let x = 0; x < map.width; x++) {
+                let pixel = map.getPixel(x, y);
+
+                if(pixel == 0x000000)
+                {
+                    this.createDungeonWall(new n.Vector3(x, -y, 0), "down", geom);
+                }
+
+            }
+        }
+
+        return geom.createGeometry();
+    }
 }

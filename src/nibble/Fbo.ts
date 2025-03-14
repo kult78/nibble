@@ -149,6 +149,19 @@ export class RenderTarget {
 // class that renders an FBO to other (or to the screen)
 
 export class Blitter {
+
+    private x: number = 0.0;
+    private y: number = 0.0;
+    private width: number = 1.0;
+    private height: number = 1.0;
+
+    public setViewport(x: number, y: number, width: number, height: number) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+    }
+
     public blit(source: RenderTarget, destination: RenderTarget | null) {                     
         if(this.materialId == "") throw new FatalError("No material is set to blit with Blitter");
 
@@ -158,7 +171,7 @@ export class Blitter {
 
         if(this.targetBox == null) {
             this.targetBox = new Box(
-                0.0, 0.0, 1.0, 1.0,
+                this.x, this.y, this.width, this.height,
                 0.0, 0.0, 1.0, 1.0,
                 1.0, 1.0 ,1.0, 1.0
             );            

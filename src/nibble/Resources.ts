@@ -55,14 +55,18 @@ class Task {
     public type: ResourceType;
 }
 
+const alreadyRequested: string[] = [];
+
 const tasks: Task[] = [];
 const processingTasks: Task[] = [];
 const resources: Resource[] = [];
 
 export function requestResourceWithType(url: string, type: ResourceType) {
+    if(alreadyRequested.includes(url)) return;
+    alreadyRequested.push(url);
     log.info(`Requesting resource [${url}] as ${type.toString()}`, "tech");
     tasks.push(new Task(url, type));
-}
+}   
 
 export function requestResource(url: string) {
     if(url.includes(".png") || url.includes(".jpg") || url.includes(".jpeg")) {

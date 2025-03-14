@@ -12,11 +12,11 @@ import { Text } from "./Text.js";
 import { ProceduralTextureImage } from "./Helpers.js";
 import { EventAware, Events } from "./Events.js";
 import { Overworld } from "./Overworld.js";
-import { DungeonMap } from "./Dungeon.js";
+import { Dungeon, DungeonMap } from "./Dungeon.js";
 
 export class Application extends EventAware {
 
-    public constructor() {
+    public constructor() { 
         super();
 
         Events.singleton.eventAwares.push(this);
@@ -32,22 +32,28 @@ export class Application extends EventAware {
         n.requestResource("assets/materials/materials.json");
         n.requestResource("assets/gfx/fonts/bp-mono.json");
 
+        this.dungeon.applicationStartupEvent();
         this.overworld.applicationStartupEvent();
     }
 
     public tickEvent(time: number, frameCounter: number) {
         this.time = time;
+        this.dungeon.tickEvent(time, frameCounter);
         this.overworld.tickEvent(time, frameCounter);
     }
 
     public renderEvent() {
         this.preRender(); 
 
-        n.setRenderTarget(this.fbo!);
+        // render overworld
+        n.setRenderTarget(this.overWorldFbo!);
+        this.overworld.renderEvent(); 
+        this.overworldBlitter.blitToScreen(this.overWorldFbo!);
 
-        this.overworld.renderEvent();
-         
-        this.blitter.blitToScreen(this.fbo!);
+        // render dungeon 
+        n.setRenderTarget(this.dungeonFbo!);
+        this.dungeon.renderEvent(); 
+        this.dungeonBlitter.blitToScreen(this.dungeonFbo!);
 
         n.setRenderTarget(null);
 
@@ -77,6 +83,7 @@ export class Application extends EventAware {
     public startRenderingEvent() {
         n.addMaterialsFromFile("assets/materials/materials.json");       
         this.overworld.startRenderingEvent();
+        this.dungeon.startRenderingEvent();
     }
 
     public stopRenderingEvent() {
@@ -89,6 +96,7 @@ export class Application extends EventAware {
     private music = false;
 
     private overworld: Overworld = new Overworld();
+    private dungeon: Dungeon = new Dungeon();
 
     private font: Font | null = null;
     private text: Text | null = null;
@@ -122,17 +130,22 @@ export class Application extends EventAware {
 
         // ---
 
-        if(this.fbo == null || !global.isInternalRenderRes(this.fbo.width, this.fbo.height)) {
-            if(this.fbo) this.fbo.dispose();
-            this.fbo = null;
+        if(this.overWorldFbo == null || !global.isInternalRenderRes(this.overWorldFbo.width, this.overWorldFbo.height)) {
+            if(this.overWorldFbo) this.overWorldFbo.dispose();
+            this.overWorldFbo = null;
+            this.dungeonFbo = null;
         }
 
-        if(this.fbo == null) {           
+        if(this.overWorldFbo == null) {           
             let [w, h] = global.getInternalRenderRes(); 
-            this.fbo = new n.RenderTarget(w, h);
-            n.info(`New internal rendertarget with resolution ${this.fbo.width}x${this.fbo.height}`, "tech");
+            this.overWorldFbo = new n.RenderTarget(w, h);
+            n.info(`New overworld fbo with resolution ${this.overWorldFbo.width}x${this.overWorldFbo.height}`, "tech");
+            this.overworldBlitter.setMaterial("blitter");
 
-            this.blitter.setMaterial("blitter");
+            this.dungeonFbo = new n.RenderTarget(w / 2, h / 2);
+            n.info(`New dungeon fbo with resolution ${this.dungeonFbo.width}x${this.dungeonFbo.height}`, "tech");
+            this.dungeonBlitter.setMaterial("blitter");
+            this.dungeonBlitter.setViewport(0.4, 0.4, 0.4, 0.4);
         }
 
         // ---
@@ -145,8 +158,11 @@ export class Application extends EventAware {
 
     private time: number = 0;
  
-    private fbo: n.RenderTarget | null = null;
-    private blitter: n.Blitter = new n.Blitter();
+    private overWorldFbo: n.RenderTarget | null = null;
+    private dungeonFbo: n.RenderTarget | null = null;
+
+    private overworldBlitter: n.Blitter = new n.Blitter();
+    private dungeonBlitter: n.Blitter = new n.Blitter();
      
     // ----------
   
