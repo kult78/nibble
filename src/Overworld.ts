@@ -98,11 +98,12 @@ export class Overworld extends EventAware {
 
                 this.scene.setRenderCameraId("default_camera");
                 this.scene.renderEvent();
-        } else { 
-            n.gl.depthMask(true); 
-            n.gl.clearColor(0.5, 0.5, 0.5, 1.0); 
-            n.gl.clearDepth(1.0);
-            n.gl.clear(n.gl.DEPTH_BUFFER_BIT | n.gl.COLOR_BUFFER_BIT);
+            } else { 
+                n.gl.depthMask(true); 
+                n.gl.clearColor(0.5, 0.5, 0.5, 1.0); 
+                n.gl.clearDepth(1.0);
+                n.gl.clear(n.gl.DEPTH_BUFFER_BIT | n.gl.COLOR_BUFFER_BIT);
+            }
         }
     }
 
@@ -117,8 +118,8 @@ export class Overworld extends EventAware {
         this.scene.fogStart = 0.8 + Math.random() / 6.0;
         
         let camEntity: Entity = new Entity().setName("default_camera");
-        camEntity.addNewComponent<TransformationComponent>(TransformationComponent);
-        this.scene.addEntity(camEntity).addNewComponent<CameraComponent>(CameraComponent).camera.position = new n.Vector3(-15, 0, 0);
+        camEntity.addNewComponent<TransformationComponent>(TransformationComponent); 
+        this.scene.addEntity(camEntity).addNewComponent<CameraComponent>(CameraComponent);//.camera.position = new n.Vector3(-15, 0, 0);
 
         for(let z = -20; z < 20; z++) {
             for(let x = -20; x < 20; x++) 

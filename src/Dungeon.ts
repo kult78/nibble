@@ -49,9 +49,16 @@ export class Dungeon extends EventAware {
             
             let camEntity: Entity = new Entity().setName("default_camera");
             camEntity.addNewComponent<TransformationComponent>(TransformationComponent);
-            this.scene.addEntity(camEntity).addNewComponent<CameraComponent>(CameraComponent).camera.position = new n.Vector3(10, 0.5, -10);
-            this.scene.addEntity(camEntity).addNewComponent<CameraComponent>(CameraComponent).camera.target = new n.Vector3(11, 0.5, -10);
-            this.scene.addEntity(camEntity).addNewComponent<CameraComponent>(CameraComponent).camera.up = new n.Vector3(0, 1, 0);
+
+            const cameraPos: n.Vector3 = Kreator.getDungeonRandomEmptyBlockCenter(this.labyrinth.getBitmap());
+            console.log("dungeon eye: " + cameraPos.x, cameraPos.y, cameraPos.z);
+
+            let cameraComponent = camEntity.addNewComponent<CameraComponent>(CameraComponent);
+            cameraComponent.camera.position = cameraPos;
+            cameraComponent.camera.target = new n.Vector3(11, 0.5, -10);
+            cameraComponent.camera.up = new n.Vector3(0, 1, 0);
+
+            this.scene.addEntity(camEntity);
   
             let tex = "assets/gfx/chess_2x2.png";
             let geomEntity = new Entity().setName("floor");
@@ -91,8 +98,11 @@ export class Dungeon extends EventAware {
 
         if(this.scene) {
             let cameraComponent = this.scene.getEntityByName("default_camera")?.getComponent<CameraComponent>(CameraComponent);
-                
+
+            console.log(cameraComponent);
+
             if(cameraComponent) {  
+
 
                 /*
                 cameraComponent.camera.position = this.generateCirclePoint(this.time / 100, 20); 
