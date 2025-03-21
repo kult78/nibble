@@ -24,13 +24,10 @@ export class Overworld extends EventAware {
     }
 
     public applicationStartupEvent() { 
-        n.requestResource("assets/materials/basic2d.vs");
-        n.requestResource("assets/materials/basic2d_pix.vs");
-        n.requestResource("assets/materials/basic2d.fs");
-        n.requestResource("assets/materials/basic3d.vs");
-        n.requestResource("assets/materials/basic3d.fs");
+        n.requestResource("assets/materials/overworld.vs");
+        n.requestResource("assets/materials/overworld.fs");
         n.requestResource("assets/materials/materials.json");
-        
+         
         n.requestResourceWithType("assets/gfx/pine/PineStump.obj", n.ResourceType.Text);
         n.requestResourceWithType("assets/gfx/pine/PineStump2.obj", n.ResourceType.Text);
         n.requestResourceWithType("assets/gfx/pine/PineTree1.obj", n.ResourceType.Text);
@@ -141,7 +138,7 @@ export class Overworld extends EventAware {
                     .setYawPitchRoll(Math.random() * 10, 0, 0);
                 geomEntity.addNewComponent<RenderComponent3d>(RenderComponent3d)
                     .setGeometry(geom!)
-                    .setMaterial("basic3d")
+                    .setMaterial("overworld")
                     .setTexture(tex);
                 this.scene.addEntity(geomEntity);
             

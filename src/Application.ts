@@ -50,7 +50,7 @@ export class Application extends EventAware {
         n.setRenderTarget(this.overWorldFbo!);
         this.overworld.renderEvent(); 
         this.overworldBlitter.blitToScreen(this.overWorldFbo!);
-
+  
         // render dungeon 
         n.setRenderTarget(this.dungeonFbo!);
         this.dungeon.renderEvent(); 
@@ -62,7 +62,7 @@ export class Application extends EventAware {
     }
 
     public keyEvent(down: boolean, code: string) {
-
+        this.dungeon.keyEvent(down, code);
     }
     
     public mouseMoveEvent(x: number, y: number) {
@@ -148,7 +148,7 @@ export class Application extends EventAware {
             this.dungeonFbo = new n.RenderTarget(w / 4, h / 4);
             n.info(`New dungeon fbo with resolution ${this.dungeonFbo.width}x${this.dungeonFbo.height}`, "tech");
             this.dungeonBlitter.setMaterial("blitter");
-            this.dungeonBlitter.setViewport(0.4, 0.4, 0.4, 0.4);
+            this.dungeonBlitter.setViewport(0.3, 0.2, 0.6, 0.6);
         }
     }
 

@@ -208,7 +208,7 @@ export class ShaderSetup {
     public u_scene_albedo : WebGLUniformLocation | null = null;
     public u_sun_direction : WebGLUniformLocation | null = null;
     public u_sun_color : WebGLUniformLocation | null = null;
-
+ 
     private updateLocations() {
         this.a_xy = env.gl.getAttribLocation(this.program, "a_xy");
         this.a_xyz = env.gl.getAttribLocation(this.program, "a_xyz");

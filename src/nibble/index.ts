@@ -21,7 +21,7 @@ export {
 
 export { TileProps }  from "./TileProps.js"
 
-export { Camera }  from "./Camera.js"
+export { CameraMode, Camera }  from "./Camera.js"
 
 export { Box, Geometry, GeometryBuilder, GeometryFormat, GeometryAlign } from "./Geometry.js"
 

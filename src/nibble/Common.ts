@@ -142,6 +142,13 @@ export class Algebra {
         return a.x * b.x + a.y * b.y + a.z * b.z;
     }
 
+    public static transform(v: Vector3, m: Matrix4x4): Vector3 {
+        const x = v.x * m.values[0] + v.y * m.values[4] + v.z * m.values[8] + m.values[12];
+        const y = v.x * m.values[1] + v.y * m.values[5] + v.z * m.values[9] + m.values[13];
+        const z = v.x * m.values[2] + v.y * m.values[6] + v.z * m.values[10] + m.values[14];
+        return new Vector3(x, y, z);
+    }
+
     public static matrixMultiply(a: Matrix4x4, b: Matrix4x4): Matrix4x4 {
         const result = new Matrix4x4();
         const out = result.values;
@@ -268,18 +275,79 @@ export class Algebra {
         return matrix;
     }  
     
-    public static createProjectionMatrix(fov: number, aspect: number, near: number, far: number): Matrix4x4 {
+    /*public static createProjectionMatrix(fov: number, aspect: number, near: number, far: number): Matrix4x4 {
         const fovRad = (fov * Math.PI) / 180;
         const f = 1 / Math.tan(fovRad / 2);
         const rangeInv = 1 / (near - far);
     
-        return new Matrix4x4().set([
+        return new Matrix4x4().set([ 
             f / aspect, 0,           0,                          0,
             0,          f,           0,                          0,
             0,          0,           (near + far) * rangeInv,   -1,
             0,          0,           (2 * near * far) * rangeInv, 0
         ]);
-    }
+    }*/
+
+        /*
+        public static createProjectionMatrix(fov: number, aspect: number, near: number, far: number): Matrix4x4 {
+            const fovRad = (fov * Math.PI) / 180; // Convert FOV to radians
+            const f = 1 / Math.tan(fovRad / 2);  // Cotangent of half FOV
+            const rangeInv = 1 / (far - near);   // Inverse depth range
+        
+            return new Matrix4x4().set([
+                f / aspect,  0,   0,                                 0,
+                0,           f,   0,                                 0,
+                0,           0,   -(far + near) * rangeInv,         -1,
+                0,           0,   -2 * near * far * rangeInv,        0
+            ]);
+        }*/
+/*
+            public static createProjectionMatrix(fov: number, aspect: number, near: number, far: number): Matrix4x4 {
+                const fovRad = (fov * Math.PI) / 180; // Convert FOV to radians
+                const f = 1 / Math.tan(fovRad / 2);  // Cotangent of half FOV
+                const rangeInv = 1 / (far - near);   // Inverse of depth range
+            
+                return new Matrix4x4().set([
+                    f / aspect,  0,               0,                       0,
+                    0,            f,               0,                       0,
+                    0,            0,        /       -(far + near) * rangeInv, -1,
+                    0,            0,               -2 * near * far * rangeInv,  0
+                ]);
+            }
+  
+ 
+            public static createProjectionMatrix(fov: number, aspect: number, near: number, far: number): Matrix4x4 {
+                const fovRad = (fov * Math.PI) / 180; // Convert FOV to radians
+                const f = 1 / Math.tan(fovRad / 2);  // Cotangent of half FOV
+                const rangeInv = 1 / (far - near);   // Inverse of depth range
+            
+                return new Matrix4x4().set([
+                    f / aspect,  0,                       0,                          0,
+                    0,            f,                       0,                          0,
+                    0,            0,    -(far + near) * rangeInv,   -1,
+                    0,            0,    -2 * near * far * rangeInv,  0
+                ]);
+            }
+  */
+             
+                public static createProjectionMatrix(fov: number, aspect: number, near: number, far: number): Matrix4x4 {
+                    const matrix = new Matrix4x4();
+                    matrix.setIdentity();
+
+                    const f = 1.0 / Math.tan((fov * Math.PI) / 360.0); // Convert fov to radians and calculate cotangent
+                    const rangeInv = 1.0 / (near - far);
+            
+                    matrix.values[0] = f / aspect;
+                    matrix.values[5] = f;
+                    matrix.values[10] = (far + near) * rangeInv;
+                    matrix.values[11] = -1.0;
+                    matrix.values[14] = (2.0 * far * near) * rangeInv;
+                    matrix.values[15] = 0.0;
+            
+                    return matrix;
+                }
+                        
+        
 
 }
 

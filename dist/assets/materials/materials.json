@@ -41,7 +41,7 @@
             "fbop" : "add",
             "filter": false
         },
-        
+
         {
             "id" : "basic3d",
             "vs" : "assets/materials/basic3d.vs",
@@ -50,6 +50,26 @@
             "zwrite" : true,
             "fbop" : "alpha",
             "filter": true      
+        },
+
+        {
+            "id" : "dungeon",
+            "vs" : "assets/materials/dungeon.vs",
+            "fs" : "assets/materials/dungeon.fs",
+            "ztest" : true,
+            "zwrite" : true,
+            "fbop" : "alpha",
+            "filter": false     
+        },
+
+        {
+            "id" : "overworld",
+            "vs" : "assets/materials/overworld.vs",
+            "fs" : "assets/materials/overworld.fs",
+            "ztest" : true,
+            "zwrite" : true,
+            "fbop" : "alpha",
+            "filter": false 
         }
 
     ]

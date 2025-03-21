@@ -3,7 +3,7 @@ import * as n from "./nibble/index.js";
 
 export class Kreator {
 
-    public static unit = 1.0;
+    public static unit = 10.0;
 
     public static getCentreOfWordBlock(blockPos: n.Vector3): n.Vector3 {
         return new n.Vector3(
@@ -135,7 +135,7 @@ export class Kreator {
             //geom.current().u0 = 0; geom.current().v0 = 0;
             geom.current().r = 1; geom.current().g = 1; geom.current().b = 1; geom.current().a = 1;
             geom.commitVertex();
-
+ 
             // ---
 
             geom.current().x = origoX;
@@ -167,7 +167,7 @@ export class Kreator {
         }
     }
  
-    public static dungeonToGeometry(map: n.BitmapRGBA): n.Geometry {
+    public static labyrinthToGeometry(map: n.BitmapRGBA): n.Geometry {
         let geom = new n.GeometryBuilder(n.GeometryFormat.xyzNxnynzUvRgba);
 
         for(let y = 0; y < map.height; y++) {
@@ -195,7 +195,10 @@ export class Kreator {
             x = Math.floor(Math.random() * map.width);
             y = Math.floor(Math.random() * map.height);
             if(map.getPixel(x, y) == 0x00000000) break;
-        }
-        return new n.Vector3(x * this.dungeonUnit, this.dungeonUnit * 1.5, y * this.dungeonUnit);
+        } 
+        return new n.Vector3( 
+            x * this.dungeonUnit + this.dungeonUnit / 2, 
+            this.dungeonUnit * 1.7, 
+            y * this.dungeonUnit + this.dungeonUnit / 2);
     }
 }

@@ -37,7 +37,7 @@ export class Labyrinth {
                 }
             }
             if(firstSpaceX != -1) break;
-        }
+        } 
         
         this.map.floodFill(firstSpaceX, firstSpaceY, 0x00000000);
         this.map.replace(0x000000ff, 0xffffffff);
