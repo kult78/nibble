@@ -102,12 +102,15 @@ export class Dungeon extends EventAware {
             if(cameraComponent) {
 
                 if(this.turnLeftDown) cameraComponent.camera.yaw -= 0.05;
-                if(this.turnRightDown) cameraComponent.camera.yaw += 0.05;
+                if(this.turnRightDown) cameraComponent.camera.yaw += 0.05; 
                 
                 if(cameraComponent.camera.yaw > 2 * Math.PI) cameraComponent.camera.yaw = cameraComponent.camera.yaw - 2 * Math.PI;
                 if(cameraComponent.camera.yaw < 0) cameraComponent.camera.yaw = 2 * Math.PI + cameraComponent.camera.yaw;
+
+                cameraComponent.camera.pitch = (Math.sin(time / 1000) + 1) / 30;
             
-                console.log(cameraComponent.camera.yaw); 
+                console.log(cameraComponent.camera.pitch); 
+
                 if(!this.turnLeftDown && !this.turnRightDown) {
                     cameraComponent.camera.yaw = this.snapRotation(cameraComponent.camera.yaw);
                     console.log(cameraComponent.camera.yaw); 

@@ -122,26 +122,52 @@ export class Kreator {
         if(direction == "down") {
             this.beginDungeonWall(geom, 0, new n.Vector3(0, 1, 0), color);
             geom.current().x = origoX; geom.current().y = origoY; geom.current().z = origoZ;
-            geom.commitVertex();
+            geom.commitVertex(); 
 
             this.beginDungeonWall(geom, 1, new n.Vector3(0, 1, 0), color);
             geom.current().x = origoX + u; geom.current().y = origoY; geom.current().z = origoZ;
             geom.commitVertex();
 
             this.beginDungeonWall(geom, 3, new n.Vector3(0, 1, 0), color);
-            geom.current().x = origoX + u; geom.current().y = origoY; geom.current().z = origoZ - u;
+            geom.current().x = origoX; geom.current().y = origoY; geom.current().z = origoZ - u;
             geom.commitVertex();
 
             this.beginDungeonWall(geom, 1, new n.Vector3(0, 1, 0), color);
-            geom.current().x = origoX; geom.current().y = origoY; geom.current().z = origoZ;
+            geom.current().x = origoX + u; geom.current().y = origoY; geom.current().z = origoZ;
             geom.commitVertex(); 
  
             this.beginDungeonWall(geom, 2, new n.Vector3(0, 1, 0), color);
-            geom.current().x = origoX + this.dungeonUnit; geom.current().y = origoY; geom.current().z = origoZ - u;
+            geom.current().x = origoX + u; geom.current().y = origoY; geom.current().z = origoZ - u;
             geom.commitVertex();
    
             this.beginDungeonWall(geom, 3, new n.Vector3(0, 1, 0), color);
             geom.current().x = origoX; geom.current().y = origoY; geom.current().z = origoZ - u;
+            geom.commitVertex();
+        }
+
+        if(direction == "up") {
+            this.beginDungeonWall(geom, 0, new n.Vector3(0, 1, 0), color);
+            geom.current().x = origoX; geom.current().y = origoY + u; geom.current().z = origoZ;
+            geom.commitVertex(); 
+
+            this.beginDungeonWall(geom, 3, new n.Vector3(0, 1, 0), color);
+            geom.current().x = origoX; geom.current().y = origoY + u; geom.current().z = origoZ - u;
+            geom.commitVertex();
+
+            this.beginDungeonWall(geom, 1, new n.Vector3(0, 1, 0), color);
+            geom.current().x = origoX + u; geom.current().y = origoY + u; geom.current().z = origoZ;
+            geom.commitVertex();
+
+            this.beginDungeonWall(geom, 1, new n.Vector3(0, 1, 0), color);
+            geom.current().x = origoX + u; geom.current().y = origoY + u; geom.current().z = origoZ;
+            geom.commitVertex(); 
+   
+            this.beginDungeonWall(geom, 3, new n.Vector3(0, 1, 0), color);
+            geom.current().x = origoX; geom.current().y = origoY + u; geom.current().z = origoZ - u;
+            geom.commitVertex();
+
+            this.beginDungeonWall(geom, 2, new n.Vector3(0, 1, 0), color);
+            geom.current().x = origoX + u; geom.current().y = origoY + u; geom.current().z = origoZ - u;
             geom.commitVertex();
         }
 
@@ -258,19 +284,20 @@ export class Kreator {
                 let pixel = map.getPixel(x, y);
 
                 if(pixel == 0x00000000) {
-                    this.createDungeonWall(n.Colors.darkgray, new n.Vector3(x, 0, y), "down", geom);
+                    this.createDungeonWall(n.Colors.darkgray, new n.Vector3(x, 0, -y), "down", geom);
+                    this.createDungeonWall(n.Colors.green, new n.Vector3(x, 0, -y), "up", geom);
                 } else if(pixel == 0xffffffff) {
                     if(y > 0  && map.getPixel(x, y - 1) == 0x00000000) {
-                        this.createDungeonWall(n.Colors.white, new n.Vector3(x, 0, y), "south", geom);
+                        this.createDungeonWall(n.Colors.white, new n.Vector3(x, 0, -y), "south", geom);
                     }
                     if(x < map.width - 1 && map.getPixel(x + 1, y) == 0x00000000) {
-                        this.createDungeonWall(n.Colors.blue, new n.Vector3(x, 0, y), "east", geom);
+                        this.createDungeonWall(n.Colors.blue, new n.Vector3(x, 0, -y), "east", geom);
                     } 
                     if(x > 0 && map.getPixel(x - 1, y) == 0x00000000) {
-                        this.createDungeonWall(n.Colors.red, new n.Vector3(x, 0, y), "west", geom);
+                        this.createDungeonWall(n.Colors.red, new n.Vector3(x, 0, -y), "west", geom);
                     } 
                     if(y < map.height - 1 && map.getPixel(x, y + 1) == 0x00000000) {
-                        this.createDungeonWall(n.Colors.yellow, new n.Vector3(x, 0, y), "north", geom);
+                        this.createDungeonWall(n.Colors.yellow, new n.Vector3(x, 0, -y), "north", geom);
                     } 
                 }
             }
@@ -287,11 +314,11 @@ export class Kreator {
             if(map.getPixel(x, y) == 0x00000000) break;
         }  
 
-        map.setPixel(x, y, 0xff8811ff);
+        //map.setPixel(x, y, 0xff8811ff);
 
         return new n.Vector3(  
             x * this.dungeonUnit + this.dungeonUnit / 2, 
-            this.dungeonUnit * 0.85,  
-            y * this.dungeonUnit + this.dungeonUnit / 2);
+            this.dungeonUnit * 0.5,  
+            -y * this.dungeonUnit + this.dungeonUnit / 2);
     }
 }
