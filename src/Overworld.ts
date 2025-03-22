@@ -93,7 +93,6 @@ export class Overworld extends EventAware {
                 cameraComponent.camera.target.y = 14 + Math.cos(this.time / 1000); 
                 cameraComponent.camera.up = new n.Vector3(0, 1, 0); 
 
-                this.scene.setRenderCameraId("default_camera");
                 this.scene.renderEvent();
             } else { 
                 n.gl.depthMask(true); 

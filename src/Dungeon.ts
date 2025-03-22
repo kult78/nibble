@@ -64,14 +64,12 @@ export class Dungeon extends EventAware {
             let cameraComponent = camEntity.addNewComponent<CameraComponent>(CameraComponent);
             cameraComponent.camera.mode = n.CameraMode.Pypru;
             cameraComponent.camera.position = cameraPos; 
-            //cameraComponent.camera.target = new n.Vector3(11, 0.5, -10);
             cameraComponent.camera.up = new n.Vector3(0, 1, 0);
-
-            //cameraComponent.camera.near = 0.01;
-            //   cameraComponent.camera.far = 50; 
-
+            cameraComponent.camera.near = 0.1;
+            cameraComponent.camera.far = 30.0;
+            cameraComponent.camera.fov = 60.0;
             this.scene.addEntity(camEntity);
-  
+
             let tex = "assets/gfx/stone.png";
             let geomEntity = new Entity().setName("floor");     
             geomEntity.addNewComponent<TransformationComponent>(TransformationComponent)
@@ -147,7 +145,6 @@ export class Dungeon extends EventAware {
                 cameraComponent.camera.up = new n.Vector3(0, 1, 0); 
                 */
                
-                this.scene.setRenderCameraId("default_camera");
                 this.scene.renderEvent();
             }
         } else {

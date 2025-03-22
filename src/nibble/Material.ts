@@ -41,11 +41,15 @@ export class Material {
     
         // --- setup render states
 
+        gl.enable(gl.CULL_FACE);
+        gl.cullFace(gl.BACK);
+        gl.frontFace(gl.CCW);
+
         gl.depthFunc(gl.LESS);
         gl.depthRange(0.0, 1.0); 
 
         gl.disable(gl.STENCIL_TEST);
-        gl.disable(gl.SCISSOR_TEST);
+        gl.disable(gl.SCISSOR_TEST); 
 
         if(this.zTest)
             gl.enable(gl.DEPTH_TEST);

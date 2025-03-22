@@ -13,7 +13,7 @@ export class Scene3d extends EventAware {
     private time: number = 0.0;
     private entities: Entity[] = [];
     
-    private renderCameraId: string = "";
+    private renderCameraId: string = "default_camera";
     public setRenderCameraId(id: string) { this.renderCameraId = id; }
 
     public addEntity(entity: Entity): Entity {

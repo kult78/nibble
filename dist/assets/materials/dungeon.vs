@@ -28,15 +28,15 @@ void main() {
 
     gl_Position = u_projection_mtx * viewPos;
 
-    float logDepth = log2(gl_Position.w + 1.0) * 0.5;
-    gl_Position.z = logDepth;  
+    //float logDepth = log2(gl_Position.w + 1.0) * 0.5;
+    //gl_Position.z = logDepth;  
 
     // Transform normal using normal matrix
     v_nxnynz = normalize((u_normal_mtx * vec4(a_nxnynz, 0.0)).xyz);
 
     v_depth = gl_Position.z / gl_Position.w;
 
-    v_rgba = a_rgba * u_scene_albedo ;
+    v_rgba = a_rgba * u_scene_albedo;
 
     // Pass texture coordinates
     v_uv0 = a_uv0;

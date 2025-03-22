@@ -50,7 +50,7 @@ export class Application extends EventAware {
         n.setRenderTarget(this.overWorldFbo!);
         this.overworld.renderEvent(); 
         this.overworldBlitter.blitToScreen(this.overWorldFbo!);
-  
+   
         // render dungeon 
         n.setRenderTarget(this.dungeonFbo!);
         this.dungeon.renderEvent(); 
@@ -145,10 +145,10 @@ export class Application extends EventAware {
             n.info(`New overworld fbo with resolution ${this.overWorldFbo.width}x${this.overWorldFbo.height}`, "tech");
             this.overworldBlitter.setMaterial("blitter");
 
-            this.dungeonFbo = new n.RenderTarget(w / 4, h / 4);
+            this.dungeonFbo = new n.RenderTarget(w / 3, h / 3); 
             n.info(`New dungeon fbo with resolution ${this.dungeonFbo.width}x${this.dungeonFbo.height}`, "tech");
             this.dungeonBlitter.setMaterial("blitter");
-            this.dungeonBlitter.setViewport(0.3, 0.2, 0.6, 0.6);
+            this.dungeonBlitter.setViewport(0.02, 0.4, 0.4, 0.4);
         }
     }
 
