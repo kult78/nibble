@@ -16,28 +16,19 @@ uniform mat4 u_projection_mtx;
 uniform mat4 u_normal_mtx;
 
 uniform vec4 u_scene_albedo;
+uniform float u_camera_near;
+uniform float u_camera_far; 
 
 uniform float u_time;
 
 void main() {
-    // Transform vertex position to world space
     vec4 worldPos = u_model_mtx * vec4(a_xyz, 1.0);
-
-    // Transform to view space
     vec4 viewPos = u_view_mtx * worldPos;
-
     gl_Position = u_projection_mtx * viewPos;
 
-    //float logDepth = log2(gl_Position.w + 1.0) * 0.5;
-    //gl_Position.z = logDepth;  
-
-    // Transform normal using normal matrix
     v_nxnynz = normalize((u_normal_mtx * vec4(a_nxnynz, 0.0)).xyz);
-
-    v_depth = gl_Position.z / gl_Position.w;
-
+    v_depth = -viewPos.z;
+    //v_depth = (-viewPos.z - u_camera_near) / (u_camera_far - u_camera_near);
     v_rgba = a_rgba * u_scene_albedo;
-
-    // Pass texture coordinates
     v_uv0 = a_uv0;
 }

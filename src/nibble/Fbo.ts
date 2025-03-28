@@ -46,8 +46,9 @@ export class RenderTarget {
             0 // mipmap level
         );
         
-        /* --- depth texture instead of renderbuffer (to sample Z values)
+        // --- depth texture instead of renderbuffer (to sample Z values)
 
+        /*
         this.depth = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, this.depth);
         
@@ -71,9 +72,8 @@ export class RenderTarget {
 
         // Attach depth texture to FBO
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_STENCIL_ATTACHMENT, gl.TEXTURE_2D, this.depth, 0);
-
         */
-        
+          
         this.renderbuffer = gl.createRenderbuffer();
         gl.bindRenderbuffer(gl.RENDERBUFFER, this.renderbuffer);
 
@@ -84,6 +84,7 @@ export class RenderTarget {
             gl.RENDERBUFFER,
             this.renderbuffer
         );
+        
  
         if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
             throw new FatalError(`Failed to create ${this.width}x${this.height} Framebuffer`);

@@ -109,9 +109,28 @@ export class Matrix4x4 {
 
 export class Algebra {
 
+    public static lerp(v0: Vector3, v1: Vector3, t: number): Vector3 {
+        return new Vector3(
+            v0.x + t * (v1.x - v0.x),
+            v0.y + t * (v1.y - v0.y),
+            v0.z + t * (v1.z - v0.z));
+    }
+
     public static normalize(v: Vector3): Vector3 {
         const length = Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
         return new Vector3(v.x / length, v.y / length, v.z / length);
+    }
+
+    public static getLength(v: Vector3): number {
+        return Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+    }
+
+    public static scale(v: Vector3, s: number): Vector3 {
+        return new Vector3(v.x * s, v.y * s, v.z * s);
+    }
+
+    public static add(a: Vector3, b: Vector3): Vector3 {
+        return new Vector3(a.x + b.x, a.y + b.y, a.z + b.z);
     }
 
     public static cross(a: Vector3, b: Vector3): Vector3 {
@@ -165,7 +184,7 @@ export class Algebra {
             }
         }
         return result;
-    }
+    } 
 
     public static createTransformationMatrix(position: Vector3, yawPitchRoll: Vector3, scale: Vector3): Matrix4x4 {
         const [yaw, pitch, roll] = [yawPitchRoll.x, yawPitchRoll.y, yawPitchRoll.z];
@@ -274,6 +293,41 @@ export class Algebra {
     
         return matrix;
     }  
+    
+    public static eulerToQuaternion(yaw: number, pitch: number, roll: number): Vector4 {
+        let cy = Math.cos(yaw * 0.5);
+        let sy = Math.sin(yaw * 0.5);
+        let cp = Math.cos(pitch * 0.5);
+        let sp = Math.sin(pitch * 0.5);
+        let cr = Math.cos(roll * 0.5);
+        let sr = Math.sin(roll * 0.5);
+    
+        return new Vector4(
+            cr * cp * cy + sr * sp * sy,
+            sr * cp * cy - cr * sp * sy,
+            cr * sp * cy + sr * cp * sy,
+            cr * cp * sy - sr * sp * cy
+        );
+    }
+     
+    public static rotateVectorByQuaternion(vector: Vector3, quat: Vector4): Vector3 {
+        let qvec = new Vector4(vector.x, vector.y, vector.z, 0);
+        let qconj = { x: -quat.x, y: -quat.y, z: -quat.z, w: quat.w };    
+        let qv = Algebra.multiplyQuaternions(quat, qvec);
+        let result = Algebra.multiplyQuaternions(qv, qconj);
+
+        return new Vector3(result.x, result.y, result.z);
+    }
+
+    // Helper function to multiply two quaternions
+    public static multiplyQuaternions(q1: Vector4, q2: Vector4): Vector4 {
+        return new Vector4(
+            q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z,
+            q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y,
+            q1.w * q2.y - q1.x * q2.z + q1.y * q2.w + q1.z * q2.x,
+            q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w
+        );
+    }
     
     /*public static createProjectionMatrix(fov: number, aspect: number, near: number, far: number): Matrix4x4 {
         const fovRad = (fov * Math.PI) / 180;

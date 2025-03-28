@@ -51,7 +51,7 @@ export class Application extends EventAware {
         this.overworld.renderEvent(); 
         this.overworldBlitter.blitToScreen(this.overWorldFbo!);
    
-        // render dungeon 
+        // render dungeon  
         n.setRenderTarget(this.dungeonFbo!);
         this.dungeon.renderEvent(); 
         this.dungeonBlitter.blitToScreen(this.dungeonFbo!);
@@ -76,7 +76,7 @@ export class Application extends EventAware {
 
             let labyrinth = new Labyrinth(32, 32);
             this.dungeon.setLabyrinth(labyrinth);
-            this.labyrinthImage = new ProceduralTextureImage(labyrinth.getBitmap().width, labyrinth.getBitmap().height, 8)
+            this.labyrinthImage = new ProceduralTextureImage(labyrinth.getBitmap().width, labyrinth.getBitmap().height, 3)
             this.labyrinthImage.getBitmap().cloneFrom(labyrinth.getBitmap()); 
         }
     }
@@ -138,20 +138,20 @@ export class Application extends EventAware {
             this.overWorldFbo = null;
             this.dungeonFbo = null;
         }
-
+ 
         if(this.overWorldFbo == null) {           
             let [w, h] = global.getInternalRenderRes(); 
             this.overWorldFbo = new n.RenderTarget(w, h);
             n.info(`New overworld fbo with resolution ${this.overWorldFbo.width}x${this.overWorldFbo.height}`, "tech");
             this.overworldBlitter.setMaterial("blitter");
 
-            this.dungeonFbo = new n.RenderTarget(w / 3, h / 3); 
+            this.dungeonFbo = new n.RenderTarget(w / 2, h / 2); 
             n.info(`New dungeon fbo with resolution ${this.dungeonFbo.width}x${this.dungeonFbo.height}`, "tech");
-            this.dungeonBlitter.setMaterial("blitter");
-            this.dungeonBlitter.setViewport(0.02, 0.4, 0.4, 0.4);
+            this.dungeonBlitter.setMaterial("blitter"); 
+            this.dungeonBlitter.setViewport(0.52, 0.45, 0.5 - 0.04, 0.4);
         }
     }
-
+ 
     private time: number = 0;
  
     private overWorldFbo: n.RenderTarget | null = null;

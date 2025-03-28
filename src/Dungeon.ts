@@ -45,31 +45,30 @@ export class Dungeon extends EventAware {
         if(code == "d" && !down) this.turnRightDown = false;
     }
  
-    private preRender() {
+    private preRender() { 
  
         if(this.scene == null && this.labyrinth != null) { 
             this.scene = new Scene3d();
 
             this.scene.albedo = new n.Color(0.5 + Math.random() / 2,0.5 +  Math.random() / 2,0.5 +   Math.random() / 2, 1.0);
             this.scene.fogColor = this.scene.albedo.clone();
-            
-            this.scene.sunDirection = n.Algebra.normalize(n.Algebra.subtract(new n.Vector3(0.0, 0.0, 0.0), new n.Vector3((Math.random() - 0.5) * 100, 100.0, (Math.random() - 0.5) * 100)));
-            this.scene.fogStart = 0.8 + Math.random() / 6.0;
-             
+    
             let camEntity: Entity = new Entity().setName("default_camera");
             camEntity.addNewComponent<TransformationComponent>(TransformationComponent);
-      
-            const cameraPos: n.Vector3 = Kreator.getDungeonRandomEmptyBlockCenter(this.labyrinth.getBitmap());
+         
+            var logicalPos = Kreator.getDungeonRandomEmptyBlock(this.labyrinth.getBitmap());
+            this.logicalX = logicalPos.x;
+            this.logicalY = logicalPos.y;
 
             let cameraComponent = camEntity.addNewComponent<CameraComponent>(CameraComponent);
             cameraComponent.camera.mode = n.CameraMode.Pypru;
-            cameraComponent.camera.position = cameraPos; 
+            cameraComponent.camera.position = this.cameraPos; 
             cameraComponent.camera.up = new n.Vector3(0, 1, 0);
             cameraComponent.camera.near = 0.1;
             cameraComponent.camera.far = 30.0;
-            cameraComponent.camera.fov = 60.0;
+            cameraComponent.camera.fov = 100.0;
             this.scene.addEntity(camEntity);
-
+   
             let tex = "assets/gfx/stone.png";
             let geomEntity = new Entity().setName("floor");     
             geomEntity.addNewComponent<TransformationComponent>(TransformationComponent)
@@ -82,42 +81,119 @@ export class Dungeon extends EventAware {
                 .setTexture(tex);
             this.scene.addEntity(geomEntity);
         }
-
+ 
     }
 
-    private snapRotation(angle: number): number {
-        const snapped = Math.round(angle / (Math.PI / 2)) * (Math.PI / 2);
-        return (snapped + 2 * Math.PI) % (2 * Math.PI); // Keep within [0, 2π)
-            }
-
     private time: number = 0;
+    
+    private logicalX: number = 0;
+    private logicalY: number = 0;
+    private logicalTargetX: number = 0;
+    private logicalTargetY: number = 0;
+    private logicalOrientation: number = 0;
+
+    private cameraYawDeg: number = 0;
+    private cameraPos: n.Vector3 = new n.Vector3(0, 0, 0);
+    private cameraTurning: number = 0;
+    private cameraMoving: number = 0;
+    private cameraMovingSince: number = 0;
 
     public tickEvent(time: number, frameCounter: number): void {
         this.time = time;
-
-            if(this.scene) {
-                this.scene.tickEvent(time, frameCounter);
  
+        if(this.scene) {
+
+            this.scene.fogStart = (1 + Math.sin(time / 1000));
+            this.scene.fogEnd = 1;
+            this.scene.fogDensity = 0.2 + (1 + Math.sin(time / 5000)) / 4;   
+
+            this.scene.tickEvent(time, frameCounter);
+
             let cameraComponent = this.scene.getEntityByName("default_camera")?.getComponent<CameraComponent>(CameraComponent);
             if(cameraComponent) {
 
-                if(this.turnLeftDown) cameraComponent.camera.yaw -= 0.05;
-                if(this.turnRightDown) cameraComponent.camera.yaw += 0.05; 
-                
-                if(cameraComponent.camera.yaw > 2 * Math.PI) cameraComponent.camera.yaw = cameraComponent.camera.yaw - 2 * Math.PI;
-                if(cameraComponent.camera.yaw < 0) cameraComponent.camera.yaw = 2 * Math.PI + cameraComponent.camera.yaw;
+                // moving
+                this.cameraPos = Kreator.getDungeonBlockCenter(this.logicalX, this.logicalY);
+                if(this.cameraMoving != 0) {
+                    let targetPos = Kreator.getDungeonBlockCenter(this.logicalTargetX, this.logicalTargetY);
+                    let forwardRatio = (time - this.cameraMovingSince) / 500;
+                    if(forwardRatio > 1) {
+                        this.cameraMoving = 0;
+                        this.logicalX = this.logicalTargetX;
+                        this.logicalY = this.logicalTargetY;
+                        this.cameraPos = Kreator.getDungeonBlockCenter(this.logicalX, this.logicalY);
+                    } else {
+                        this.cameraPos = n.Algebra.lerp(this.cameraPos, targetPos, forwardRatio);
+                        //this.cameraPos.y += (0.5 + Math.sin(this.cameraPos.x + this.cameraPos.y)) / 10;
+                    }
+                }  
 
-                cameraComponent.camera.pitch = (Math.sin(time / 1000) + 1) / 30;
-            
-                console.log(cameraComponent.camera.pitch); 
+                // turning
+                if(this.cameraTurning != 0) {
 
-                if(!this.turnLeftDown && !this.turnRightDown) {
-                    cameraComponent.camera.yaw = this.snapRotation(cameraComponent.camera.yaw);
-                    console.log(cameraComponent.camera.yaw); 
+                    // --- update yaw 
+                    if(this.cameraTurning == 1) this.cameraYawDeg += 5;
+                    if(this.cameraTurning == -1) this.cameraYawDeg -= 5;
+                    while(this.cameraYawDeg < 0) this.cameraYawDeg += 360;
+                    while(this.cameraYawDeg >= 360) this.cameraYawDeg -= 360;
+                    // ---
+
+                    if(this.cameraYawDeg % 90 === 0) {
+                        this.cameraTurning = 0;
+                        this.logicalOrientation = Math.floor(this.cameraYawDeg / 90);
+                        console.log("Looking " + this.logicalOrientation);
+                    }                        
+                } 
+
+                if(this.cameraTurning == 0 && this.cameraMoving == 0) {
+                    if(this.moveForwardDown) {
+                        
+                        if(this.logicalOrientation == 0) {
+                            if(this.labyrinth?.getBitmap().getPixel(this.logicalX, this.logicalY + 1) == 0x00000000) {
+                                this.logicalTargetY = this.logicalY + 1;
+                                this.logicalTargetX = this.logicalX;
+                                this.cameraMoving = 1;
+                                this.cameraMovingSince = time;
+                            }
+                        }
+                        if(this.logicalOrientation == 1) {
+                            if(this.labyrinth?.getBitmap().getPixel(this.logicalX + 1, this.logicalY) == 0x00000000) {
+                                this.logicalTargetY = this.logicalY;
+                                this.logicalTargetX = this.logicalX + 1;
+                                this.cameraMoving = 1;
+                                this.cameraMovingSince = time;
+                                    }
+                        }
+                        if(this.logicalOrientation == 2) {
+                            if(this.labyrinth?.getBitmap().getPixel(this.logicalX, this.logicalY - 1) == 0x00000000) {
+                                this.logicalTargetY = this.logicalY - 1;
+                                this.logicalTargetX = this.logicalX;
+                                this.cameraMoving = 1;
+                                this.cameraMovingSince = time;
+                            }
+                        }
+                        if(this.logicalOrientation == 3) {
+                            if(this.labyrinth?.getBitmap().getPixel(this.logicalX - 1, this.logicalY) == 0x00000000) {
+                                this.logicalTargetY = this.logicalY;
+                                this.logicalTargetX = this.logicalX - 1;
+                                this.cameraMoving = 1;
+                                this.cameraMovingSince = time;
+                            }
+                        }
+                    }
+                    else if(this.turnLeftDown) this.cameraTurning = -1;
+                    else if(this.turnRightDown) this.cameraTurning = 1;
                 }
+
+                // commit to camera
+                cameraComponent.camera.position = this.cameraPos;
+
+                cameraComponent.camera.yaw = this.cameraYawDeg * 0.0174532925;  
+                cameraComponent.camera.yaw += (Math.sin(time / 2000) + 1) / 30;
+                cameraComponent.camera.fov = 90 + (Math.cos(time / 1000) + 1);                
             }
         }
-    }
+    } 
 
     private generateCirclePoint(time: number, radius: number): n.Vector3 {
         const angle = n.Algebra.deg2rad(time);

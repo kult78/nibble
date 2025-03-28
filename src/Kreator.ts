@@ -118,7 +118,7 @@ export class Kreator {
         const origoX = blockPos.x * u;
         const origoY = blockPos.y * u;
         const origoZ = blockPos.z * u;
-
+ 
         if(direction == "down") {
             this.beginDungeonWall(geom, 0, new n.Vector3(0, 1, 0), color);
             geom.current().x = origoX; geom.current().y = origoY; geom.current().z = origoZ;
@@ -239,7 +239,7 @@ export class Kreator {
             this.beginDungeonWall(geom, 1, new n.Vector3(-1, 0, 0), color);
             geom.current().x = origoX; geom.current().y = origoY; geom.current().z = origoZ;
             geom.commitVertex();
-
+  
             this.beginDungeonWall(geom, 2, new n.Vector3(-1, 0, 0), color);
             geom.current().x = origoX; geom.current().y = origoY + u; geom.current().z = origoZ;
             geom.commitVertex();
@@ -285,19 +285,19 @@ export class Kreator {
 
                 if(pixel == 0x00000000) {
                     this.createDungeonWall(n.Colors.darkgray, new n.Vector3(x, 0, -y), "down", geom);
-                    this.createDungeonWall(n.Colors.green, new n.Vector3(x, 0, -y), "up", geom);
+                    this.createDungeonWall(n.Colors.cyan, new n.Vector3(x, 0, -y), "up", geom);
                 } else if(pixel == 0xffffffff) {
                     if(y > 0  && map.getPixel(x, y - 1) == 0x00000000) {
                         this.createDungeonWall(n.Colors.white, new n.Vector3(x, 0, -y), "south", geom);
                     }
                     if(x < map.width - 1 && map.getPixel(x + 1, y) == 0x00000000) {
-                        this.createDungeonWall(n.Colors.blue, new n.Vector3(x, 0, -y), "east", geom);
+                        this.createDungeonWall(n.Colors.bisque, new n.Vector3(x, 0, -y), "east", geom);
                     } 
                     if(x > 0 && map.getPixel(x - 1, y) == 0x00000000) {
-                        this.createDungeonWall(n.Colors.red, new n.Vector3(x, 0, -y), "west", geom);
+                        this.createDungeonWall(n.Colors.khaki, new n.Vector3(x, 0, -y), "west", geom);
                     } 
                     if(y < map.height - 1 && map.getPixel(x, y + 1) == 0x00000000) {
-                        this.createDungeonWall(n.Colors.yellow, new n.Vector3(x, 0, -y), "north", geom);
+                        this.createDungeonWall(n.Colors.wheat, new n.Vector3(x, 0, -y), "north", geom);
                     } 
                 }
             }
@@ -306,19 +306,20 @@ export class Kreator {
         return geom.createGeometry();
     }
 
-    public static getDungeonRandomEmptyBlockCenter(map: n.BitmapRGBA): n.Vector3 {
+    public static getDungeonBlockCenter(x: number, y: number): n.Vector3 {
+        return new n.Vector3(  
+            x * this.dungeonUnit + this.dungeonUnit / 2, 
+            this.dungeonUnit * 0.5,  
+            -y * this.dungeonUnit - this.dungeonUnit / 2);
+    }
+
+    public static getDungeonRandomEmptyBlock(map: n.BitmapRGBA): n.Vector2 {
         let x = 0, y = 0;
         while(true) {
             x = Math.floor(Math.random() * map.width);
             y = Math.floor(Math.random() * map.height);
             if(map.getPixel(x, y) == 0x00000000) break;
         }  
-
-        //map.setPixel(x, y, 0xff8811ff);
-
-        return new n.Vector3(  
-            x * this.dungeonUnit + this.dungeonUnit / 2, 
-            this.dungeonUnit * 0.5,  
-            -y * this.dungeonUnit + this.dungeonUnit / 2);
+        return new n.Vector2(x, y);
     }
 }

@@ -64,10 +64,16 @@ export class Scene3d extends EventAware {
                     shader.set_u_fog_color(this.fogColor); 
                     shader.set_u_fog_start(this.fogStart);
                     shader.set_u_fog_end(this.fogEnd);
+                    shader.set_u_fog_density(this.fogDensity);
                 }  
 
                 // --- 
- 
+
+                shader.set_u_camera_near(camera.near);
+                shader.set_u_camera_far(camera.far); 
+
+                // --- 
+
                 //this.sunDirection = n.Algebra.normalize(new n.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5));
 
                 shader.set_u_scene_albedo(this.albedo); 
@@ -107,6 +113,7 @@ export class Scene3d extends EventAware {
     public fogEnable: boolean = true; 
     public fogStart = 0.96; 
     public fogEnd = 1.0;
+    public fogDensity = 1.0;
     public fogColor: n.Color = n.Colors.gray.clone();
        
 }

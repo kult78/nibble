@@ -34,6 +34,31 @@ export class Camera {
     public viewMatrix: c.Matrix4x4 = new c.Matrix4x4();
     public projectionMatrix: c.Matrix4x4 = new c.Matrix4x4();
 
+    /*public update() {
+        if (this.mode == CameraMode.Ptu) {
+            let forward = c.Algebra.normalize(c.Algebra.subtract(this.target, this.position));
+            this.aspect = env.renderAspect;
+    
+            this.viewMatrix = c.Algebra.createViewMatrix(this.position, forward, this.up);
+            this.projectionMatrix = c.Algebra.createProjectionMatrix(this.fov, this.aspect, this.near, this.far);
+        }
+    
+        if (this.mode == CameraMode.Pypru) {
+            let baseLook = new c.Vector3(0, 0, -1); // Use a more stable base direction
+    
+            // Convert Euler angles to a quaternion
+            let rotationQuat = c.Algebra.eulerToQuaternion(this.yaw, this.pitch, this.roll);
+    
+            // Rotate baseLook vector using the quaternion
+            let forward = c.Algebra.rotateVectorByQuaternion(baseLook, rotationQuat);
+    
+            this.aspect = env.renderAspect;
+    
+            this.viewMatrix = c.Algebra.createViewMatrix(this.position, forward, this.up);
+            this.projectionMatrix = c.Algebra.createProjectionMatrix(this.fov, this.aspect, this.near, this.far);
+        }
+    }*/
+    
     public update() {
 
         if(this.mode == CameraMode.Ptu) {
@@ -45,7 +70,7 @@ export class Camera {
         } 
 
         if(this.mode == CameraMode.Pypru) {
-            let baseLook = new c.Vector3(1, 0, 0);
+            let baseLook = new c.Vector3(0, 0, -1);
 
             let transformationMtx = c.Algebra.createTransformationMatrix(
                 new c.Vector3(0, 0, 0), 
