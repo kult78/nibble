@@ -100,183 +100,214 @@ export class Kreator {
     }
  
     // -------------------------------
-    
-    private static dungeonUnit: number = 1.0;
-
-    public static beginDungeonWall(geom: n.GeometryBuilder, uvIndex: number, normal: n.Vector3, color: n.Color) {
-        if(uvIndex == 0) { geom.current().u0 = 0.0; geom.current().v0 = 0.0; }
-        if(uvIndex == 1) { geom.current().u0 = 1.0; geom.current().v0 = 0.0; }
-        if(uvIndex == 2) { geom.current().u0 = 1.0; geom.current().v0 = 1.0; }
-        if(uvIndex == 3) { geom.current().u0 = 0.0; geom.current().v0 = 1.0; }
-        geom.current().nx = normal.x; geom.current().ny = normal.y; geom.current().nz = normal.z;
-        geom.current().r = color.r; geom.current().g = color.g; geom.current().b = color.b; geom.current().a = color.a;
 }
 
-    public static createDungeonWall(color: n.Color, blockPos: n.Vector3, direction: string, geom: n.GeometryBuilder) {
+class UnitTileUv {    
+    public id: string = "";
+    public weight: number = 1.0;
+    
+    public u0: number = 0.0;
+    public v0: number = 0.0;
+    public u1: number = 1.0;
+    public v1: number = 1.0;
+}
+
+export class KreatorOfDungeon {
+
+    private dungeonUnit: number = 1.0;
+
+    //public  
+
+    public beginDungeonWall(geom: n.GeometryBuilder, uv: n.Vector4, uvIndex: number, normal: n.Vector3, color: n.Color) {
+        //if(uvIndex == 0) { geom.current().u0 = 0.0; geom.current().v0 = 0.0; }
+        //if(uvIndex == 1) { geom.current().u0 = 1.0; geom.current().v0 = 0.0; }
+        //if(uvIndex == 2) { geom.current().u0 = 1.0; geom.current().v0 = 1.0; }
+        //if(uvIndex == 3) { geom.current().u0 = 0.0; geom.current().v0 = 1.0; }
+        if(uvIndex == 0) { geom.current().u0 = uv.x; geom.current().v0 = uv.y; }
+        if(uvIndex == 1) { geom.current().u0 = uv.z; geom.current().v0 = uv.y; } 
+        if(uvIndex == 2) { geom.current().u0 = uv.z; geom.current().v0 = uv.w; }
+        if(uvIndex == 3) { geom.current().u0 = uv.x; geom.current().v0 = uv.w; }
+        geom.current().nx = normal.x; geom.current().ny = normal.y; geom.current().nz = normal.z;
+        geom.current().r = color.r; geom.current().g = color.g; geom.current().b = color.b; geom.current().a = color.a;
+    }
+ 
+    public commitVertex(geom: n.GeometryBuilder) {
+        //geom.current().x += Math.sin(geom.current().x) * 0.1;
+        geom.current().y += Math.sin(geom.current().x + geom.current().x) * 0.05;
+        geom.current().x += Math.cos(geom.current().x + geom.current().x) * 0.05;
+        geom.current().z += Math.cos(2 * geom.current().x + geom.current().x) * 0.05;
+        //geom.current().z += Math.sin(geom.current().x * 100) * 0.1;
+        //geom.current().z += Math.sin(geom.current().y * 100) * 0.1;
+        geom.commitVertex();
+    }
+ 
+    public createDungeonWall(color: n.Color, blockPos: n.Vector3, direction: string, geom: n.GeometryBuilder) {
         
         const u = this.dungeonUnit;
         const origoX = blockPos.x * u;
         const origoY = blockPos.y * u;
-        const origoZ = blockPos.z * u;
- 
-        if(direction == "down") {
-            this.beginDungeonWall(geom, 0, new n.Vector3(0, 1, 0), color);
-            geom.current().x = origoX; geom.current().y = origoY; geom.current().z = origoZ;
-            geom.commitVertex(); 
+        const origoZ = blockPos.z * u; 
 
-            this.beginDungeonWall(geom, 1, new n.Vector3(0, 1, 0), color);
-            geom.current().x = origoX + u; geom.current().y = origoY; geom.current().z = origoZ;
-            geom.commitVertex();
-
-            this.beginDungeonWall(geom, 3, new n.Vector3(0, 1, 0), color);
-            geom.current().x = origoX; geom.current().y = origoY; geom.current().z = origoZ - u;
-            geom.commitVertex();
-
-            this.beginDungeonWall(geom, 1, new n.Vector3(0, 1, 0), color);
-            geom.current().x = origoX + u; geom.current().y = origoY; geom.current().z = origoZ;
-            geom.commitVertex(); 
- 
-            this.beginDungeonWall(geom, 2, new n.Vector3(0, 1, 0), color);
-            geom.current().x = origoX + u; geom.current().y = origoY; geom.current().z = origoZ - u;
-            geom.commitVertex();
+        let uv: n.Vector4 = new n.Vector4(0.25, 1 - 0.125, 0.25 + 0.125, 1 - 0);
    
-            this.beginDungeonWall(geom, 3, new n.Vector3(0, 1, 0), color);
+        if(direction == "down") {
+            this.beginDungeonWall(geom, uv, 0, new n.Vector3(0, 1, 0), color);
+            geom.current().x = origoX; geom.current().y = origoY; geom.current().z = origoZ;
+            this.commitVertex(geom); 
+
+            this.beginDungeonWall(geom, uv, 1, new n.Vector3(0, 1, 0), color);
+            geom.current().x = origoX + u; geom.current().y = origoY; geom.current().z = origoZ;
+            this.commitVertex(geom); 
+
+            this.beginDungeonWall(geom, uv, 3, new n.Vector3(0, 1, 0), color);
             geom.current().x = origoX; geom.current().y = origoY; geom.current().z = origoZ - u;
-            geom.commitVertex();
+            this.commitVertex(geom); 
+
+            this.beginDungeonWall(geom, uv, 1, new n.Vector3(0, 1, 0), color);
+            geom.current().x = origoX + u; geom.current().y = origoY; geom.current().z = origoZ;
+            this.commitVertex(geom); 
+ 
+            this.beginDungeonWall(geom, uv, 2, new n.Vector3(0, 1, 0), color);
+            geom.current().x = origoX + u; geom.current().y = origoY; geom.current().z = origoZ - u;
+            this.commitVertex(geom); 
+   
+            this.beginDungeonWall(geom, uv, 3, new n.Vector3(0, 1, 0), color);
+            geom.current().x = origoX; geom.current().y = origoY; geom.current().z = origoZ - u;
+            this.commitVertex(geom); 
         }
 
         if(direction == "up") {
-            this.beginDungeonWall(geom, 0, new n.Vector3(0, 1, 0), color);
+            this.beginDungeonWall(geom, uv, 0, new n.Vector3(0, 1, 0), color);
             geom.current().x = origoX; geom.current().y = origoY + u; geom.current().z = origoZ;
-            geom.commitVertex(); 
+            this.commitVertex(geom); 
 
-            this.beginDungeonWall(geom, 3, new n.Vector3(0, 1, 0), color);
+            this.beginDungeonWall(geom, uv, 3, new n.Vector3(0, 1, 0), color);
             geom.current().x = origoX; geom.current().y = origoY + u; geom.current().z = origoZ - u;
-            geom.commitVertex();
+            this.commitVertex(geom); 
 
-            this.beginDungeonWall(geom, 1, new n.Vector3(0, 1, 0), color);
+            this.beginDungeonWall(geom, uv, 1, new n.Vector3(0, 1, 0), color);
             geom.current().x = origoX + u; geom.current().y = origoY + u; geom.current().z = origoZ;
-            geom.commitVertex();
+            this.commitVertex(geom); 
 
-            this.beginDungeonWall(geom, 1, new n.Vector3(0, 1, 0), color);
+            this.beginDungeonWall(geom, uv, 1, new n.Vector3(0, 1, 0), color);
             geom.current().x = origoX + u; geom.current().y = origoY + u; geom.current().z = origoZ;
-            geom.commitVertex(); 
+            this.commitVertex(geom); 
    
-            this.beginDungeonWall(geom, 3, new n.Vector3(0, 1, 0), color);
+            this.beginDungeonWall(geom, uv, 3, new n.Vector3(0, 1, 0), color);
             geom.current().x = origoX; geom.current().y = origoY + u; geom.current().z = origoZ - u;
-            geom.commitVertex();
+            this.commitVertex(geom); 
 
-            this.beginDungeonWall(geom, 2, new n.Vector3(0, 1, 0), color);
+            this.beginDungeonWall(geom, uv, 2, new n.Vector3(0, 1, 0), color);
             geom.current().x = origoX + u; geom.current().y = origoY + u; geom.current().z = origoZ - u;
-            geom.commitVertex();
+            this.commitVertex(geom); 
         }
 
         if(direction == "south") {
-            this.beginDungeonWall(geom, 0, new n.Vector3(0, 0, 1), color);
+            this.beginDungeonWall(geom, uv, 0, new n.Vector3(0, 0, 1), color);
             geom.current().x = origoX; geom.current().y = origoY; geom.current().z = origoZ;
-            geom.commitVertex();
+            this.commitVertex(geom); 
 
-            this.beginDungeonWall(geom, 1, new n.Vector3(0, 0, 1), color);
+            this.beginDungeonWall(geom, uv, 1, new n.Vector3(0, 0, 1), color);
             geom.current().x = origoX + u; geom.current().y = origoY; geom.current().z = origoZ;
-            geom.commitVertex();
+            this.commitVertex(geom); 
 
-            this.beginDungeonWall(geom, 3, new n.Vector3(0, 0, 1), color);
+            this.beginDungeonWall(geom, uv, 3, new n.Vector3(0, 0, 1), color);
             geom.current().x = origoX; geom.current().y = origoY + u; geom.current().z = origoZ;
-            geom.commitVertex();
+            this.commitVertex(geom); 
 
-            this.beginDungeonWall(geom, 1, new n.Vector3(0, 0, 1), color);
+            this.beginDungeonWall(geom, uv, 1, new n.Vector3(0, 0, 1), color);
             geom.current().x = origoX + u; geom.current().y = origoY; geom.current().z = origoZ;
-            geom.commitVertex(); 
+            this.commitVertex(geom); 
  
-            this.beginDungeonWall(geom, 2, new n.Vector3(0, 0, 1), color);
+            this.beginDungeonWall(geom, uv, 2, new n.Vector3(0, 0, 1), color);
             geom.current().x = origoX + u; geom.current().y = origoY + u; geom.current().z = origoZ;
-            geom.commitVertex();
+            this.commitVertex(geom); 
       
-            this.beginDungeonWall(geom, 3, new n.Vector3(0, 0, 1), color);
+            this.beginDungeonWall(geom, uv, 3, new n.Vector3(0, 0, 1), color);
             geom.current().x = origoX; geom.current().y = origoY + u; geom.current().z = origoZ;
-            geom.commitVertex();
+            this.commitVertex(geom); 
         }
 
         if(direction == "east") {
-            this.beginDungeonWall(geom, 0, new n.Vector3(1, 0, 0), color);
+            this.beginDungeonWall(geom, uv, 0, new n.Vector3(1, 0, 0), color);
             geom.current().x = origoX + u; geom.current().y = origoY; geom.current().z = origoZ;
-            geom.commitVertex();
+            this.commitVertex(geom); 
 
-            this.beginDungeonWall(geom, 1, new n.Vector3(1, 0, 0), color);
+            this.beginDungeonWall(geom, uv, 1, new n.Vector3(1, 0, 0), color);
             geom.current().x = origoX + u; geom.current().y = origoY; geom.current().z = origoZ - u;
-            geom.commitVertex();
+            this.commitVertex(geom); 
 
-            this.beginDungeonWall(geom, 3, new n.Vector3(1, 0, 0), color);
+            this.beginDungeonWall(geom, uv, 3, new n.Vector3(1, 0, 0), color);
             geom.current().x = origoX + u; geom.current().y = origoY + u; geom.current().z = origoZ;
-            geom.commitVertex();
+            this.commitVertex(geom); 
 
-            this.beginDungeonWall(geom, 1, new n.Vector3(1, 0, 0), color);
+            this.beginDungeonWall(geom, uv, 1, new n.Vector3(1, 0, 0), color);
             geom.current().x = origoX + u; geom.current().y = origoY; geom.current().z = origoZ - u;
-            geom.commitVertex(); 
+            this.commitVertex(geom); 
  
-            this.beginDungeonWall(geom, 2, new n.Vector3(1, 0, 0), color);
+            this.beginDungeonWall(geom, uv, 2, new n.Vector3(1, 0, 0), color);
             geom.current().x = origoX + u; geom.current().y = origoY + u; geom.current().z = origoZ - u;
-            geom.commitVertex();
+            this.commitVertex(geom); 
       
-            this.beginDungeonWall(geom, 3, new n.Vector3(1, 0, 0), color);
+            this.beginDungeonWall(geom, uv, 3, new n.Vector3(1, 0, 0), color);
             geom.current().x = origoX + u; geom.current().y = origoY + u; geom.current().z = origoZ;
-            geom.commitVertex();
+            this.commitVertex(geom); 
         }
 
         if(direction == "west") {
-            this.beginDungeonWall(geom, 0, new n.Vector3(-1, 0, 0), color);
+            this.beginDungeonWall(geom, uv, 0, new n.Vector3(-1, 0, 0), color);
             geom.current().x = origoX; geom.current().y = origoY; geom.current().z = origoZ - u;
-            geom.commitVertex();
+            this.commitVertex(geom); 
 
-            this.beginDungeonWall(geom, 1, new n.Vector3(-1, 0, 0), color);
+            this.beginDungeonWall(geom, uv, 1, new n.Vector3(-1, 0, 0), color);
             geom.current().x = origoX; geom.current().y = origoY; geom.current().z = origoZ;
-            geom.commitVertex();
+            this.commitVertex(geom); 
 
-            this.beginDungeonWall(geom, 3, new n.Vector3(-1, 0, 0), color);
+            this.beginDungeonWall(geom, uv, 3, new n.Vector3(-1, 0, 0), color);
             geom.current().x = origoX; geom.current().y = origoY + u; geom.current().z = origoZ - u;
-            geom.commitVertex();
+            this.commitVertex(geom); 
 
-            this.beginDungeonWall(geom, 1, new n.Vector3(-1, 0, 0), color);
+            this.beginDungeonWall(geom, uv, 1, new n.Vector3(-1, 0, 0), color);
             geom.current().x = origoX; geom.current().y = origoY; geom.current().z = origoZ;
-            geom.commitVertex();
+            this.commitVertex(geom); 
   
-            this.beginDungeonWall(geom, 2, new n.Vector3(-1, 0, 0), color);
+            this.beginDungeonWall(geom, uv, 2, new n.Vector3(-1, 0, 0), color);
             geom.current().x = origoX; geom.current().y = origoY + u; geom.current().z = origoZ;
-            geom.commitVertex();
+            this.commitVertex(geom); 
 
-            this.beginDungeonWall(geom, 3, new n.Vector3(-1, 0, 0), color);
+            this.beginDungeonWall(geom, uv, 3, new n.Vector3(-1, 0, 0), color);
             geom.current().x = origoX; geom.current().y = origoY + u; geom.current().z = origoZ - u;
-            geom.commitVertex();
+            this.commitVertex(geom); 
         }
 
         if(direction == "north") {
-            this.beginDungeonWall(geom, 0, new n.Vector3(0, 0, -1), color);
+            this.beginDungeonWall(geom, uv, 0, new n.Vector3(0, 0, -1), color);
             geom.current().x = origoX + u; geom.current().y = origoY; geom.current().z = origoZ - u;
-            geom.commitVertex();
+            this.commitVertex(geom); 
 
-            this.beginDungeonWall(geom, 1, new n.Vector3(0, 0, -1), color);
+            this.beginDungeonWall(geom, uv, 1, new n.Vector3(0, 0, -1), color);
             geom.current().x = origoX; geom.current().y = origoY; geom.current().z = origoZ - u;
-            geom.commitVertex();
+            this.commitVertex(geom); 
 
-            this.beginDungeonWall(geom, 3, new n.Vector3(0, 0, -1), color);
+            this.beginDungeonWall(geom, uv, 3, new n.Vector3(0, 0, -1), color);
             geom.current().x = origoX + u; geom.current().y = origoY + u; geom.current().z = origoZ - u;
-            geom.commitVertex();
+            this.commitVertex(geom); 
 
-            this.beginDungeonWall(geom, 1, new n.Vector3(0, 0, -1), color);
+            this.beginDungeonWall(geom, uv, 1, new n.Vector3(0, 0, -1), color);
             geom.current().x = origoX; geom.current().y = origoY; geom.current().z = origoZ - u;
-            geom.commitVertex();
+            this.commitVertex(geom); 
 
-            this.beginDungeonWall(geom, 2, new n.Vector3(0, 0, -1), color);
+            this.beginDungeonWall(geom, uv, 2, new n.Vector3(0, 0, -1), color);
             geom.current().x = origoX; geom.current().y = origoY + u; geom.current().z = origoZ - u;
-            geom.commitVertex();
+            this.commitVertex(geom); 
 
-            this.beginDungeonWall(geom, 3, new n.Vector3(0, 0, -1), color);
+            this.beginDungeonWall(geom, uv, 3, new n.Vector3(0, 0, -1), color);
             geom.current().x = origoX + u; geom.current().y = origoY + u; geom.current().z = origoZ - u;
-            geom.commitVertex();
+            this.commitVertex(geom); 
         }
     }
  
-    public static labyrinthToGeometry(map: n.BitmapRGBA): n.Geometry {
+    public labyrinthToGeometry(map: n.BitmapRGBA): n.Geometry {
         let geom = new n.GeometryBuilder(n.GeometryFormat.xyzNxnynzUvRgba);
 
         for(let y = 0; y < map.height; y++) { 
@@ -306,14 +337,14 @@ export class Kreator {
         return geom.createGeometry();
     }
 
-    public static getDungeonBlockCenter(x: number, y: number): n.Vector3 {
+    public getDungeonBlockCenter(x: number, y: number): n.Vector3 {
         return new n.Vector3(  
             x * this.dungeonUnit + this.dungeonUnit / 2, 
             this.dungeonUnit * 0.5,  
             -y * this.dungeonUnit - this.dungeonUnit / 2);
     }
 
-    public static getDungeonRandomEmptyBlock(map: n.BitmapRGBA): n.Vector2 {
+    public getDungeonRandomEmptyBlock(map: n.BitmapRGBA): n.Vector2 {
         let x = 0, y = 0;
         while(true) {
             x = Math.floor(Math.random() * map.width);
@@ -322,4 +353,5 @@ export class Kreator {
         }  
         return new n.Vector2(x, y);
     }
+
 }

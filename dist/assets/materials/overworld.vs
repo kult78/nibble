@@ -19,11 +19,13 @@ uniform bool u_wind_enable;
 uniform float u_wind_strength;
 
 uniform vec4 u_scene_albedo;
+uniform float u_camera_near;
+uniform float u_camera_far; 
+
+uniform float u_time;
 
 uniform vec3 u_sun_direction;
 uniform vec4 u_sun_color;
-
-uniform float u_time;
 
 void main() {
     // Transform vertex position to world space
@@ -43,7 +45,7 @@ void main() {
     v_nxnynz = normalize((u_normal_mtx * vec4(a_nxnynz, 0.0)).xyz);
 
     // Compute depth for fog effects
-    v_depth = gl_Position.z / gl_Position.w;
+    v_depth = -viewPos.z;
 
     // Compute diffuse lighting
     float diffuse = max(dot(v_nxnynz, normalize(-u_sun_direction)), 0.0);

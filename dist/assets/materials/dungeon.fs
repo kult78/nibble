@@ -10,8 +10,6 @@ uniform sampler2D u_tex0;
 
 uniform bool u_fog_enable;
 uniform vec4 u_fog_color;
-uniform float u_fog_start;
-uniform float u_fog_end;
 uniform float u_fog_density;
 
 float upscale(float x, float factor) {

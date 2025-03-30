@@ -162,8 +162,6 @@ export class ShaderSetup {
                 env.gl.uniform1i(this.u_fog_enable, 0); 
     }
     public set_u_fog_color(color: Color) { if(this.u_fog_color != null) env.gl.uniform4fv(this.u_fog_color, [color.r, color.g, color.b, color.a]); }
-    public set_u_fog_start(dist: number) { if(this.u_fog_color != null) env.gl.uniform1f(this.u_fog_start, dist); }
-    public set_u_fog_end(dist: number) { if(this.u_fog_color != null) env.gl.uniform1f(this.u_fog_end, dist); }
     public set_u_fog_density(density: number) { if(this.u_fog_density != null) env.gl.uniform1f(this.u_fog_density, density); }
 
     // --- wind
@@ -204,8 +202,6 @@ export class ShaderSetup {
     
     public u_fog_enable : WebGLUniformLocation | null = null;
     public u_fog_color : WebGLUniformLocation | null = null;
-    public u_fog_start : WebGLUniformLocation | null = null;
-    public u_fog_end : WebGLUniformLocation | null = null;
     public u_fog_density : WebGLUniformLocation | null = null;
     
     public u_wind_enable : WebGLUniformLocation | null = null;
@@ -235,8 +231,6 @@ export class ShaderSetup {
 
         this.u_fog_enable = env.gl.getUniformLocation(this.program, "u_fog_enable");
         this.u_fog_color = env.gl.getUniformLocation(this.program, "u_fog_color");
-        this.u_fog_start = env.gl.getUniformLocation(this.program, "u_fog_start");
-        this.u_fog_end = env.gl.getUniformLocation(this.program, "u_fog_end");
         this.u_fog_density = env.gl.getUniformLocation(this.program, "u_fog_density");
 
         this.u_wind_enable = env.gl.getUniformLocation(this.program, "u_wind_enable");

@@ -43,7 +43,7 @@ export function warning(text: string, channel: string = "") {
         console.warn(s);
     }
     logEventHandler(Level.Warning, text, channel);
-}
+} 
 
 // log error (text, channel)
 export function error(text: string, channel: string = "") {

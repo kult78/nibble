@@ -56,9 +56,11 @@ export class Overworld extends EventAware {
     public tickEvent(time: number, frameCounter: number): void {
         this.time = time;
 
-        if(this.scene) 
+        if(this.scene) { 
             this.scene.tickEvent(time, frameCounter);
-    }
+            this.scene.fogDensity =  0.02 + (1 + Math.sin(time / 5000)) / 30;   
+        }
+    } 
 
     private preRender() {
         if(this.generateScene) {

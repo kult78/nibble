@@ -4,7 +4,7 @@ import * as global from "./Global.js"
 
 import { Scene3d } from "./Scene3d.js";
 import { Entity, RenderComponent3d, CameraComponent, TransformationComponent } from "./Entity.js";
-import { Kreator } from "./Kreator.js"
+import { Kreator, KreatorOfDungeon } from "./Kreator.js"
 import { EventAware } from "./Events.js";
 import { Labyrinth } from "./Labyrinth.js";
 
@@ -16,6 +16,7 @@ export class Dungeon extends EventAware {
 
     private scene: Scene3d | null = null;
     private labyrinth: Labyrinth | null = null;
+    private kreator: KreatorOfDungeon = new KreatorOfDungeon();
 
     public setLabyrinth(labyrinth: Labyrinth) {
         this.labyrinth = labyrinth;
@@ -30,6 +31,7 @@ export class Dungeon extends EventAware {
         n.requestResourceWithType("assets/gfx/chess_2x2.png", n.ResourceType.Image);
         n.requestResourceWithType("assets/gfx/stone.png", n.ResourceType.Image);
         n.requestResourceWithType("assets/gfx/sprites0.png", n.ResourceType.Image);        
+        n.requestResourceWithType("assets/gfx/dungeon_atlas.png", n.ResourceType.Image);        
     }
  
     private turnLeftDown: boolean = false;
@@ -56,7 +58,7 @@ export class Dungeon extends EventAware {
             let camEntity: Entity = new Entity().setName("default_camera");
             camEntity.addNewComponent<TransformationComponent>(TransformationComponent);
          
-            var logicalPos = Kreator.getDungeonRandomEmptyBlock(this.labyrinth.getBitmap());
+            var logicalPos = this.kreator.getDungeonRandomEmptyBlock(this.labyrinth.getBitmap());
             this.logicalX = logicalPos.x;
             this.logicalY = logicalPos.y;
 
@@ -69,14 +71,14 @@ export class Dungeon extends EventAware {
             cameraComponent.camera.fov = 100.0;
             this.scene.addEntity(camEntity);
    
-            let tex = "assets/gfx/stone.png";
+            let tex = "assets/gfx/dungeon_atlas.png";
             let geomEntity = new Entity().setName("floor");     
             geomEntity.addNewComponent<TransformationComponent>(TransformationComponent)
                 .setScale(1.0, 1.0, 1.0)
                 .setPosition(0, 0, 0)
                 .setYawPitchRoll(0, 0, 0);
             geomEntity.addNewComponent<RenderComponent3d>(RenderComponent3d)
-                .setGeometry(Kreator.labyrinthToGeometry(this.labyrinth.getBitmap()))
+                .setGeometry(this.kreator.labyrinthToGeometry(this.labyrinth.getBitmap()))
                 .setMaterial("dungeon")
                 .setTexture(tex);
             this.scene.addEntity(geomEntity);
@@ -100,8 +102,8 @@ export class Dungeon extends EventAware {
 
     public tickEvent(time: number, frameCounter: number): void {
         this.time = time;
- 
-        if(this.scene) {
+  
+        if(this.scene) { 
 
             this.scene.fogStart = (1 + Math.sin(time / 1000));
             this.scene.fogEnd = 1;
@@ -113,15 +115,15 @@ export class Dungeon extends EventAware {
             if(cameraComponent) {
 
                 // moving
-                this.cameraPos = Kreator.getDungeonBlockCenter(this.logicalX, this.logicalY);
+                this.cameraPos = this.kreator.getDungeonBlockCenter(this.logicalX, this.logicalY);
                 if(this.cameraMoving != 0) {
-                    let targetPos = Kreator.getDungeonBlockCenter(this.logicalTargetX, this.logicalTargetY);
+                    let targetPos = this.kreator.getDungeonBlockCenter(this.logicalTargetX, this.logicalTargetY);
                     let forwardRatio = (time - this.cameraMovingSince) / 500;
                     if(forwardRatio > 1) {
                         this.cameraMoving = 0;
                         this.logicalX = this.logicalTargetX;
                         this.logicalY = this.logicalTargetY;
-                        this.cameraPos = Kreator.getDungeonBlockCenter(this.logicalX, this.logicalY);
+                        this.cameraPos = this.kreator.getDungeonBlockCenter(this.logicalX, this.logicalY);
                     } else {
                         this.cameraPos = n.Algebra.lerp(this.cameraPos, targetPos, forwardRatio);
                         //this.cameraPos.y += (0.5 + Math.sin(this.cameraPos.x + this.cameraPos.y)) / 10;
@@ -140,7 +142,7 @@ export class Dungeon extends EventAware {
 
                     if(this.cameraYawDeg % 90 === 0) {
                         this.cameraTurning = 0;
-                        this.logicalOrientation = Math.floor(this.cameraYawDeg / 90);
+                        this.logicalOrientation = Math.floor(this.cameraYawDeg / 90); 
                         console.log("Looking " + this.logicalOrientation);
                     }                        
                 } 
