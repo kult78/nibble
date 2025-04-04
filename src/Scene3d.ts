@@ -55,7 +55,7 @@ export class Scene3d extends EventAware {
                 shader.set_u_time(time / 1000); 
                 shader.set_u_fbres(n.renderWidth, n.renderHeight);
 
-                // --- 
+                // ---
  
                 if(this.fogEnable == false) 
                     shader.set_u_fog_enable(false);

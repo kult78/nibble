@@ -58,6 +58,7 @@ export class Application extends EventAware {
 
         n.setRenderTarget(null);
 
+        this.labyrinthImage.setDirty();
         this.labyrinthImage.render();
     }
 
@@ -76,7 +77,8 @@ export class Application extends EventAware {
 
             let labyrinth = new Labyrinth(32, 32);
             this.dungeon.setLabyrinth(labyrinth);
-            this.labyrinthImage = new ProceduralTextureImage(labyrinth.getBitmap().width, labyrinth.getBitmap().height, 3)
+            this.labyrinthImage = new ProceduralTextureImage(labyrinth.getBitmap().width, labyrinth.getBitmap().height, 8)
+            //this.labyrinthImage.getBitmap().cloneFrom(labyrinth.getBitmap());
             this.labyrinthImage.getBitmap().cloneFrom(labyrinth.getBitmap()); 
         }
     }

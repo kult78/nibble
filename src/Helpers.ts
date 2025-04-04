@@ -41,7 +41,7 @@
              this.texture = null;
          }
      }
-         
+          
      public render() {
          if(this.texture == null) {
              this.texture = n.createTexture(this.textureUid, this.bitmap);

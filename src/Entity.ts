@@ -104,7 +104,7 @@ export class Entity {
 
     public addNewComponent<T extends EntityComponent>(ComponentType: new () => T): T {
         const component = new ComponentType();
-        this.components.push(component);
+        this.components.push(component); 
 
         if(component instanceof RenderComponent3d) {
             this.renderable = component as RenderComponent3d;

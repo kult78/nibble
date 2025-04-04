@@ -61,6 +61,8 @@ export class Dungeon extends EventAware {
             var logicalPos = this.kreator.getDungeonRandomEmptyBlock(this.labyrinth.getBitmap());
             this.logicalX = logicalPos.x;
             this.logicalY = logicalPos.y;
+   
+            //this.labyrinth.getBitmap().setPixel(this.logicalX, this.logicalY, 0xFF0000FF);
 
             let cameraComponent = camEntity.addNewComponent<CameraComponent>(CameraComponent);
             cameraComponent.camera.mode = n.CameraMode.Pypru;
@@ -192,11 +194,11 @@ export class Dungeon extends EventAware {
 
                 cameraComponent.camera.yaw = this.cameraYawDeg * 0.0174532925;  
                 cameraComponent.camera.yaw += (Math.sin(time / 2000) + 1) / 30;
-                cameraComponent.camera.fov = 90 + (Math.cos(time / 1000) + 1);                
+                //cameraComponent.camera.fov = 90 + (Math.cos(time / 1000) + 1);                
             }
         }
     } 
-
+ 
     private generateCirclePoint(time: number, radius: number): n.Vector3 {
         const angle = n.Algebra.deg2rad(time);
         const x = radius * Math.cos(angle);
