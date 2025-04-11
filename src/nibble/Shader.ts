@@ -3,15 +3,25 @@ import * as log from "./Logging.js";
 import * as env from "./WebEnv.js";
 import * as resources from "./Resources.js";
 import { FatalError, Color, Vector3 } from "./Common.js";
+import { SystemEventHandler } from "./Common.js";
 
 export enum ShaderType { Vertex, Fragment }
 
+@SystemEventHandler
 export class Shader {
     constructor(id: string, type: ShaderType, source: string) {
         this.id = id;
         this.type = type;
         this.source = source;
         this.recompile();
+    }
+
+    public systemEvent(eventType: string, ...args: any) {
+        if(eventType == "glContextRelease") {
+        } else if(eventType == "glContextConstruct") {
+        }
+
+        console.log("Shader system event: " + eventType);
     }
 
     private recompile() {
@@ -58,12 +68,23 @@ export function getShader(id: string): Shader | null {
 
 // ----------
 
+@SystemEventHandler
 export class Program {
     constructor(vertexShaderId: string, fragmenShaderId: string) {
         this.vertexShaderId = vertexShaderId;
         this.fragmentShaderId = fragmenShaderId;
         this.relink();
     } 
+
+    public systemEvent(eventType: string, ...args: any) {
+        if(eventType == "glContextRelease") {
+            //this.dispose();
+        } else if(eventType == "glContextConstruct") {
+            //this.recreate();
+        }
+
+        console.log("Program system event: " + eventType);
+    }
 
     private relink() {
         let gl: WebGL2RenderingContext = env.gl;

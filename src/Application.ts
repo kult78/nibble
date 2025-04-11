@@ -15,12 +15,21 @@ import { Overworld } from "./Overworld.js";
 import { Dungeon } from "./Dungeon.js";
 import { Labyrinth } from "./Labyrinth.js";
 
+import { SystemEventHandlerRegistry } from "./nibble/Common.js";
+ 
+@n.SystemEventHandler
 export class Application extends EventAware {
 
     public constructor() { 
         super();
 
         Events.singleton.eventAwares.push(this);
+    }
+
+    public systemEvent(eventType: string, ...args: any) {
+        if(eventType == "glContextRelease") {
+        } else if(eventType == "glContextConstruct") {
+        }
     }
 
     public applicationStartupEvent() { 
@@ -35,7 +44,7 @@ export class Application extends EventAware {
 
         this.dungeon.applicationStartupEvent();
         this.overworld.applicationStartupEvent();
-    }
+    } 
 
     public tickEvent(time: number, frameCounter: number) {
         this.time = time;
@@ -172,10 +181,13 @@ export class Application extends EventAware {
  
             if(command == "panic") {
                 throw new Error("This is a situation of self-decided PANIC!!");
-            }
+            } 
 
             let commandParts = command.split(" ");
- 
+
+            if(commandParts[0] == "gldown") { SystemEventHandlerRegistry.raiseSystemEvent("glContextLost"); return "OpenGL is dead. :("; }
+            if(commandParts[0] == "glup") { SystemEventHandlerRegistry.raiseSystemEvent("glContextRestored"); return "OpenGL is up again."; }
+
             if(commandParts[0] == "ires") {
                 if(commandParts.length == 1) {
                     return `"ires 0-${global.internalResList.length - 1}" ￩ to change internal render resolution`;

@@ -3,13 +3,15 @@
 {
     "compilerOptions": {
       "target": "es6",
+      "lib": ["es2021", "dom"],
       "module": "esnext",
       "moduleResolution": "node",
       "strict": true,
       "outDir": "./dist/src",
       "rootDir": "./src",
       "allowJs": true,
-      "types": ["node"]
+      "types": ["node"],
+      "experimentalDecorators": true
     },
     "include": 
     [

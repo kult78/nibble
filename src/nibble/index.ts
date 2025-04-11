@@ -16,7 +16,9 @@ export {
     throwUninplemented,
     throwShouldNotRun,
 
-    randomColor, randomColor3, randomColor4
+    randomColor, randomColor3, randomColor4,
+
+    SystemEventHandler,
 } from "./Common.js"
 
 export { TileProps }  from "./TileProps.js"

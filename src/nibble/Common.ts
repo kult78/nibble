@@ -1,4 +1,42 @@
 
+// ----------------------------------------------------------------------
+
+export type SystemEventHandlerCapable = {
+    systemEvent: (eventType: string, ...args: any) => void;
+};
+
+export class SystemEventHandlerRegistry {
+
+    private static instances = new Set<WeakRef<SystemEventHandlerCapable>>();
+
+    static register(instance: SystemEventHandlerCapable) {
+        this.instances.add(new WeakRef(instance));
+    }
+
+    static raiseSystemEvent(eventType: string, ...args: any) {
+        for (const ref of this.instances) {
+            const instance = ref.deref();
+            if (instance) {
+                instance.systemEvent(eventType, ...args);
+            }
+        }
+
+        this.instances = new Set([...this.instances].filter(ref => ref.deref() !== undefined));
+    }
+}
+
+export function SystemEventHandler<T extends new (...args: any[]) => SystemEventHandlerCapable>(constructor: T): T {
+    return class extends constructor {
+        constructor(...args: any[]) {
+            super(...args);
+            SystemEventHandlerRegistry.register(this); // TS knows 'this' is Disposable
+        }
+    };
+}
+
+// -------------------------------
+
+
 export class Vertex {
     
     static from2d(x: number, y: number, u: number, v: number, c: Color): Vertex {
