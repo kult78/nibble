@@ -11,13 +11,13 @@ import { Font } from "./Font.js";
 import { Text } from "./Text.js";
 import { ProceduralTextureImage } from "./Helpers.js";
 import { EventAware, Events } from "./Events.js";
+import * as e from "./Events.js"
 import { Overworld } from "./Overworld.js";
 import { Dungeon } from "./Dungeon.js";
 import { Labyrinth } from "./Labyrinth.js";
 
-import { SystemEventHandlerRegistry } from "./nibble/Common.js";
- 
-@n.SystemEventHandler
+@n.RegisterEventHandler(n.SystemEventRegistry)
+@n.RegisterEventHandler(e.GameEventRegistry)
 export class Application extends EventAware {
 
     public constructor() { 
@@ -26,9 +26,16 @@ export class Application extends EventAware {
         Events.singleton.eventAwares.push(this);
     }
 
-    public systemEvent(eventType: string, ...args: any) {
-        if(eventType == "glContextRelease") {
-        } else if(eventType == "glContextConstruct") {
+    handleEvent(eventType: symbol, ...args: any[]): void {
+        if (eventType === n.SYSTEM_EVENT_GL_UP) {
+            console.log("Handling glUp", args);
+        } else if (eventType === n.SYSTEM_EVENT_GL_DOWN) {
+            console.log("Handling glDown", args);
+        } else if (eventType === e.GAME_EVENT_RENDER) {
+            console.log("Handling render", args);
+        }
+        else if (eventType === e.GAME_EVENT_PRERENDER) {
+            console.log("Handling prerender", args);
         }
     }
 
@@ -53,6 +60,10 @@ export class Application extends EventAware {
     }
 
     public renderEvent() {
+
+        e.GameEventRegistry.raise(e.GAME_EVENT_PRERENDER);
+        e.GameEventRegistry.raise(e.GAME_EVENT_RENDER);
+        
         this.preRender(); 
 
         // render overworld
@@ -184,9 +195,9 @@ export class Application extends EventAware {
             } 
 
             let commandParts = command.split(" ");
-
-            if(commandParts[0] == "gldown") { SystemEventHandlerRegistry.raiseSystemEvent("glContextLost"); return "OpenGL is dead. :("; }
-            if(commandParts[0] == "glup") { SystemEventHandlerRegistry.raiseSystemEvent("glContextRestored"); return "OpenGL is up again."; }
+ 
+            if(commandParts[0] == "gldown") { n.SystemEventRegistry.raise(n.SYSTEM_EVENT_GL_DOWN); return "OpenGL is dead. :("; }
+            if(commandParts[0] == "glup") { n.SystemEventRegistry.raise(n.SYSTEM_EVENT_GL_UP); return "OpenGL is dead. :("; }
 
             if(commandParts[0] == "ires") {
                 if(commandParts.length == 1) {

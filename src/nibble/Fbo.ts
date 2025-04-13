@@ -4,24 +4,12 @@ import * as env from "./WebEnv.js";
 import { Material, getMaterial } from "./Material.js"
 import { Box } from "./Geometry.js"
 import { FatalError, UvRect } from "./Common.js";
-import { SystemEventHandler } from "./Common.js";
 
-@SystemEventHandler
 export class RenderTarget {
     constructor(width: number, height: number) {
         this.width = width;
         this.height = height;
         this.construct();
-    }
-
-    public systemEvent(eventType: string, ...args: any) {
-        if(eventType == "glContextRelease") {
-            //this.dispose();
-        } else if(eventType == "glContextConstruct") {
-            //this.recreate();
-        }
-
-        console.log("Fbo system event: " + eventType);
     }
 
     private construct() {

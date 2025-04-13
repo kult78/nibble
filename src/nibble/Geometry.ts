@@ -4,7 +4,6 @@ import * as tex from "./Texture.js"
 import * as env from "./WebEnv.js"
 import * as c from "./Common.js";
 import { Program } from "./Shader.js";
-import { SystemEventHandler } from "./Common.js";
 
 export enum GeometryAlign {
     None = 0,
@@ -23,7 +22,6 @@ function getVertexFloatSize(format: GeometryFormat): number {
     throw new c.FatalError(`Unknown vertex format: ${format}`);
 }
 
-@SystemEventHandler
 export class Geometry {
     constructor(format: GeometryFormat, data: number[], align: GeometryAlign = GeometryAlign.None) {
         this.format = format;
@@ -42,16 +40,6 @@ export class Geometry {
         } else {
             throw new c.FatalError(`Not proper Geometry constructor vertex format: ${format}`);
         }
-    }
-
-    public systemEvent(eventType: string, ...args: any) {
-        if(eventType == "glContextRelease") {
-            //this.dispose();
-        } else if(eventType == "glContextConstruct") {
-            //this.recreate();
-        }
-
-        console.log("Geometry system event: " + eventType);
     }
 
     private alignGeometry(vertices: number[], align: GeometryAlign) {

@@ -1,41 +1,117 @@
 
-// ----------------------------------------------------------------------
 
-export type SystemEventHandlerCapable = {
-    systemEvent: (eventType: string, ...args: any) => void;
-};
+export const SYSTEM_EVENT_GL_UP = Symbol("glUp");
+export const SYSTEM_EVENT_GL_DOWN = Symbol("glDown");
 
-export class SystemEventHandlerRegistry {
+export type SystemEventType = typeof SYSTEM_EVENT_GL_UP | typeof SYSTEM_EVENT_GL_DOWN;
 
-    private static instances = new Set<WeakRef<SystemEventHandlerCapable>>();
+export class EventRegistry {
+    private instances = new Set<WeakRef<{ handleEvent(eventType: symbol, ...args: any[]): void }>>();
 
-    static register(instance: SystemEventHandlerCapable) {
+    register(instance: { handleEvent(eventType: symbol, ...args: any[]): void }) {
         this.instances.add(new WeakRef(instance));
     }
 
-    static raiseSystemEvent(eventType: string, ...args: any) {
+    raise(eventType: symbol, ...args: any[]) {
         for (const ref of this.instances) {
             const instance = ref.deref();
             if (instance) {
-                instance.systemEvent(eventType, ...args);
+                instance.handleEvent(eventType, ...args);
+            } else {
+                this.instances.delete(ref);
             }
         }
-
-        this.instances = new Set([...this.instances].filter(ref => ref.deref() !== undefined));
     }
 }
 
-export function SystemEventHandler<T extends new (...args: any[]) => SystemEventHandlerCapable>(constructor: T): T {
-    return class extends constructor {
-        constructor(...args: any[]) {
-            super(...args);
-            SystemEventHandlerRegistry.register(this); // TS knows 'this' is Disposable
-        }
+export function RegisterEventHandler(
+    registry: EventRegistry
+): <T extends new (...args: any[]) => { handleEvent(eventType: symbol, ...args: any[]): void }>(constructor: T) => T {
+    return function <T extends new (...args: any[]) => { handleEvent(eventType: symbol, ...args: any[]): void }>(constructor: T): T {
+        return class extends constructor {
+            constructor(...args: any[]) {
+                super(...args);
+                registry.register(this);
+            }
+        };
     };
 }
 
-// -------------------------------
+export const SystemEventRegistry = new EventRegistry();
 
+// ---------- ---------- ---------- ---------- ---------- ---------- ----------
+/*
+export interface EventHandler<TEventType extends string = string> {
+    handleEvent(eventType: TEventType, ...args: any[]): void;
+}
+
+export class EventHandlerRegistry<T extends EventHandler<any>> {
+
+    private instances = new Set<WeakRef<T>>();
+
+    register(instance: T) {
+        this.instances.add(new WeakRef(instance));
+    }
+
+    raise(eventType: string, ...args: any[]) {
+        for (const ref of this.instances) {
+            const instance = ref.deref();
+            if (instance) {
+                instance.handleEvent(eventType, ...args);
+            } else {
+                this.instances.delete(ref);
+            }
+        }
+    }
+}
+
+// ---------------
+
+export interface SystemEventCapable extends EventHandler<"glUp" | "glDown"> {}
+
+//export interface RenderEventCapable extends EventHandler<"draw" | 'frame'> {}
+//export interface InputEventCapable extends EventHandler<"keyDown" | "keyUp" | "mouseMove"> {}
+
+// ---------------
+
+export const SystemEventRegistry = new EventHandlerRegistry<SystemEventCapable>();
+//export const RenderEventRegistry = new EventHandlerRegistry<RenderEventCapable>();
+//export const InputEventRegistry = new EventHandlerRegistry<InputEventCapable>();
+
+// ---------------
+
+export function RegisterEvenHandler<T extends new (...args: any[]) => EventHandler<any>>(
+    registry: EventHandlerRegistry<InstanceType<T>>
+): (constructor: T) => void {
+    return (constructor: T) => {
+        const WrappedClass = class extends constructor {
+            constructor(...args: any[]) {
+                super(...args);
+                registry.register(this as InstanceType<T>);
+            }
+        };
+        return WrappedClass as unknown as T;
+    };
+}
+*/
+// ---------------
+
+/*
+@RegisterEvenHandler(SystemEventRegistry)
+class MySystemThing implements SystemEventCapable {
+    handleEvent(eventType: string, ...args: any[]): void {
+        console.log('System Event:', eventType, args);
+    }
+}
+
+@RegisterEvenHandler(RenderEventRegistry)
+class MyRenderer implements RenderEventCapable {
+    handleEvent(eventType: string, ...args: any[]): void {
+        console.log('Render Event:', eventType);
+    }
+}
+*/
+// ----------------------------------------------------------------------
 
 export class Vertex {
     

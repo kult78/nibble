@@ -1,4 +1,5 @@
 
+import * as n from "./nibble/index.js";
 
 export class EventAware {
 
@@ -60,72 +61,13 @@ export class Events {
 
 }
 
-// ---------- ---------- ---------- ---------- ---------- ---------- ----------
+export const GAME_EVENT_PRERENDER = Symbol("prerender");
+export const GAME_EVENT_RENDER = Symbol("render");
+export const GAME_EVENT_UPDATE = Symbol("update");
 
-export interface EventHandler<TEventType extends string = string> {
-    handleEvent(eventType: TEventType, ...args: any[]): void;
-}
+export type GameEventType = typeof GAME_EVENT_RENDER | typeof GAME_EVENT_UPDATE;
 
-export class EventHandlerRegistry<T extends EventHandler<any>> {
+export const GameEventRegistry = new n.EventRegistry();
 
-    private instances = new Set<WeakRef<T>>();
 
-    register(instance: T) {
-        this.instances.add(new WeakRef(instance));
-    }
 
-    raise(eventType: string, ...args: any[]) {
-        for (const ref of this.instances) {
-            const instance = ref.deref();
-            if (instance) {
-                instance.handleEvent(eventType, ...args);
-            } else {
-                this.instances.delete(ref);
-            }
-        }
-    }
-}
-
-// ---------------
-
-export interface SystemEventCapable extends EventHandler<'shutdown' | 'reload'> {}
-export interface RenderEventCapable extends EventHandler<'draw' | 'frame'> {}
-export interface InputEventCapable extends EventHandler<'keyDown' | 'keyUp' | 'mouseMove'> {}
-
-// ---------------
-
-export const SystemEventRegistry = new EventHandlerRegistry<SystemEventCapable>();
-export const RenderEventRegistry = new EventHandlerRegistry<RenderEventCapable>();
-export const InputEventRegistry = new EventHandlerRegistry<InputEventCapable>();
-
-// ---------------
-
-export function AutoRegister<T extends new (...args: any[]) => EventHandler<any>>(
-    registry: EventHandlerRegistry<InstanceType<T>>
-): (constructor: T) => void {
-    return (constructor: T) => {
-        const WrappedClass = class extends constructor {
-            constructor(...args: any[]) {
-                super(...args);
-                registry.register(this as InstanceType<T>);
-            }
-        };
-        return WrappedClass as unknown as T;
-    };
-}
-
-// ---------------
-
-@AutoRegister(SystemEventRegistry)
-class MySystemThing implements SystemEventCapable {
-    handleEvent(eventType: string, ...args: any[]): void {
-        console.log('System Event:', eventType, args);
-    }
-}
-
-@AutoRegister(RenderEventRegistry)
-class MyRenderer implements RenderEventCapable {
-    handleEvent(eventType: string, ...args: any[]): void {
-        console.log('Render Event:', eventType);
-    }
-}

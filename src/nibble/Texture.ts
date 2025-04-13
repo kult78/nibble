@@ -5,9 +5,7 @@ import * as env from "./WebEnv.js";
 import * as res from "./Resources.js";
 import * as tp from "./TileProps.js";
 import { FatalError } from "./Common.js";
-import { SystemEventHandler } from "./Common.js";
 
-@SystemEventHandler
 export class Texture {
 
     // this string contains the file id of the texture image file
@@ -151,16 +149,6 @@ export class Texture {
 
         this.width = imageToUse.width;
         this.height = imageToUse.height;
-    }
-
-    public systemEvent(eventType: string, ...args: any) {
-        if(eventType == "glContextRelease") {
-            this.dispose();
-        } else if(eventType == "glContextConstruct") {
-            this.recreate();
-        }
-
-        console.log("Texture system event: " + eventType);
     }
 
     public getApiTexture() { 
