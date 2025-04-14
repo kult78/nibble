@@ -31,10 +31,9 @@ export class Application extends EventAware {
             console.log("Handling glUp", args);
         } else if (eventType === n.SYSTEM_EVENT_GL_DOWN) {
             console.log("Handling glDown", args);
-        } else if (eventType === e.GAME_EVENT_RENDER) {
+        } else if (eventType === e.RENDER_EVENT_RENDER) {
             console.log("Handling render", args);
-        }
-        else if (eventType === e.GAME_EVENT_PRERENDER) {
+        } else if (eventType === e.RENDER_EVENT_PRE_RENDER) {
             console.log("Handling prerender", args);
         }
     }
@@ -54,15 +53,16 @@ export class Application extends EventAware {
     } 
 
     public tickEvent(time: number, frameCounter: number) {
-        this.time = time;
+        this.time = time; 
         this.dungeon.tickEvent(time, frameCounter);
         this.overworld.tickEvent(time, frameCounter);
     }
 
     public renderEvent() {
 
-        e.GameEventRegistry.raise(e.GAME_EVENT_PRERENDER);
-        e.GameEventRegistry.raise(e.GAME_EVENT_RENDER);
+        e.GameEventRegistry.raise(e.RENDER_EVENT_PRE_RENDER);
+        e.GameEventRegistry.raise(e.RENDER_EVENT_RENDER);
+        e.GameEventRegistry.raise(e.RENDER_EVENT_POST_RENDER);
         
         this.preRender(); 
 
@@ -80,6 +80,8 @@ export class Application extends EventAware {
 
         this.labyrinthImage.setDirty();
         this.labyrinthImage.render();
+ 
+        this.text?.render();
     }
 
     public keyEvent(down: boolean, code: string) {
@@ -167,7 +169,7 @@ export class Application extends EventAware {
             n.info(`New overworld fbo with resolution ${this.overWorldFbo.width}x${this.overWorldFbo.height}`, "tech");
             this.overworldBlitter.setMaterial("blitter");
 
-            this.dungeonFbo = new n.RenderTarget(w / 2, h / 2); 
+            this.dungeonFbo = new n.RenderTarget(w / 4, h / 4); 
             n.info(`New dungeon fbo with resolution ${this.dungeonFbo.width}x${this.dungeonFbo.height}`, "tech");
             this.dungeonBlitter.setMaterial("blitter"); 
             this.dungeonBlitter.setViewport(0.52, 0.45, 0.5 - 0.04, 0.4);

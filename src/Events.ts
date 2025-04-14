@@ -23,7 +23,7 @@ export class Events {
 
     public eventAwares: EventAware[] = [];    
 
-    public applicationStartuo() {
+    public applicationStartup() {
         this.eventAwares.forEach(object => { object.applicationStartupEvent(); });
     }
 
@@ -61,13 +61,48 @@ export class Events {
 
 }
 
-export const GAME_EVENT_PRERENDER = Symbol("prerender");
-export const GAME_EVENT_RENDER = Symbol("render");
-export const GAME_EVENT_UPDATE = Symbol("update");
+// ---
 
-export type GameEventType = typeof GAME_EVENT_RENDER | typeof GAME_EVENT_UPDATE;
+export const APP_EVENT_STARTUP = Symbol("appStartup");
+export const APP_EVENT_CLOSE = Symbol("appClose");
+export const APP_EVENT_KEY_DOWN = Symbol("appKeyDown");
+export const APP_EVENT_KEY_UP = Symbol("appKeyUp");
+
+export type AppEventType = 
+    typeof APP_EVENT_KEY_DOWN |
+    typeof APP_EVENT_KEY_UP |
+    typeof APP_EVENT_STARTUP | 
+    typeof APP_EVENT_CLOSE; 
+
+export const AppEventRegistry = new n.EventRegistry();
+
+// ---
+
+export const GAME_EVENT_UPDATE_60 = Symbol("update60");
+export const GAME_EVENT_UPDATE_SEC = Symbol("updateSec");
+
+export type GameEventType = 
+    typeof GAME_EVENT_UPDATE_60 | 
+    typeof GAME_EVENT_UPDATE_SEC; 
 
 export const GameEventRegistry = new n.EventRegistry();
+
+// ---
+
+export const RENDER_EVENT_PRE_RENDER = Symbol("renderPre");
+export const RENDER_EVENT_RENDER = Symbol("render");
+export const RENDER_EVENT_POST_RENDER = Symbol("renderPost");
+export const RENDER_EVENT_RESOLUTION = Symbol("renderResolution");
+export const RENDER_EVENT_READY_TO_RENDER = Symbol("renderReadyToRender");
+
+export type RenderEventType = 
+    typeof RENDER_EVENT_PRE_RENDER | 
+    typeof RENDER_EVENT_RENDER | 
+    typeof RENDER_EVENT_POST_RENDER | 
+    typeof RENDER_EVENT_RESOLUTION |
+    typeof RENDER_EVENT_READY_TO_RENDER; 
+
+export const RenderEventRegistry = new n.EventRegistry();
 
 
 

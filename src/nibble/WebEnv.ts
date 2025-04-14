@@ -1,6 +1,7 @@
 
 import * as log from "./Logging.js";
 import * as fbo from "./Fbo.js"
+import * as c from "./Common.js";
 import { FatalError } from "./Common.js";
 
 // ---------- event types
@@ -94,7 +95,7 @@ function timeStep(currentTime : number)
 
     lastTimeStepAt = time;
 
-    if(renderRequested){
+    if(renderRequested && gl.isContextLost() == false) {
         renderRequested = false;
          
         setRenderTarget(null);
@@ -173,8 +174,21 @@ export function setOglCanvas(id: string): boolean {
     oglCanvas.addEventListener('mousedown', handleMouseDown);
     oglCanvas.addEventListener('mouseup', handleMouseUp);
     oglCanvas.addEventListener('mousemove', handleMouseMove);
+
+    oglCanvas.addEventListener("webglcontextlost", webglContextLost);
+    oglCanvas.addEventListener("webglcontextrestored", webglContextRestored);
   
     return true; 
+}
+
+// --------- webgl context stuff
+
+function webglContextLost() {
+    c.SystemEventRegistry.raise(c.SYSTEM_EVENT_GL_DOWN);
+}
+
+function webglContextRestored() {
+    c.SystemEventRegistry.raise(c.SYSTEM_EVENT_GL_UP);
 }
 
 // --------- mouse stuff
