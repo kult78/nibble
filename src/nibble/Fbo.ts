@@ -6,9 +6,10 @@ import { Box } from "./Geometry.js"
 import { FatalError, UvRect } from "./Common.js";
 
 export class RenderTarget {
-    constructor(width: number, height: number) {
+    constructor(width: number, height: number, useTextureForDepth: boolean = false) {
         this.width = width;
         this.height = height;
+        this.useTextureForDepth = useTextureForDepth;
         this.construct();
     }
 
@@ -48,44 +49,44 @@ export class RenderTarget {
         
         // --- depth texture instead of renderbuffer (to sample Z values)
 
-        /*
-        this.depth = gl.createTexture();
-        gl.bindTexture(gl.TEXTURE_2D, this.depth);
-        
-        gl.texImage2D(
-            gl.TEXTURE_2D, 
-            0, 
-            gl.DEPTH24_STENCIL8,
-            this.width, 
-            this.height, 
-            0, 
-            gl.DEPTH_STENCIL,
-            gl.UNSIGNED_INT_24_8,
-            null
-        );
-        
-        // Texture Parameters
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-        // Attach depth texture to FBO
-        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_STENCIL_ATTACHMENT, gl.TEXTURE_2D, this.depth, 0);
-        */
-          
-        this.renderbuffer = gl.createRenderbuffer();
-        gl.bindRenderbuffer(gl.RENDERBUFFER, this.renderbuffer);
-
-        gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, this.width, this.height);
-        gl.framebufferRenderbuffer(
-            gl.FRAMEBUFFER,
-            gl.DEPTH_ATTACHMENT,
-            gl.RENDERBUFFER,
-            this.renderbuffer
-        );
-        
- 
+        if(this.useTextureForDepth == false) {
+            this.renderbuffer = gl.createRenderbuffer();
+            gl.bindRenderbuffer(gl.RENDERBUFFER, this.renderbuffer);
+    
+            gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, this.width, this.height);
+            gl.framebufferRenderbuffer(
+                gl.FRAMEBUFFER,
+                gl.DEPTH_ATTACHMENT,
+                gl.RENDERBUFFER,
+                this.renderbuffer
+            );
+        }
+        else {
+            this.depth = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D, this.depth);
+            
+            gl.texImage2D(
+                gl.TEXTURE_2D, 
+                0, 
+                gl.DEPTH24_STENCIL8,
+                this.width, 
+                this.height, 
+                0, 
+                gl.DEPTH_STENCIL,
+                gl.UNSIGNED_INT_24_8,
+                null
+            );
+            
+            // Texture Parameters
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    
+            // Attach depth texture to FBO
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_STENCIL_ATTACHMENT, gl.TEXTURE_2D, this.depth, 0);            
+        }
+                  
         if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
             throw new FatalError(`Failed to create ${this.width}x${this.height} Framebuffer`);
         } else {
@@ -138,6 +139,7 @@ export class RenderTarget {
 
     public width: number;
     public height: number;
+    public useTextureForDepth: boolean = false;
 
     public renderbuffer : WebGLRenderbuffer | null = null;
     private texture: WebGLTexture | null = null;

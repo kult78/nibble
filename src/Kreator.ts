@@ -341,7 +341,7 @@ export class KreatorOfDungeon {
         return new n.Vector3(  
             x * this.dungeonUnit + this.dungeonUnit / 2, 
             this.dungeonUnit * 0.5,  
-            -y * this.dungeonUnit - this.dungeonUnit / 2);
+            -y * this.dungeonUnit - this.dungeonUnit / 2); 
     }
 
     public getDungeonRandomEmptyBlock(map: n.BitmapRGBA): n.Vector2 {

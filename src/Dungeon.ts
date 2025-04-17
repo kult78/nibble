@@ -1,6 +1,7 @@
 
 import * as n from "./nibble/index.js";
 import * as global from "./Global.js"
+import * as evnt from "./Events.js"
 
 import { Scene3d } from "./Scene3d.js";
 import { Entity, RenderComponent3d, CameraComponent, TransformationComponent } from "./Entity.js";
@@ -8,45 +9,74 @@ import { Kreator, KreatorOfDungeon } from "./Kreator.js"
 import { EventAware } from "./Events.js";
 import { Labyrinth } from "./Labyrinth.js";
 
+@n.RegisterEventHandler(n.SystemEventRegistry)
+@n.RegisterEventHandler(evnt.GameEventRegistry)
+@n.RegisterEventHandler(evnt.AppEventRegistry)
+@n.RegisterEventHandler(evnt.RenderEventRegistry)
 export class Dungeon extends EventAware {
 
     constructor() {
         super();
     }
 
+    public handleEvent(eventType: symbol, ...args: any[]): void {
+
+        if(eventType == evnt.APP_EVENT_STARTUP) {        
+            n.requestResource("assets/materials/dungeon.fs");
+            n.requestResource("assets/materials/dungeon.vs");
+            n.requestResource("assets/materials/materials.json");
+     
+            n.requestResourceWithType("assets/gfx/chess_2x2.png", n.ResourceType.Image);
+            n.requestResourceWithType("assets/gfx/stone.png", n.ResourceType.Image);
+            n.requestResourceWithType("assets/gfx/sprites0.png", n.ResourceType.Image);        
+            n.requestResourceWithType("assets/gfx/dungeon_atlas.png", n.ResourceType.Image);        
+        }
+
+        else if(eventType == evnt.APP_EVENT_KEY) {
+            const [ down, code ] = args;
+            if(code == "w" && down) this.moveForwardDown = true;
+            if(code == "w" && !down) this.moveForwardDown = false;
+            if(code == "a" && down) this.turnLeftDown = true;
+            if(code == "a" && !down) this.turnLeftDown = false;
+            if(code == "d" && down) this.turnRightDown = true;
+            if(code == "d" && !down) this.turnRightDown = false;    
+        }
+
+        else if(eventType == evnt.GAME_EVENT_UPDATE_60) {
+            const [time, frameCounter] = args; 
+            this.update(time, frameCounter);
+        }
+
+        else if(eventType == evnt.RENDER_EVENT_READY_TO_RENDER) {
+            const [w, h] = args;
+
+            //            this.dungeonFbo = new n.RenderTarget(w / 4, h / 4); 
+            
+
+            console.log("Dungeon ready to render " + w + " " + h);
+        }
+
+        else if(eventType == evnt.RENDER_EVENT_PRE_RENDER) {
+        }
+
+        else if(eventType == evnt.RENDER_EVENT_RENDER) {
+        }
+    }
+
     private scene: Scene3d | null = null;
     private labyrinth: Labyrinth | null = null;
     private kreator: KreatorOfDungeon = new KreatorOfDungeon();
+    private fbo: n.RenderTarget | null = null;
 
     public setLabyrinth(labyrinth: Labyrinth) {
         this.labyrinth = labyrinth;
         this.scene = null;
-    }
-
-    public applicationStartupEvent() { 
-        n.requestResource("assets/materials/dungeon.fs");
-        n.requestResource("assets/materials/dungeon.vs");
-        n.requestResource("assets/materials/materials.json");
- 
-        n.requestResourceWithType("assets/gfx/chess_2x2.png", n.ResourceType.Image);
-        n.requestResourceWithType("assets/gfx/stone.png", n.ResourceType.Image);
-        n.requestResourceWithType("assets/gfx/sprites0.png", n.ResourceType.Image);        
-        n.requestResourceWithType("assets/gfx/dungeon_atlas.png", n.ResourceType.Image);        
     }
  
     private turnLeftDown: boolean = false;
     private turnRightDown: boolean = false;
     private moveForwardDown: boolean = false;
 
-    public keyEvent(down: boolean, code: string) {
-        if(code == "w" && down) this.moveForwardDown = true;
-        if(code == "w" && !down) this.moveForwardDown = false;
-        if(code == "a" && down) this.turnLeftDown = true;
-        if(code == "a" && !down) this.turnLeftDown = false;
-        if(code == "d" && down) this.turnRightDown = true;
-        if(code == "d" && !down) this.turnRightDown = false;
-    }
- 
     private preRender() { 
  
         if(this.scene == null && this.labyrinth != null) { 
@@ -102,7 +132,7 @@ export class Dungeon extends EventAware {
     private cameraMoving: number = 0;
     private cameraMovingSince: number = 0;
 
-    public tickEvent(time: number, frameCounter: number): void {
+    public update(time: number, frameCounter: number): void {
         this.time = time;
   
         if(this.scene) { 

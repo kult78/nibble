@@ -8,11 +8,42 @@ import { Kreator } from "./Kreator.js"
 import { EventAware } from "./Events.js";
 
 import { Labyrinth } from "./Labyrinth.js";
+import * as evnt from "./Events.js";
 
+@n.RegisterEventHandler(n.SystemEventRegistry)
+@n.RegisterEventHandler(evnt.GameEventRegistry)
+@n.RegisterEventHandler(evnt.AppEventRegistry)
+@n.RegisterEventHandler(evnt.RenderEventRegistry)
 export class Overworld extends EventAware {
 
     public constructor() {
         super();
+    }
+
+    public handleEvent(eventType: symbol, ...args: any[]): void {
+        if(eventType == evnt.APP_EVENT_STARTUP) {
+            n.requestResource("assets/materials/overworld.vs");
+            n.requestResource("assets/materials/overworld.fs");
+            n.requestResource("assets/materials/materials.json");
+             
+            n.requestResourceWithType("assets/gfx/pine/PineStump.obj", n.ResourceType.Text);
+            n.requestResourceWithType("assets/gfx/pine/PineStump2.obj", n.ResourceType.Text);
+            n.requestResourceWithType("assets/gfx/pine/PineTree1.obj", n.ResourceType.Text);
+            n.requestResourceWithType("assets/gfx/pine/PineTree1Snowy.obj", n.ResourceType.Text);
+            n.requestResourceWithType("assets/gfx/pine/PineTree2.obj", n.ResourceType.Text);  
+            n.requestResourceWithType("assets/gfx/pine/PineTree2Snowy.obj", n.ResourceType.Text);
+            n.requestResourceWithType("assets/gfx/pine/PineTree3.obj", n.ResourceType.Text);
+            n.requestResourceWithType("assets/gfx/pine/PineTree3Snowy.obj", n.ResourceType.Text);
+            n.requestResource("assets/gfx/pine/PineTexture.png");
+            n.requestResource("assets/gfx/pine/EvergreenTexture.png");
+            n.requestResource("assets/gfx/pine/AlienTreeTexture.png");
+        }
+    
+        if(eventType == evnt.GAME_EVENT_UPDATE_60) {
+            const [time, frameCounter] = args;
+            this.update(time, frameCounter);
+        }
+
     }
 
     private scene: Scene3d | null = null;
@@ -23,23 +54,7 @@ export class Overworld extends EventAware {
         this.scene = null;
     }
 
-    public applicationStartupEvent() { 
-        n.requestResource("assets/materials/overworld.vs");
-        n.requestResource("assets/materials/overworld.fs");
-        n.requestResource("assets/materials/materials.json");
-         
-        n.requestResourceWithType("assets/gfx/pine/PineStump.obj", n.ResourceType.Text);
-        n.requestResourceWithType("assets/gfx/pine/PineStump2.obj", n.ResourceType.Text);
-        n.requestResourceWithType("assets/gfx/pine/PineTree1.obj", n.ResourceType.Text);
-        n.requestResourceWithType("assets/gfx/pine/PineTree1Snowy.obj", n.ResourceType.Text);
-        n.requestResourceWithType("assets/gfx/pine/PineTree2.obj", n.ResourceType.Text);  
-        n.requestResourceWithType("assets/gfx/pine/PineTree2Snowy.obj", n.ResourceType.Text);
-        n.requestResourceWithType("assets/gfx/pine/PineTree3.obj", n.ResourceType.Text);
-        n.requestResourceWithType("assets/gfx/pine/PineTree3Snowy.obj", n.ResourceType.Text);
-        n.requestResource("assets/gfx/pine/PineTexture.png");
-        n.requestResource("assets/gfx/pine/EvergreenTexture.png");
-        n.requestResource("assets/gfx/pine/AlienTreeTexture.png");
-    }
+
 
     public startRenderingEvent() {       
         this.pine = Kreator.loadObj(n.getText("assets/gfx/pine/PineTree2.obj")!);
@@ -53,7 +68,7 @@ export class Overworld extends EventAware {
     private stump: n.Geometry | null = null;
     private stump2: n.Geometry | null = null;
 
-    public tickEvent(time: number, frameCounter: number): void {
+    public update(time: number, frameCounter: number): void {
         this.time = time;
 
         if(this.scene) { 
@@ -86,7 +101,7 @@ export class Overworld extends EventAware {
         if(this.scene) {
             let cameraComponent = this.scene.getEntityByName("default_camera")?.getComponent<CameraComponent>(CameraComponent);
                 
-            if(cameraComponent) {
+            if(cameraComponent) { 
 
                 cameraComponent.camera.position = this.generateCirclePoint(this.time / 1000, 20); 
                 cameraComponent.camera.position.y = 14 + Math.sin(this.time / 1000);  

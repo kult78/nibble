@@ -30,9 +30,9 @@ export class Text {
 
                 let x = baseX;
                 //let y = baseY - g.yOffset;
-                console.log("" + this.font.ascent + " " + g.height + " " + g.topBearing);
+                //console.log("" + this.font.ascent + " " + g.height + " " + g.topBearing);
                 let y = baseY + (this.font.ascent - g.height - g.topBearing);
-
+ 
                 let kerning = this.font.getKerning(prevChar, char);
                 x = x - kerning;
                 prevChar = char;

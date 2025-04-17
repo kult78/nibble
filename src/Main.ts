@@ -5,6 +5,7 @@ import * as app from "./Application.js";
 import * as global from "./Global.js";
 
 import { Events } from "./Events.js"
+import * as evnt from "./Events.js";
 
 const command: HTMLInputElement = document.getElementById("command")! as HTMLInputElement;
 let application: app.Application = new app.Application();
@@ -21,7 +22,7 @@ async function main() {
             n.error("PANICKED with error:" + x.message);
         else  
             n.error("PANICKED with unkown:" + x.toString());
-
+ 
         let errorText = document.getElementById("errorText");
         if (errorText) {
             errorText.textContent += x.message;
@@ -39,7 +40,8 @@ async function main() {
 
     try {
         n.startup();
-        application.applicationStartupEvent();   
+        application.applicationStartupEvent();
+        evnt.AppEventRegistry.raise(evnt.APP_EVENT_STARTUP);
     } catch(x) {
         panic(x);
         return false;
@@ -48,9 +50,10 @@ async function main() {
     // ---------- 
 
     n.setMouseButtonEventHandler((leftDown: boolean, x: number, y: number) => {
-        console.log(leftDown + " " + x + " " + y);
+        //console.log(leftDown + " " + x + " " + y);
  
         Events.singleton.leftMouseButton(leftDown, x, y);
+        evnt.AppEventRegistry.raise(evnt.APP_EVENT_MOUSE_LEFT, leftDown, x, y);
 
         //if(leftDown == false)
             //application.leftMouseUp(x / n.oglCanvasWidth, 1.0 - y / n.oglCanvasHeight);
@@ -59,6 +62,7 @@ async function main() {
 
     n.setMouseMoveEventHandler((x: number, y: number) => {
         Events.singleton.mouseMove(x, y);
+        evnt.AppEventRegistry.raise(evnt.APP_EVENT_MOUSE_MOVE, x, y);
     });
 
     // ----------
@@ -72,8 +76,13 @@ async function main() {
             //application.tickLoop(tickTime, tickFrameCounter);        
             time = tickTime;
             frameCounter = tickFrameCounter
-            Events.singleton.tick(tickTime, tickFrameCounter);
             
+            Events.singleton.tick(tickTime, tickFrameCounter);
+            evnt.GameEventRegistry.raise(evnt.GAME_EVENT_UPDATE_60, tickTime, tickFrameCounter);
+
+            if(tickFrameCounter > 0 && tickFrameCounter % 60 == 0)
+                evnt.GameEventRegistry.raise(evnt.GAME_EVENT_UPDATE_SEC, tickTime, tickFrameCounter); // time, frameCounter
+
             if(firstRender) {
                 firstRender = false;
                 Events.singleton.startRendering();
@@ -89,10 +98,22 @@ async function main() {
     
     // ----------
 
+    let lastRenderWidth: number = 0;
+    let lastRenderHeight: number = 0;
+
     n.setRenderOglEventHandler(() => {
         try {
-            //application.render();
+            
+            if(n.oglCanvasWidth != lastRenderWidth || n.oglCanvasHeight != lastRenderHeight) {
+                lastRenderWidth = n.oglCanvasWidth;
+                lastRenderHeight = n.oglCanvasHeight; 
+                evnt.RenderEventRegistry.raise(evnt.RENDER_EVENT_READY_TO_RENDER, lastRenderWidth, lastRenderHeight);
+            }
+
             Events.singleton.render();
+            evnt.RenderEventRegistry.raise(evnt.RENDER_EVENT_PRE_RENDER);
+            evnt.RenderEventRegistry.raise(evnt.RENDER_EVENT_RENDER);
+            evnt.RenderEventRegistry.raise(evnt.RENDER_EVENT_POST_RENDER);
         }
         catch(x) {
             panic(x);
@@ -129,6 +150,7 @@ async function main() {
             
             if(document.activeElement != command) {
                 Events.singleton.key(pressed, code);
+                evnt.AppEventRegistry.raise(evnt.APP_EVENT_KEY, pressed, code);
             }
         } catch(x) {
             panic(x);
@@ -138,9 +160,10 @@ async function main() {
  
     // ----------
 
-    n.setOglCanvas("#canvas");
-    
-    n.info("main() finished", "tech");     
+    if(n.setOglCanvas("#canvas") == true) {
+        evnt.RenderEventRegistry.raise(evnt.RENDER_EVENT_READY_TO_RENDER, n.oglCanvasWidth, n.oglCanvasHeight);
+        n.info("main() finished", "tech");     
+    }
 }
 
 main();

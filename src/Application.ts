@@ -11,13 +11,14 @@ import { Font } from "./Font.js";
 import { Text } from "./Text.js";
 import { ProceduralTextureImage } from "./Helpers.js";
 import { EventAware, Events } from "./Events.js";
-import * as e from "./Events.js"
+import * as evnt from "./Events.js";
 import { Overworld } from "./Overworld.js";
 import { Dungeon } from "./Dungeon.js";
 import { Labyrinth } from "./Labyrinth.js";
 
 @n.RegisterEventHandler(n.SystemEventRegistry)
-@n.RegisterEventHandler(e.GameEventRegistry)
+@n.RegisterEventHandler(evnt.GameEventRegistry)
+@n.RegisterEventHandler(evnt.AppEventRegistry)
 export class Application extends EventAware {
 
     public constructor() { 
@@ -26,44 +27,45 @@ export class Application extends EventAware {
         Events.singleton.eventAwares.push(this);
     }
 
-    handleEvent(eventType: symbol, ...args: any[]): void {
-        if (eventType === n.SYSTEM_EVENT_GL_UP) {
-            console.log("Handling glUp", args);
-        } else if (eventType === n.SYSTEM_EVENT_GL_DOWN) {
-            console.log("Handling glDown", args);
-        } else if (eventType === e.RENDER_EVENT_RENDER) {
-            console.log("Handling render", args);
-        } else if (eventType === e.RENDER_EVENT_PRE_RENDER) {
-            console.log("Handling prerender", args);
+    public handleEvent(eventType: symbol, ...args: any[]): void {
+        if(eventType == evnt.APP_EVENT_STARTUP) {
+            n.requestResource("assets/materials/basic2d.vs");
+            n.requestResource("assets/materials/basic2d_pix.vs");
+            n.requestResource("assets/materials/basic2d.fs");
+            n.requestResource("assets/materials/basic3d.vs");
+            n.requestResource("assets/materials/basic3d.fs");
+            n.requestResource("assets/materials/materials.json");
+            n.requestResource("assets/gfx/fonts/bp-mono.json");
+          }
+
+          if(eventType == evnt.APP_EVENT_MOUSE_LEFT) {
+            const [ down, x, y] = args;
+        
+            if(!down) {
+                this.overworld.requestNewScene();
+                this.playMusic = true;
+    
+                let labyrinth = new Labyrinth(32, 32);
+                this.dungeon.setLabyrinth(labyrinth);
+                this.labyrinthImage = new ProceduralTextureImage(labyrinth.getBitmap().width, labyrinth.getBitmap().height, 8)
+                //this.labyrinthImage.getBitmap().cloneFrom(labyrinth.getBitmap());
+                this.labyrinthImage.getBitmap().cloneFrom(labyrinth.getBitmap()); 
+            }
+        }
+
+        if(eventType == evnt.GAME_EVENT_UPDATE_60) {
+            const [time, frameCounter] = args;
+            this.time = time; 
         }
     }
 
-    public applicationStartupEvent() { 
-  
-        n.requestResource("assets/materials/basic2d.vs");
-        n.requestResource("assets/materials/basic2d_pix.vs");
-        n.requestResource("assets/materials/basic2d.fs");
-        n.requestResource("assets/materials/basic3d.vs");
-        n.requestResource("assets/materials/basic3d.fs");
-        n.requestResource("assets/materials/materials.json");
-        n.requestResource("assets/gfx/fonts/bp-mono.json");
-
-        this.dungeon.applicationStartupEvent();
-        this.overworld.applicationStartupEvent();
-    } 
-
     public tickEvent(time: number, frameCounter: number) {
-        this.time = time; 
-        this.dungeon.tickEvent(time, frameCounter);
-        this.overworld.tickEvent(time, frameCounter);
+        //this.dungeon.tickEvent(time, frameCounter);
+        //this.overworld.tickEvent(time, frameCounter);
     }
 
     public renderEvent() {
-
-        e.GameEventRegistry.raise(e.RENDER_EVENT_PRE_RENDER);
-        e.GameEventRegistry.raise(e.RENDER_EVENT_RENDER);
-        e.GameEventRegistry.raise(e.RENDER_EVENT_POST_RENDER);
-        
+         
         this.preRender(); 
 
         // render overworld
@@ -83,28 +85,7 @@ export class Application extends EventAware {
  
         this.text?.render();
     }
-
-    public keyEvent(down: boolean, code: string) {
-        this.dungeon.keyEvent(down, code);
-    }
-    
-    public mouseMoveEvent(x: number, y: number) {
-
-    }
-
-    public leftMouseButtonEvent(down: boolean, x: number, y: number) {
-        if(!down) {
-            this.overworld.requestNewScene();
-            this.playMusic = true;
-
-            let labyrinth = new Labyrinth(32, 32);
-            this.dungeon.setLabyrinth(labyrinth);
-            this.labyrinthImage = new ProceduralTextureImage(labyrinth.getBitmap().width, labyrinth.getBitmap().height, 8)
-            //this.labyrinthImage.getBitmap().cloneFrom(labyrinth.getBitmap());
-            this.labyrinthImage.getBitmap().cloneFrom(labyrinth.getBitmap()); 
-        }
-    }
-
+ 
     public rightMouseButtonEvent(down: boolean, x: number, y: number) {
 
     }

@@ -197,7 +197,7 @@ export class Font {
 
     private hexDumpToBuffer(hexDump: string): ArrayBuffer {
         const cleanedHex = hexDump.replace(/\s+/g, '').toLowerCase();
-        console.log(cleanedHex);
+        //console.log(cleanedHex);
         if (cleanedHex.length % 2 !== 0) {
             throw new Error("Invalid hex dump: must have an even number of characters.");
         }
