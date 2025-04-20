@@ -230,8 +230,26 @@ export class Box {
             x,     y + h, u0, v1, r, g, b, a,
         ]);
 
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+
         this.textureId = texture;
         this.materialId = material;
+    }
+
+    private x: number = 0;
+    private y: number = 0;
+    private w: number = 0;
+    private h: number = 0;
+
+    public checkXYWH(x: number, y: number, w: number, h: number): boolean {
+        if(this.x != x) return false;
+        if(this.y != y) return false;
+        if(this.w != w) return false;
+        if(this.h != h) return false;
+        return true;
     }
 
     public dispose() {

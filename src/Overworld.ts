@@ -44,9 +44,33 @@ export class Overworld extends EventAware {
             this.update(time, frameCounter);
         }
 
+        if(eventType == evnt.RENDER_EVENT_READY_TO_RENDER) {
+            const [w, h] = args;
+        
+            if(this.fbo) {
+                this.fbo.dispose();
+                this.fbo = null;
+            }
+        
+            const fbow = w / 1;
+            const fboh = h / 1;
+            this.fbo = new n.RenderTarget(fbow, fboh); 
+            console.log("Overworld ready to render " + fbow + " " + fboh);
+        }
+
+        if(eventType == evnt.RENDER_EVENT_PRE_RENDER) {
+            this.preRender();
+        }
+
+        if(eventType == evnt.RENDER_EVENT_RENDER) {
+            n.setRenderTarget(this.fbo!);
+            this.render();
+        }
+
     }
 
     private scene: Scene3d | null = null;
+    public fbo: n.RenderTarget | null = null;
  
     private generateScene: boolean = false;
     public requestNewScene() {
@@ -95,8 +119,7 @@ export class Overworld extends EventAware {
         return new n.Vector3(x, y, z);
     } 
  
-    public renderEvent() {
-        this.preRender(); 
+    public render() {
 
         if(this.scene) {
             let cameraComponent = this.scene.getEntityByName("default_camera")?.getComponent<CameraComponent>(CameraComponent);

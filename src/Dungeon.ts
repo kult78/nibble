@@ -50,23 +50,32 @@ export class Dungeon extends EventAware {
         else if(eventType == evnt.RENDER_EVENT_READY_TO_RENDER) {
             const [w, h] = args;
 
-            //            this.dungeonFbo = new n.RenderTarget(w / 4, h / 4); 
-            
+            if(this.fbo) {
+                this.fbo.dispose();
+                this.fbo = null;
+            }
 
-            console.log("Dungeon ready to render " + w + " " + h);
+            const fbow = w / 8;
+            const fboh = h / 8;
+            this.fbo = new n.RenderTarget(fbow, fboh); 
+            
+            console.log("Dungeon ready to render " + fbow + " " + fboh);
         }
 
         else if(eventType == evnt.RENDER_EVENT_PRE_RENDER) {
+            this.preRender();
         }
 
         else if(eventType == evnt.RENDER_EVENT_RENDER) {
+            n.setRenderTarget(this.fbo!);
+            this.render();
         }
     }
 
     private scene: Scene3d | null = null;
     private labyrinth: Labyrinth | null = null;
     private kreator: KreatorOfDungeon = new KreatorOfDungeon();
-    private fbo: n.RenderTarget | null = null;
+    public fbo: n.RenderTarget | null = null;
 
     public setLabyrinth(labyrinth: Labyrinth) {
         this.labyrinth = labyrinth;
@@ -238,8 +247,7 @@ export class Dungeon extends EventAware {
         return new n.Vector3(x, y, z);
     } 
 
-    public renderEvent() {
-        this.preRender(); 
+    public render() {
 
         if(this.scene) {
             let cameraComponent = this.scene.getEntityByName("default_camera")?.getComponent<CameraComponent>(CameraComponent);

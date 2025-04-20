@@ -4,7 +4,7 @@
 
         {
             "id" : "blitter",
-            "vs" : "assets/materials/basic2d.vs",
+            "vs" : "assets/materials/basic2d_pix.vs",
             "fs" : "assets/materials/basic2d.fs",
             "ztest" : false,
             "zwrite" : false,

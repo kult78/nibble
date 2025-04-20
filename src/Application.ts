@@ -19,6 +19,7 @@ import { Labyrinth } from "./Labyrinth.js";
 @n.RegisterEventHandler(n.SystemEventRegistry)
 @n.RegisterEventHandler(evnt.GameEventRegistry)
 @n.RegisterEventHandler(evnt.AppEventRegistry)
+@n.RegisterEventHandler(evnt.RenderEventRegistry)
 export class Application extends EventAware {
 
     public constructor() { 
@@ -38,8 +39,8 @@ export class Application extends EventAware {
             n.requestResource("assets/gfx/fonts/bp-mono.json");
           }
 
-          if(eventType == evnt.APP_EVENT_MOUSE_LEFT) {
-            const [ down, x, y] = args;
+        if(eventType == evnt.APP_EVENT_MOUSE_LEFT) {
+           const [ down, x, y] = args;
         
             if(!down) {
                 this.overworld.requestNewScene();
@@ -57,33 +58,24 @@ export class Application extends EventAware {
             const [time, frameCounter] = args;
             this.time = time; 
         }
+
+        if(eventType == evnt.RENDER_EVENT_PRE_RENDER) {
+            this.preRender();
+        }
+
     }
 
     public tickEvent(time: number, frameCounter: number) {
         //this.dungeon.tickEvent(time, frameCounter);
         //this.overworld.tickEvent(time, frameCounter);
     }
+  
+    public composeScreen() {
+        this.blitter.setViewport(0,0, this.overworld.fbo!.width, this.overworld.fbo!.height);
+        this.blitter.blit(this.overworld.fbo!, null);
 
-    public renderEvent() {
-         
-        this.preRender(); 
-
-        // render overworld
-        n.setRenderTarget(this.overWorldFbo!);
-        this.overworld.renderEvent(); 
-        this.overworldBlitter.blitToScreen(this.overWorldFbo!);
-   
-        // render dungeon  
-        n.setRenderTarget(this.dungeonFbo!);
-        this.dungeon.renderEvent(); 
-        this.dungeonBlitter.blitToScreen(this.dungeonFbo!);
-
-        n.setRenderTarget(null);
-
-        this.labyrinthImage.setDirty();
-        this.labyrinthImage.render();
- 
-        this.text?.render();
+        this.blitter.setViewport(300,100, this.dungeon.fbo!.width * 4, this.dungeon.fbo!.height * 4);
+        this.blitter.blit(this.dungeon.fbo!, null);
     }
  
     public rightMouseButtonEvent(down: boolean, x: number, y: number) {
@@ -115,7 +107,13 @@ export class Application extends EventAware {
  
     // ----------
  
-    private preRender() {  
+    private preRender() {
+         
+        if(this.blitter == null) {
+            this.blitter = new n.Blitter();
+            this.blitter.setMaterial("blitter");
+        }
+
         if(this.font == null) {
             this.font = new Font("system_font", n.getText("assets/gfx/fonts/bp-mono.json")!);
         } 
@@ -137,33 +135,40 @@ export class Application extends EventAware {
         }
 
         // ---
-        
+      
+        /*
         if(this.overWorldFbo == null || !global.isInternalRenderRes(this.overWorldFbo.width, this.overWorldFbo.height)) {
             if(this.overWorldFbo) this.overWorldFbo.dispose();
             this.overWorldFbo = null;
-            this.dungeonFbo = null;
+            //this.dungeonFbo = null;
         }
  
         if(this.overWorldFbo == null) {           
             let [w, h] = global.getInternalRenderRes(); 
             this.overWorldFbo = new n.RenderTarget(w, h);
             n.info(`New overworld fbo with resolution ${this.overWorldFbo.width}x${this.overWorldFbo.height}`, "tech");
-            this.overworldBlitter.setMaterial("blitter");
+            //this.overworldBlitter.setMaterial("blitter");
 
-            this.dungeonFbo = new n.RenderTarget(w / 4, h / 4); 
+            this.dungeonFbo = new n.RenderTarget(w / 8, h / 8); 
             n.info(`New dungeon fbo with resolution ${this.dungeonFbo.width}x${this.dungeonFbo.height}`, "tech");
-            this.dungeonBlitter.setMaterial("blitter"); 
-            this.dungeonBlitter.setViewport(0.52, 0.45, 0.5 - 0.04, 0.4);
-        }
+            //this.dungeonBlitter.setMaterial("blitter"); 
+
+            this.blitter.setMaterial("blitter");
+
+            //this.dungeonBlitter.setViewport(0.52, 0.45, 0.5 - 0.04, 0.4);
+
+        }*/
     }
  
     private time: number = 0;
  
-    private overWorldFbo: n.RenderTarget | null = null;
-    private dungeonFbo: n.RenderTarget | null = null;
+    //private overWorldFbo: n.RenderTarget | null = null;
+    //private dungeonFbo: n.RenderTarget | null = null;
 
-    private overworldBlitter: n.Blitter = new n.Blitter();
-    private dungeonBlitter: n.Blitter = new n.Blitter();
+    private blitter: n.Blitter | null = null;
+
+    //private overworldBlitter: n.Blitter = new n.Blitter();
+    //private dungeonBlitter: n.Blitter = new n.Blitter();
      
     // ----------
   

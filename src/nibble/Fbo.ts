@@ -47,8 +47,6 @@ export class RenderTarget {
             0 // mipmap level
         );
         
-        // --- depth texture instead of renderbuffer (to sample Z values)
-
         if(this.useTextureForDepth == false) {
             this.renderbuffer = gl.createRenderbuffer();
             gl.bindRenderbuffer(gl.RENDERBUFFER, this.renderbuffer);
@@ -62,6 +60,7 @@ export class RenderTarget {
             );
         }
         else {
+            // depth texture instead of renderbuffer (to sample Z values)
             this.depth = gl.createTexture();
             gl.bindTexture(gl.TEXTURE_2D, this.depth);
             
@@ -153,40 +152,50 @@ export class RenderTarget {
 
 export class Blitter {
 
-    private x: number = 0.0;
-    private y: number = 0.0;
-    private width: number = 1.0;
-    private height: number = 1.0;
+    private pixelX: number = 0;
+    private pixelY: number = 0;
+    private pixelWidth: number = -1;
+    private pixelHeight: number = -1;
 
-    public setViewport(x: number, y: number, width: number, height: number) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
+    public setViewport(pixelX: number, pixelY: number, pixelWidth: number, pixelHeight: number) {
+        this.pixelX = pixelX;
+        this.pixelY = pixelY;
+        this.pixelWidth = pixelWidth;
+        this.pixelHeight = pixelHeight;
+    }
+
+    public setPosition(pixelX: number, pixelY: number) {
+        this.pixelX = pixelX;
+        this.pixelY = pixelY;
+        this.pixelWidth = -1;
+        this.pixelHeight = -1;
     }
 
     public blit(source: RenderTarget, destination: RenderTarget | null) {                     
-        if(this.materialId == "") throw new FatalError("No material is set to blit with Blitter");
-
         if(this.material == null) {
+            if(this.materialId == "") throw new FatalError("No material is set to blit with Blitter");
             this.material = getMaterial(this.materialId);
         }
 
-        if(this.targetBox == null) {
+        let x = this.pixelX;
+        let y = this.pixelY;
+        let width = this.pixelWidth;
+        let height = this.pixelHeight; 
+        if(width == -1) width = source.width;
+        if(height == -1) height = source.height;
+
+        if(this.targetBox == null || this.targetBox.checkXYWH(x, y, width, height) == false) {
+
             this.targetBox = new Box(
-                this.x, this.y, this.width, this.height,
+                x, y, width, height,
                 0.0, 0.0, 1.0, 1.0,
                 1.0, 1.0 ,1.0, 1.0
             );            
         }
- 
-        env.setRenderTarget(null);
+
+        env.setRenderTarget(destination);
 
         this.targetBox.renderWith(this.material, source.getApiTexture());
-    }
-
-    public blitToScreen(source: RenderTarget) {
-        this.blit(source, null);
     }
 
     public dispose() {

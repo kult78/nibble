@@ -114,6 +114,8 @@ async function main() {
             evnt.RenderEventRegistry.raise(evnt.RENDER_EVENT_PRE_RENDER);
             evnt.RenderEventRegistry.raise(evnt.RENDER_EVENT_RENDER);
             evnt.RenderEventRegistry.raise(evnt.RENDER_EVENT_POST_RENDER);
+
+            application.composeScreen();
         }
         catch(x) {
             panic(x);
