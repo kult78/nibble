@@ -59,8 +59,8 @@
             "ztest" : true,
             "zwrite" : true,
             "fbop" : "alpha",
-            "filter": false     
-        },
+            "filter": true     
+        }, 
 
         {
             "id" : "overworld",

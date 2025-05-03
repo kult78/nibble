@@ -14,10 +14,10 @@ import * as evnt from "./Events.js";
 @n.RegisterEventHandler(evnt.GameEventRegistry)
 @n.RegisterEventHandler(evnt.AppEventRegistry)
 @n.RegisterEventHandler(evnt.RenderEventRegistry)
-export class Overworld extends EventAware {
+export class Overworld {
 
     public constructor() {
-        super();
+        
     }
 
     public handleEvent(eventType: symbol, ...args: any[]): void {
@@ -44,6 +44,13 @@ export class Overworld extends EventAware {
             this.update(time, frameCounter);
         }
 
+        if(eventType == evnt.RENDER_EVENT_GL_STARTED) {
+            this.pine = Kreator.loadObj(n.getText("assets/gfx/pine/PineTree2.obj")!);
+            this.pine2 = Kreator.loadObj(n.getText("assets/gfx/pine/PineTree1.obj")!);
+            this.stump = Kreator.loadObj(n.getText("assets/gfx/pine/PineStump.obj")!);        
+            this.stump2 = Kreator.loadObj(n.getText("assets/gfx/pine/PineStump2.obj")!);        
+        }
+
         if(eventType == evnt.RENDER_EVENT_READY_TO_RENDER) {
             const [w, h] = args;
         
@@ -55,7 +62,6 @@ export class Overworld extends EventAware {
             const fbow = w / 1;
             const fboh = h / 1;
             this.fbo = new n.RenderTarget(fbow, fboh); 
-            console.log("Overworld ready to render " + fbow + " " + fboh);
         }
 
         if(eventType == evnt.RENDER_EVENT_PRE_RENDER) {
@@ -78,15 +84,6 @@ export class Overworld extends EventAware {
         this.scene = null;
     }
 
-
-
-    public startRenderingEvent() {       
-        this.pine = Kreator.loadObj(n.getText("assets/gfx/pine/PineTree2.obj")!);
-        this.pine2 = Kreator.loadObj(n.getText("assets/gfx/pine/PineTree1.obj")!);
-        this.stump = Kreator.loadObj(n.getText("assets/gfx/pine/PineStump.obj")!);        
-        this.stump2 = Kreator.loadObj(n.getText("assets/gfx/pine/PineStump2.obj")!);        
-    }
-
     private pine: n.Geometry | null = null;
     private pine2: n.Geometry | null = null;
     private stump: n.Geometry | null = null;
@@ -99,8 +96,8 @@ export class Overworld extends EventAware {
             this.scene.tickEvent(time, frameCounter);
             this.scene.fogDensity =  0.02 + (1 + Math.sin(time / 5000)) / 30;   
         }
-    } 
-
+    }  
+ 
     private preRender() {
         if(this.generateScene) {
             this.generateScene = false;
@@ -108,7 +105,7 @@ export class Overworld extends EventAware {
         }
     }
 
-    private time: number = 0;
+    private time: number = 0; 
 
     private generateCirclePoint(time: number, radius: number): n.Vector3 {
         const angle = n.Algebra.deg2rad(time);
@@ -134,12 +131,13 @@ export class Overworld extends EventAware {
                 cameraComponent.camera.up = new n.Vector3(0, 1, 0); 
 
                 this.scene.renderEvent();
-            } else { 
-                n.gl.depthMask(true); 
-                n.gl.clearColor(0.5, 0.5, 0.5, 1.0); 
-                n.gl.clearDepth(1.0);
-                n.gl.clear(n.gl.DEPTH_BUFFER_BIT | n.gl.COLOR_BUFFER_BIT);
-            }
+            } 
+        }
+        else { 
+            n.gl.depthMask(true); 
+            n.gl.clearColor(0.3, 0.3, 0.3, 1.0); 
+            n.gl.clearDepth(1.0);
+            n.gl.clear(n.gl.DEPTH_BUFFER_BIT | n.gl.COLOR_BUFFER_BIT);
         }
     }
 

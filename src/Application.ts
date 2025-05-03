@@ -10,7 +10,6 @@ import { Kreator } from "./Kreator.js"
 import { Font } from "./Font.js";
 import { Text } from "./Text.js";
 import { ProceduralTextureImage } from "./Helpers.js";
-import { EventAware, Events } from "./Events.js";
 import * as evnt from "./Events.js";
 import { Overworld } from "./Overworld.js";
 import { Dungeon } from "./Dungeon.js";
@@ -20,13 +19,14 @@ import { Labyrinth } from "./Labyrinth.js";
 @n.RegisterEventHandler(evnt.GameEventRegistry)
 @n.RegisterEventHandler(evnt.AppEventRegistry)
 @n.RegisterEventHandler(evnt.RenderEventRegistry)
-export class Application extends EventAware {
+export class Application {
 
     public constructor() { 
-        super();
 
-        Events.singleton.eventAwares.push(this);
     }
+
+    private width = 0;
+    private height = 0;
 
     public handleEvent(eventType: symbol, ...args: any[]): void {
         if(eventType == evnt.APP_EVENT_STARTUP) {
@@ -37,19 +37,25 @@ export class Application extends EventAware {
             n.requestResource("assets/materials/basic3d.fs");
             n.requestResource("assets/materials/materials.json");
             n.requestResource("assets/gfx/fonts/bp-mono.json");
-          }
+        }
 
+        if(eventType == evnt.RENDER_EVENT_READY_TO_RENDER) {
+            const [w, h] = args;
+                                
+            this.width = w;   
+            this.height = h;
+        }
+ 
         if(eventType == evnt.APP_EVENT_MOUSE_LEFT) {
            const [ down, x, y] = args;
         
-            if(!down) {
+            if(!down && y / this.height < 0.5) {
                 this.overworld.requestNewScene();
                 this.playMusic = true;
     
                 let labyrinth = new Labyrinth(32, 32);
                 this.dungeon.setLabyrinth(labyrinth);
                 this.labyrinthImage = new ProceduralTextureImage(labyrinth.getBitmap().width, labyrinth.getBitmap().height, 8)
-                //this.labyrinthImage.getBitmap().cloneFrom(labyrinth.getBitmap());
                 this.labyrinthImage.getBitmap().cloneFrom(labyrinth.getBitmap()); 
             }
         }
@@ -63,65 +69,70 @@ export class Application extends EventAware {
             this.preRender();
         }
 
-    }
-
-    public tickEvent(time: number, frameCounter: number) {
-        //this.dungeon.tickEvent(time, frameCounter);
-        //this.overworld.tickEvent(time, frameCounter);
+        if(eventType == evnt.RENDER_EVENT_GL_STARTED) {
+            n.addMaterialsFromFile("assets/materials/materials.json");       
+        }
+ 
     }
   
     public composeScreen() {
-        this.blitter.setViewport(0,0, this.overworld.fbo!.width, this.overworld.fbo!.height);
-        this.blitter.blit(this.overworld.fbo!, null);
 
-        this.blitter.setViewport(300,100, this.dungeon.fbo!.width * 4, this.dungeon.fbo!.height * 4);
-        this.blitter.blit(this.dungeon.fbo!, null);
+        this.text3?.render();
+        this.text2?.render();
+        this.text1?.render();
+
+        this.blitter!.setViewport(0,0, this.overworld.fbo!.width, this.overworld.fbo!.height);
+        this.blitter!.blit(this.overworld.fbo!, null);
+ 
+        let x = this.overworld.fbo!.width / 2;
+        let y = this.overworld.fbo!.height - this.dungeon.fbo!.height * 4  - 100;
+
+        x = 0;
+        y = 0;
+ 
+        this.blitter!.setViewport(y, y, this.dungeon.fbo!.width * 1, this.dungeon.fbo!.height * 1);
+        this.blitter!.blit(this.dungeon.fbo!, null);
     }
  
-    public rightMouseButtonEvent(down: boolean, x: number, y: number) {
-
-    }
-
-    public startRenderingEvent() {
-        n.addMaterialsFromFile("assets/materials/materials.json");       
-        this.overworld.startRenderingEvent();
-        this.dungeon.startRenderingEvent();
-    }
-
-    public stopRenderingEvent() {
-
-    }
-
     private playMusic = false;
     private music = false;
 
     private overworld: Overworld = new Overworld();
     private dungeon: Dungeon = new Dungeon();
-
+ 
     private font: Font | null = null;
-    private text: Text | null = null;
+    private text1: Text | null = null;
+    private text2: Text | null = null;
+    private text3: Text | null = null;
     private debugBox: n.Box | null = null;
 
 
     private labyrinthImage: ProceduralTextureImage = new ProceduralTextureImage(64, 64, 8);
  
     // ----------
- 
+  
     private preRender() {
-         
+          
         if(this.blitter == null) {
             this.blitter = new n.Blitter();
             this.blitter.setMaterial("blitter");
         }
-
+ 
         if(this.font == null) {
             this.font = new Font("system_font", n.getText("assets/gfx/fonts/bp-mono.json")!);
         } 
-        if(this.text == null) {
-            this.text = new Text(this.font, "Test print");
+        if(this.text1 == null) {
+            this.text1 = new Text(this.font, "You are in the 1st level of Marble Depths", 200, 200 + this.font.lineHeight * 2);
+        }  
+        if(this.text2 == null) {
+            this.text2 = new Text(this.font, "HP 100/100, MP 20/20", 200, this.font.lineHeight + 200);
         } 
+        if(this.text3 == null) {
+            this.text3 = new Text(this.font, "Use QWEASD to move, ESC for command mode..", 200, 200);
+        } 
+
         if(this.debugBox == null) {
-            this.debugBox = new n.Box(
+            this.debugBox = new n.Box( 
                 0, 0, this.font.getBitmapWidth(), this.font.getBitmapHeight(),
                 0.0, 0.0, 1.0, 1.0,
                 1.0, 1.0, 1.0, 1.0, undefined, "basic2d_pix");
@@ -129,7 +140,7 @@ export class Application extends EventAware {
 
         if(this.playMusic && !this.music) {
             console.log("music");
-            n.playMusic("assets/sound/cthulhu_lairs.ogg", true, 1.0);
+            //n.playMusic("assets/sound/cthulhu_lairs.ogg", true, 1.0);
             this.playMusic = false;
             this.music = true;
         }

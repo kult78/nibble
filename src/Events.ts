@@ -17,50 +17,6 @@ export class EventAware {
 
 }
 
-export class Events {
-
-    public static singleton : Events = new Events();
-
-    public eventAwares: EventAware[] = [];    
-
-    public applicationStartup() {
-        this.eventAwares.forEach(object => { object.applicationStartupEvent(); });
-    }
-
-    public tick(time: number, frameCounter: number) {
-        this.eventAwares.forEach(object => { object.tickEvent(time, frameCounter); });
-    }
-
-    public mouseMove(x: number, y: number) {
-        this.eventAwares.forEach(object => { object.mouseMoveEvent(x, y); });
-    }
-
-    public leftMouseButton(down: boolean, x: number, y: number) {
-        this.eventAwares.forEach(object => { object.leftMouseButtonEvent(down, x, y); });
-    }
-
-    public rightMouseButton(down: boolean, x: number, y: number) {
-        this.eventAwares.forEach(object => { object.rightMouseButtonEvent(down, x, y); });
-    }
-
-    public startRendering() {
-        this.eventAwares.forEach(object => { object.startRenderingEvent(); });
-    }
- 
-    public stopRendering() {
-        this.eventAwares.forEach(object => { object.stopRenderingEvent(); });
-    }
-
-    public render() {
-        this.eventAwares.forEach(object => { object.renderEvent(); });
-    }
-
-    public key(down: boolean, code: string) {
-        this.eventAwares.forEach(object => { object.keyEvent(down, code); });
-    }
-
-}
-
 // ---
 
 export const APP_EVENT_STARTUP = Symbol("APP_EVENT_STARTUP");
@@ -92,12 +48,14 @@ export const GameEventRegistry = new n.EventRegistry();
 
 // ---
 
+export const RENDER_EVENT_GL_STARTED = Symbol("RENDER_EVENT_GL_STARTED");
 export const RENDER_EVENT_PRE_RENDER = Symbol("RENDER_EVENT_PRE_RENDER");
 export const RENDER_EVENT_RENDER = Symbol("RENDER_EVENT_RENDER");
 export const RENDER_EVENT_POST_RENDER = Symbol("RENDER_EVENT_POST_RENDER");
 export const RENDER_EVENT_READY_TO_RENDER = Symbol("RENDER_EVENT_READY_TO_RENDER"); // renderw, renderh
 
 export type RenderEventType = 
+    typeof RENDER_EVENT_GL_STARTED |
     typeof RENDER_EVENT_PRE_RENDER | 
     typeof RENDER_EVENT_RENDER | 
     typeof RENDER_EVENT_POST_RENDER | 

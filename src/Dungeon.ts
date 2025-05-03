@@ -6,19 +6,22 @@ import * as evnt from "./Events.js"
 import { Scene3d } from "./Scene3d.js";
 import { Entity, RenderComponent3d, CameraComponent, TransformationComponent } from "./Entity.js";
 import { Kreator, KreatorOfDungeon } from "./Kreator.js"
-import { EventAware } from "./Events.js";
+//import { EventAware } from "./Events.js";
 import { Labyrinth } from "./Labyrinth.js";
 
 @n.RegisterEventHandler(n.SystemEventRegistry)
 @n.RegisterEventHandler(evnt.GameEventRegistry)
 @n.RegisterEventHandler(evnt.AppEventRegistry)
 @n.RegisterEventHandler(evnt.RenderEventRegistry)
-export class Dungeon extends EventAware {
+export class Dungeon {
 
     constructor() {
-        super();
+        
     }
 
+    private width = 0;
+    private height = 0;
+    
     public handleEvent(eventType: symbol, ...args: any[]): void {
 
         if(eventType == evnt.APP_EVENT_STARTUP) {        
@@ -30,6 +33,26 @@ export class Dungeon extends EventAware {
             n.requestResourceWithType("assets/gfx/stone.png", n.ResourceType.Image);
             n.requestResourceWithType("assets/gfx/sprites0.png", n.ResourceType.Image);        
             n.requestResourceWithType("assets/gfx/dungeon_atlas.png", n.ResourceType.Image);        
+        }
+
+        if(eventType == evnt.APP_EVENT_MOUSE_LEFT) {
+            const [ down, x, y] = args;
+        
+            if(true) {
+                let relx = x / this.width;
+                let rely = y / this.height;
+                if(rely > 0.5) {
+                    if(relx < 0.33) {
+                        this.turnLeftDown = down;
+                    }
+                    if(relx > 0.66) {
+                        this.turnRightDown = down;
+                    }
+                    if(relx > 0.33 && relx < 0.66) {
+                        this.moveForwardDown = down;
+                    } 
+                }
+            }
         }
 
         else if(eventType == evnt.APP_EVENT_KEY) {
@@ -50,16 +73,17 @@ export class Dungeon extends EventAware {
         else if(eventType == evnt.RENDER_EVENT_READY_TO_RENDER) {
             const [w, h] = args;
 
+            this.width = w;
+            this.height = h;
+
             if(this.fbo) {
                 this.fbo.dispose();
                 this.fbo = null;
             }
 
-            const fbow = w / 8;
-            const fboh = h / 8;
-            this.fbo = new n.RenderTarget(fbow, fboh); 
-            
-            console.log("Dungeon ready to render " + fbow + " " + fboh);
+            const fbow = w / 1;
+            const fboh = h / 1;
+            this.fbo = new n.RenderTarget(fbow, fboh);
         }
 
         else if(eventType == evnt.RENDER_EVENT_PRE_RENDER) {
@@ -184,7 +208,6 @@ export class Dungeon extends EventAware {
                     if(this.cameraYawDeg % 90 === 0) {
                         this.cameraTurning = 0;
                         this.logicalOrientation = Math.floor(this.cameraYawDeg / 90); 
-                        console.log("Looking " + this.logicalOrientation);
                     }                        
                 } 
 
@@ -213,7 +236,7 @@ export class Dungeon extends EventAware {
                                 this.logicalTargetX = this.logicalX;
                                 this.cameraMoving = 1;
                                 this.cameraMovingSince = time;
-                            }
+                            } 
                         }
                         if(this.logicalOrientation == 3) {
                             if(this.labyrinth?.getBitmap().getPixel(this.logicalX - 1, this.logicalY) == 0x00000000) {
@@ -233,7 +256,7 @@ export class Dungeon extends EventAware {
 
                 cameraComponent.camera.yaw = this.cameraYawDeg * 0.0174532925;  
                 cameraComponent.camera.yaw += (Math.sin(time / 2000) + 1) / 30;
-                //cameraComponent.camera.fov = 90 + (Math.cos(time / 1000) + 1);                
+                ////cameraComponent.camera.fov = 90 + (Math.cos(time / 1000) + 1);                
             }
         }
     } 

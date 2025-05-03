@@ -4,9 +4,11 @@ import { Font, Glyph } from "./Font.js";
 
 export class Text {
 
-    constructor(font: Font, text: string) {
+    constructor(font: Font, text: string, x: number, y: number) {
         this.font = font;
         this.text = text;
+        this.x = x;
+        this.y = y;
         this.geometry = new n.Geometry(n.GeometryFormat.xyUvRgba, this.buildGeometry());
 
         this.material = n.getMaterial("basic2d_pix")!;
@@ -20,8 +22,8 @@ export class Text {
     private buildGeometry(): number[] {
         let buffer: number[] = [];
 
-        let baseX = 200.0;
-        let baseY = 200.0;
+        let baseX = this.x;
+        let baseY = this.y;
 
         let prevChar = "";
         this.text.split("").forEach(char => {
@@ -52,9 +54,12 @@ export class Text {
         return buffer;
     }   
 
+    private x: number = 0;
+    private y: number = 0;
+
     private material: n.Material;
     private geometry: n.Geometry;
-    private font: Font;
+    public font: Font;
     private text: string;
 
 }
