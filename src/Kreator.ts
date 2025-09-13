@@ -20,7 +20,7 @@ export class Kreator {
         }
     }
      
-    public static loadObj(obj: string, align: n.GeometryAlign = n.GeometryAlign.None): n.Geometry {
+    public static loadObj(obj: string/*, align: n.GeometryAlign = n.GeometryAlign.None*/): n.Geometry {
 
         let builder: n.GeometryBuilder = new n.GeometryBuilder(n.GeometryFormat.xyzNxnynzUvRgba);
         
@@ -30,7 +30,7 @@ export class Kreator {
         let positions: number[] = [];
         let uv0s: number[] = [];
         let normals: number[] = [];
-
+ 
         for(let i = 0; i < lines.length; i++) {
             let line = lines[i];
             let parts = line.split(" ");
@@ -71,7 +71,7 @@ export class Kreator {
             }
         }
 
-        return builder.createGeometry(align);
+        return builder.createGeometry();//align);
     }
 
     public static randomBlockTris(blockPos: n.Vector3, triCount: number): n.Geometry {

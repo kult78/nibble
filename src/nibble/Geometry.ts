@@ -23,18 +23,19 @@ function getVertexFloatSize(format: GeometryFormat): number {
 }
 
 export class Geometry {
-    constructor(format: GeometryFormat, data: number[], align: GeometryAlign = GeometryAlign.None) {
-        this.format = format;
+    constructor(format: GeometryFormat, data: number[]){ //, align: GeometryAlign = GeometryAlign.None) {
+        this.format = format; 
 
         if(format == GeometryFormat.xyUvRgba) {
             this.data = new Float32Array(data);
         } else if(format == GeometryFormat.xyzNxnynzUvRgba) {
             this.computeDimensions(data);
             
+            /*
             if(align != GeometryAlign.None) {
                 this.alignGeometry(data, align);
                 this.computeDimensions(data);
-            }
+            }*/
             
             this.data = new Float32Array(data);
         } else {
@@ -201,8 +202,8 @@ export class GeometryBuilder {
 
     public clear() { this.data = []; }
 
-    public createGeometry(align: GeometryAlign = GeometryAlign.None) : Geometry {
-        let geometry = new Geometry(this.format, this.data, align);
+    public createGeometry(/*align: GeometryAlign = GeometryAlign.None*/) : Geometry {
+        let geometry = new Geometry(this.format, this.data);//, align);
         return geometry;
     }
 

@@ -30,6 +30,8 @@ export class Text {
             if(this.font.hasGlyph(char)) {
                 let g: Glyph = this.font.getGlyph(char)!;
 
+                console.log("Char: " + char + g.width + " " + this.font.lineHeight);
+
                 let x = baseX;
                 //let y = baseY - g.yOffset;
                 //console.log("" + this.font.ascent + " " + g.height + " " + g.topBearing);

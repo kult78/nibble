@@ -121,7 +121,7 @@ export class Font {
         height = this.nextPowerOfTwo(currentY + rowHeight);
     
         this.bitmapWidth = width;
-        this.bitmapHeight = height;
+        this.bitmapHeight = height; 
     
         // Calculate UV coordinates
         const tw = 1.0 / this.bitmapWidth;

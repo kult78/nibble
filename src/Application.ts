@@ -15,6 +15,10 @@ import { Overworld } from "./Overworld.js";
 import { Dungeon } from "./Dungeon.js";
 import { Labyrinth } from "./Labyrinth.js";
 
+import { Terminal } from "./Terminal.js";
+ 
+import * as CAN from "./cannon/cannon-es.js";
+
 @n.RegisterEventHandler(n.SystemEventRegistry)
 @n.RegisterEventHandler(evnt.GameEventRegistry)
 @n.RegisterEventHandler(evnt.AppEventRegistry)
@@ -23,7 +27,20 @@ export class Application {
 
     public constructor() { 
 
+        const world = new CAN.World();
+        const body = new CAN.Body({ mass: 1 });
+        const shape = new CAN.Sphere(1);
+        body.addShape(shape);
+        world.addBody(body);
+
+        const v = new CAN.Vec3(1, 2, 3);
+        console.log("CAONNON:" + v.length());
+
+        //const v = R.version();
+        //console.log("RAPIER3D version: " + v);
     }
+
+    //private terminal: Terminal = new Terminal();
 
     private width = 0;
     private height = 0;
@@ -49,7 +66,8 @@ export class Application {
         if(eventType == evnt.APP_EVENT_MOUSE_LEFT) {
            const [ down, x, y] = args;
         
-            if(!down && y / this.height < 0.5) {
+            //if(!down && y / this.height < 0.5) 
+            {
                 this.overworld.requestNewScene();
                 this.playMusic = true;
     
@@ -90,7 +108,7 @@ export class Application {
         x = 0;
         y = 0;
  
-        this.blitter!.setViewport(y, y, this.dungeon.fbo!.width * 1, this.dungeon.fbo!.height * 1);
+        this.blitter!.setViewport(y, y, this.dungeon.fbo!.width * 0.2, this.dungeon.fbo!.height * 0.2);
         this.blitter!.blit(this.dungeon.fbo!, null);
     }
  
@@ -110,7 +128,7 @@ export class Application {
     private labyrinthImage: ProceduralTextureImage = new ProceduralTextureImage(64, 64, 8);
  
     // ----------
-  
+   
     private preRender() {
           
         if(this.blitter == null) {
@@ -122,13 +140,13 @@ export class Application {
             this.font = new Font("system_font", n.getText("assets/gfx/fonts/bp-mono.json")!);
         } 
         if(this.text1 == null) {
-            this.text1 = new Text(this.font, "You are in the 1st level of Marble Depths", 200, 200 + this.font.lineHeight * 2);
+            this.text1 = new Text(this.font, "lijWW.XXW in the 1st level of Marble Depths", 200, 200 + this.font.lineHeight * 2);
         }  
         if(this.text2 == null) {
-            this.text2 = new Text(this.font, "HP 100/100, MP 20/20", 200, this.font.lineHeight + 200);
+            this.text2 = new Text(this.font, "W.W  XX.X 100/100, MP 20/20", 200, this.font.lineHeight + 200);
         } 
         if(this.text3 == null) {
-            this.text3 = new Text(this.font, "Use QWEASD to move, ESC for command mode..", 200, 200);
+            this.text3 = new Text(this.font, "Apple ShthApple ShthApple ShthApple ShthApple ShthApple ShthApple ShthApple ShthApple ShthApple", 0, 200);
         } 
 
         if(this.debugBox == null) {
@@ -140,7 +158,7 @@ export class Application {
 
         if(this.playMusic && !this.music) {
             console.log("music");
-            //n.playMusic("assets/sound/cthulhu_lairs.ogg", true, 1.0);
+            n.playMusic("assets/sound/cthulhu_lairs.ogg", true, 1.0);
             this.playMusic = false;
             this.music = true;
         }

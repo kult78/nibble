@@ -38,6 +38,7 @@ export class Dungeon {
         if(eventType == evnt.APP_EVENT_MOUSE_LEFT) {
             const [ down, x, y] = args;
         
+            /*
             if(true) {
                 let relx = x / this.width;
                 let rely = y / this.height;
@@ -52,7 +53,7 @@ export class Dungeon {
                         this.moveForwardDown = down;
                     } 
                 }
-            }
+            }*/
         }
 
         else if(eventType == evnt.APP_EVENT_KEY) {
