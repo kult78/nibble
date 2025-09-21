@@ -1,0 +1,10 @@
+{
+  "name": "nibble-dev-dungeon",
+  "build": { "dockerfile": "Dockerfile" },
+  "remoteUser": "node",
+  "workspaceFolder": "/work",
+  "mounts": [
+    "source=${localWorkspaceFolder},target=/work,type=bind,consistency=cached"
+  ],
+  "postCreateCommand": "bash -lc 'if [ -f package-lock.json ]; then npm ci; elif [ -f package.json ]; then npm install; fi'"
+} 
