@@ -162,7 +162,7 @@ export class Entity {
         for (const component of this.components) {
             if (component instanceof type) {
                 return component;
-            }
+            } 
         }
         return null;
     }
@@ -177,8 +177,9 @@ export class Entity {
 
     // ----------
 
-    private id: number = Entity.idCounter++;
     private static idCounter: number = 1;
+    private id: number = Entity.idCounter++;
+
     private name: string | null = null;
 
 }

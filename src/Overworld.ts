@@ -5,7 +5,6 @@ import * as global from "./Global.js"
 import { Scene3d } from "./Scene3d.js";
 import { Entity, RenderComponent3d, CameraComponent, TransformationComponent } from "./Entity.js";
 import { Kreator } from "./Kreator.js"
-import { EventAware } from "./Events.js";
 
 import { Labyrinth } from "./Labyrinth.js";
 import * as evnt from "./Events.js";

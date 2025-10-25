@@ -1,24 +1,6 @@
 
 import * as n from "./nibble/index.js";
 
-export class EventAware {
-
-    public applicationStartupEvent() {}
-
-    public tickEvent(time: number, crameCounter: number) {}
-    public rendervent() {}
-    public keyEvent(down: boolean, code: string) {}
-    public mouseMoveEvent(x: number, y: number) {}
-    public leftMouseButtonEvent(down: boolean, x: number, y: number) {}
-    public rightMouseButtonEvent(down: boolean, x: number, y: number) {}
-    public startRenderingEvent() {}
-    public stopRenderingEvent() {}
-    public renderEvent() {}
-
-}
-
-// ---
-
 export const APP_EVENT_STARTUP = Symbol("APP_EVENT_STARTUP");
 export const APP_EVENT_CLOSE = Symbol("APP_EVENT_CLOSE");
 export const APP_EVENT_KEY = Symbol("APP_EVENT_KEY"); // down/up, code

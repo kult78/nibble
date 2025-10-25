@@ -1,8 +1,5 @@
-
 {
-    "server": {
-        "baseDir": "dist"
-    },
-    "files": ["dist/**/*.{html,css,js}"],
-    "ignore": ["dist/**/*.map"]
-} 
+  "port": 3000,
+  "files": ["./dist/**/*.*"],
+  "server": { "baseDir": ["./dist"] }
+}

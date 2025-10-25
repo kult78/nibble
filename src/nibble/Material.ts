@@ -12,14 +12,14 @@ export class Material {
         this.id = vertexId + "+" + fragmentId;
         this.recreate();
     } 
-
+ 
     private recreate() {
         this.program = sh.getProgram(this.vertexId, this.fragmentId);
     }
 
-    public use(
+    public use(  
         tex0: WebGLTexture | null, 
-        tex1: WebGLTexture | null = null, 
+        tex1: WebGLTexture | null = null,  
         tex2: WebGLTexture | null = null, 
         tex3: WebGLTexture | null = null) {
         let gl: WebGL2RenderingContext = env.gl;

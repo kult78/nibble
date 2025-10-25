@@ -14,7 +14,7 @@ export class TileProps {
     public tilePixelSizeY: number;
 
     public pixelWidth: number;
-    public pixelHeight: number;
+    public pixelHeight: number; 
 
     constructor(texture: string,
         tileCountX: number, tileCountY: number,

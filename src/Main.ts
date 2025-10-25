@@ -13,11 +13,11 @@ let firstRender: boolean = true;
 
 async function main() {
 
-    // ----------
+    // ---------- 
 
     function panic(x: any) {  
-        console.log(x);
-        if(x instanceof Error)
+        console.log(x);  
+        if(x instanceof Error) 
             n.error("PANICKED with error:" + x.message);
         else  
             n.error("PANICKED with unkown:" + x.toString());

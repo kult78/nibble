@@ -189,12 +189,11 @@ export class Blitter {
             this.targetBox = new Box(
                 x, y, width, height,
                 0.0, 0.0, 1.0, 1.0,
-                1.0, 1.0 ,1.0, 1.0
+                1.0, 1.0 ,1.0, 1.0 
             );            
         }
-
+ 
         env.setRenderTarget(destination);
-
         this.targetBox.renderWith(this.material, source.getApiTexture());
     }
 

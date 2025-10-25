@@ -3,6 +3,7 @@
   "build": { "dockerfile": "Dockerfile" },
   "remoteUser": "node",
   "workspaceFolder": "/work",
+  "runArgs": ["--name", "dev_my_webgl_env"],
   "mounts": [
     "source=${localWorkspaceFolder},target=/work,type=bind,consistency=cached"
   ],

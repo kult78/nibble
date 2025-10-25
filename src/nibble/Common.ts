@@ -683,7 +683,7 @@ export function throwShouldNotRun(what: string = "") {
 // -------------------------------
 
 export class BitmapRGBA {
-    constructor(width: number, height: number, pixels?: ArrayBuffer) {
+    constructor(width: number, height: number, pixels?: ArrayBufferLike) {
         this.width = width;
         this.height = height;
         
@@ -789,7 +789,7 @@ export class BitmapRGBA {
 
     public width: number = 0;
     public height: number = 0;
-    public pixels: ArrayBuffer | null = null;
+    public pixels: ArrayBufferLike | null = null;
 }
 
 // -------------------------------

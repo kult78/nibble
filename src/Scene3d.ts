@@ -2,12 +2,9 @@
 import * as n from "./nibble/index.js";
 import { CameraComponent, Entity } from "./Entity.js";
 
-import { EventAware } from "./Events.js";
-
-export class Scene3d extends EventAware {
+export class Scene3d {
 
     public constructor() {
-        super();
     }
 
     private time: number = 0.0;
@@ -20,7 +17,7 @@ export class Scene3d extends EventAware {
         this.entities.push(entity);
         return entity;
     }
-
+ 
     public tickEvent(time: number, crameCounter: number) {
         this.time = time;
     }
